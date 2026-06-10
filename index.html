@@ -44,8 +44,8 @@ html,body{height:100%;background:#f5f5f0;font-family:-apple-system,sans-serif;co
 .prog-wrap{flex:1;height:6px;background:#e0e0d8;border-radius:99px;overflow:hidden}
 .prog-fill{height:100%;background:#1D9E75;border-radius:99px;transition:width 0.3s}
 .prog-label{font-size:13px;color:#888;white-space:nowrap}
-.card-area{flex:1;display:flex;align-items:center;perspective:1000px}
-.card-outer{width:100%;cursor:pointer}
+.card-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;perspective:1000px}
+.card-outer{width:100%;cursor:pointer;max-width:420px}
 .card-inner{width:100%;min-height:260px;position:relative;transform-style:preserve-3d;transition:transform 0.38s cubic-bezier(.4,0,.2,1)}
 .card-inner.flipped{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;background:#fff;border-radius:20px;border:0.5px solid rgba(0,0,0,0.1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px 20px;min-height:260px}
@@ -55,7 +55,7 @@ html,body{height:100%;background:#f5f5f0;font-family:-apple-system,sans-serif;co
 .jp-word{font-size:32px;font-weight:600}
 .pos-badge{font-size:12px;background:#f0f0ec;color:#888;padding:4px 10px;border-radius:99px}
 .tap-hint{font-size:13px;color:#bbb;position:absolute;bottom:18px}
-.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px}
 .ans-btn{padding:16px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:transform 0.1s}
 .ans-btn:active{transform:scale(0.96)}
 .ans-btn:disabled{opacity:0.35;cursor:default}
@@ -124,10 +124,10 @@ html,body{height:100%;background:#f5f5f0;font-family:-apple-system,sans-serif;co
         </div>
       </div>
     </div>
-  </div>
-  <div class="btn-row">
-    <button class="ans-btn" id="btn-ng" onclick="answer(false)" disabled>✗ まだ</button>
-    <button class="ans-btn" id="btn-ok" onclick="answer(true)" disabled>✓ 覚えた</button>
+    <div class="btn-row">
+      <button class="ans-btn" id="btn-ng" onclick="answer(false)" disabled>✗ まだ</button>
+      <button class="ans-btn" id="btn-ok" onclick="answer(true)" disabled>✓ 覚えた</button>
+    </div>
   </div>
 </div>
 
