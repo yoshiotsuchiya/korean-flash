@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="韓国語">
+<title>韓国語フラッシュカード</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#f5f5f0;font-family:-apple-system,sans-serif;color:#1a1a1a;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100%;padding:max(env(safe-area-inset-top),16px) 16px max(env(safe-area-inset-bottom),16px) 16px}
+.screen{display:none;flex-direction:column;height:100%}
+.screen.active{display:flex}
+
+/* HOME */
+#home{gap:14px;justify-content:center}
+#home h1{font-size:22px;font-weight:600;text-align:center;margin-bottom:2px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat-card{background:#fff;border-radius:14px;padding:14px 16px;border:0.5px solid rgba(0,0,0,0.1)}
+.stat-card .num{font-size:28px;font-weight:600}
+.stat-card .lbl{font-size:12px;color:#888;margin-top:2px}
+.stat-card.green .num{color:#1D9E75}
+.stat-card.red .num{color:#E24B4A}
+.stat-card.blue .num{color:#378ADD}
+.stat-card.gray .num{color:#888}
+.menu-btn{background:#fff;border:0.5px solid rgba(0,0,0,0.12);border-radius:14px;padding:16px;font-size:16px;font-weight:500;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer;width:100%}
+.menu-btn:active{background:#f0f0ec}
+.menu-btn .icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.menu-btn .meta{font-size:12px;color:#888;font-weight:400;margin-top:2px}
+.icon-new{background:#E1F5EE;color:#1D9E75}
+.icon-review{background:#FCEBEB;color:#E24B4A}
+.icon-all{background:#E6F1FB;color:#378ADD}
+#level-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+#level-bar::-webkit-scrollbar{display:none}
+.lv-btn{flex-shrink:0;padding:7px 14px;border-radius:99px;border:1px solid rgba(0,0,0,0.15);background:#fff;font-size:13px;cursor:pointer;font-weight:500;color:#1a1a1a}
+.lv-btn.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+/* STUDY */
+#study{gap:12px}
+.top-bar{display:flex;align-items:center;gap:10px}
+.back-btn{background:none;border:none;font-size:20px;padding:4px 8px 4px 0;cursor:pointer;color:#888}
+.prog-wrap{flex:1;height:6px;background:#e0e0d8;border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:#1D9E75;border-radius:99px;transition:width 0.3s}
+.prog-label{font-size:13px;color:#888;white-space:nowrap}
+.card-area{flex:1;display:flex;align-items:center;perspective:1000px}
+.card-outer{width:100%;cursor:pointer}
+.card-inner{width:100%;min-height:260px;position:relative;transform-style:preserve-3d;transition:transform 0.38s cubic-bezier(.4,0,.2,1)}
+.card-inner.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;background:#fff;border-radius:20px;border:0.5px solid rgba(0,0,0,0.1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px 20px;min-height:260px}
+.face.back{transform:rotateY(180deg)}
+.ko-word{font-size:44px;font-weight:600;letter-spacing:-1px}
+.reading{font-size:16px;color:#999;letter-spacing:0.5px}
+.jp-word{font-size:32px;font-weight:600}
+.pos-badge{font-size:12px;background:#f0f0ec;color:#888;padding:4px 10px;border-radius:99px}
+.tap-hint{font-size:13px;color:#bbb;position:absolute;bottom:18px}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ans-btn{padding:16px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:transform 0.1s}
+.ans-btn:active{transform:scale(0.96)}
+.ans-btn:disabled{opacity:0.35;cursor:default}
+#btn-ng{background:#FCEBEB;color:#C0392B}
+#btn-ok{background:#E1F5EE;color:#0F6E56}
+
+/* DONE */
+#done{gap:14px;justify-content:center;align-items:center;text-align:center}
+#done h2{font-size:22px;font-weight:600}
+#done .sub{color:#888;font-size:15px}
+.done-btn{width:100%;padding:16px;border-radius:14px;border:0.5px solid rgba(0,0,0,0.12);font-size:16px;font-weight:600;cursor:pointer;background:#fff;color:#1a1a1a}
+.done-btn:active{background:#f0f0ec}
+.done-btn.danger{background:#FCEBEB;color:#C0392B;border-color:transparent}
+.done-btn:disabled{opacity:0.3;cursor:default}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:#f5f5f0;display:flex;align-items:center;justify-content:center;font-size:15px;color:#888}
+</style>
+</head>
+<body>
+<div id="loading">読み込み中...</div>
+<div id="app" style="display:none">
+
+<div id="home" class="screen active">
+  <h1>韓国語カード</h1>
+  <div class="stat-row">
+    <div class="stat-card green"><div class="num" id="h-mastered">0</div><div class="lbl">習得済み</div></div>
+    <div class="stat-card red"><div class="num" id="h-weak">0</div><div class="lbl">要復習</div></div>
+    <div class="stat-card blue"><div class="num" id="h-total">0</div><div class="lbl">総単語数</div></div>
+    <div class="stat-card gray"><div class="num" id="h-streak">0</div><div class="lbl">連続正解</div></div>
+  </div>
+  <div id="level-bar">
+    <button class="lv-btn active" data-lv="all" onclick="setLevel(this)">全て</button>
+  </div>
+  <button class="menu-btn" onclick="startNew()">
+    <div class="icon icon-new">▶</div>
+    <div><div>新しい単語を学ぶ</div><div class="meta" id="new-meta">未学習の単語からスタート</div></div>
+  </button>
+  <button class="menu-btn" onclick="startReview()">
+    <div class="icon icon-review">↺</div>
+    <div><div>苦手を復習</div><div class="meta" id="review-meta">要復習リストから</div></div>
+  </button>
+  <button class="menu-btn" onclick="startAll()">
+    <div class="icon icon-all">≡</div>
+    <div><div>全単語シャッフル</div><div class="meta" id="all-meta">全単語をランダムに</div></div>
+  </button>
+</div>
+
+<div id="study" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goHome()">✕</button>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="prog-label"><span id="prog-cur">1</span>/<span id="prog-total">1</span></div>
+  </div>
+  <div class="card-area">
+    <div class="card-outer" onclick="flipCard()">
+      <div class="card-inner" id="card">
+        <div class="face front">
+          <div class="ko-word" id="ko"></div>
+          <div class="reading" id="reading"></div>
+          <div class="tap-hint">タップして確認</div>
+        </div>
+        <div class="face back">
+          <div class="jp-word" id="jp"></div>
+          <div class="pos-badge" id="pos"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="ans-btn" id="btn-ng" onclick="answer(false)" disabled>✗ まだ</button>
+    <button class="ans-btn" id="btn-ok" onclick="answer(true)" disabled>✓ 覚えた</button>
+  </div>
+</div>
+
+<div id="done" class="screen">
+  <div style="font-size:52px">🎉</div>
+  <h2 id="done-title">セット完了！</h2>
+  <p class="sub" id="done-sub"></p>
+  <div class="stat-row" style="width:100%">
+    <div class="stat-card green"><div class="num" id="d-ok">0</div><div class="lbl">覚えた</div></div>
+    <div class="stat-card red"><div class="num" id="d-ng">0</div><div class="lbl">要復習</div></div>
+  </div>
+  <button class="done-btn" onclick="retryDeck()">もう一度</button>
+  <button class="done-btn danger" id="done-review-btn" onclick="reviewWrong()">間違いだけ復習</button>
+  <button class="done-btn" onclick="goHome()">ホームに戻る</button>
+</div>
+
+</div>
+
+<script>
+const LS_KEY="kf_v2";
+let WORDS=[];
+let state={mastered:{},weak:{},streak:0};
+let deck=[],idx=0,ngList=[],okCount=0,flipped=false,currentLevel="all";
+
+async function init(){
+  try{
+    const res=await fetch("words.json?v="+Date.now());
+    WORDS=await res.json();
+  }catch(e){
+    document.getElementById("loading").textContent="単語データの読み込みに失敗しました";
+    return;
+  }
+  loadState();
+  buildLevelBar();
+  updateHome();
+  document.getElementById("loading").style.display="none";
+  document.getElementById("app").style.display="flex";
+}
+
+function loadState(){
+  try{const s=localStorage.getItem(LS_KEY);if(s)state=JSON.parse(s);}catch(e){}
+}
+function saveState(){
+  try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}
+}
+function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function buildLevelBar(){
+  const levels=[...new Set(WORDS.map(w=>w.lv))].sort();
+  const bar=document.getElementById("level-bar");
+  const labelMap={"1":"TOPIK1級","2":"TOPIK2級","3":"日常会話"};
+  levels.forEach(lv=>{
+    const btn=document.createElement("button");
+    btn.className="lv-btn";
+    btn.dataset.lv=lv;
+    btn.textContent=labelMap[lv]||("Lv"+lv);
+    btn.onclick=function(){setLevel(this)};
+    bar.appendChild(btn);
+  });
+}
+
+function setLevel(btn){
+  currentLevel=btn.dataset.lv;
+  document.querySelectorAll(".lv-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  updateHome();
+}
+
+function getFiltered(){
+  return currentLevel==="all"?WORDS:WORDS.filter(w=>w.lv===currentLevel);
+}
+
+function updateHome(){
+  const mCount=Object.keys(state.mastered).length;
+  const wCount=Object.keys(state.weak).length;
+  document.getElementById("h-mastered").textContent=mCount;
+  document.getElementById("h-weak").textContent=wCount;
+  document.getElementById("h-total").textContent=WORDS.length;
+  document.getElementById("h-streak").textContent=state.streak||0;
+  const filtered=getFiltered();
+  const newWords=filtered.filter(w=>!state.mastered[w.ko]&&!state.weak[w.ko]);
+  document.getElementById("new-meta").textContent=newWords.length+"語 未学習";
+  const wWords=filtered.filter(w=>state.weak[w.ko]);
+  document.getElementById("review-meta").textContent=wWords.length+"語 要復習";
+  document.getElementById("all-meta").textContent=filtered.length+"語";
+}
+
+function startNew(){
+  const filtered=getFiltered();
+  let words=filtered.filter(w=>!state.mastered[w.ko]&&!state.weak[w.ko]);
+  if(words.length===0){
+    words=filtered.filter(w=>!state.mastered[w.ko]);
+  }
+  if(words.length===0){
+    alert("このレベルは全て習得済みです！復習モードをどうぞ");return;
+  }
+  startDeck(words);
+}
+function startReview(){
+  const filtered=getFiltered();
+  const words=filtered.filter(w=>state.weak[w.ko]);
+  if(words.length===0){alert("要復習の単語がありません");return;}
+  startDeck(words);
+}
+function startAll(){startDeck(getFiltered());}
+function startDeck(words){
+  deck=shuffle(words);idx=0;ngList=[];okCount=0;
+  showScreen("study");renderCard();
+}
+function retryDeck(){startDeck([...deck]);}
+function reviewWrong(){if(ngList.length>0)startDeck([...ngList]);}
+
+function renderCard(){
+  if(idx>=deck.length){showDone();return;}
+  const w=deck[idx];
+  document.getElementById("ko").textContent=w.ko;
+  document.getElementById("reading").textContent=w.r;
+  document.getElementById("jp").textContent=w.jp;
+  document.getElementById("pos").textContent=w.pos;
+  const pct=Math.round(idx/deck.length*100);
+  document.getElementById("prog-fill").style.width=pct+"%";
+  document.getElementById("prog-cur").textContent=idx+1;
+  document.getElementById("prog-total").textContent=deck.length;
+  document.getElementById("card").classList.remove("flipped");
+  flipped=false;
+  document.getElementById("btn-ok").disabled=true;
+  document.getElementById("btn-ng").disabled=true;
+}
+
+function flipCard(){
+  if(idx>=deck.length)return;
+  flipped=!flipped;
+  document.getElementById("card").classList.toggle("flipped",flipped);
+  if(flipped){
+    document.getElementById("btn-ok").disabled=false;
+    document.getElementById("btn-ng").disabled=false;
+  }
+}
+
+function answer(ok){
+  const w=deck[idx];
+  if(ok){
+    okCount++;
+    state.streak=(state.streak||0)+1;
+    state.mastered[w.ko]=true;
+    delete state.weak[w.ko];
+  }else{
+    state.streak=0;
+    ngList.push(w);
+    state.weak[w.ko]=(state.weak[w.ko]||0)+1;
+    delete state.mastered[w.ko];
+  }
+  saveState();idx++;renderCard();
+}
+
+function showDone(){
+  document.getElementById("d-ok").textContent=okCount;
+  document.getElementById("d-ng").textContent=ngList.length;
+  document.getElementById("done-review-btn").disabled=ngList.length===0;
+  const allMastered=getFiltered().every(w=>state.mastered[w.ko]);
+  document.getElementById("done-title").textContent=allMastered?"全部制覇！":"セット完了！";
+  document.getElementById("done-sub").textContent=
+    allMastered?"全単語習得済み！復習で定着させよう":
+    "覚えた: "+okCount+"語 / 要復習: "+ngList.length+"語";
+  showScreen("done");
+}
+
+function goHome(){showScreen("home");updateHome();}
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+init();
+</script>
+</body>
+</html>
