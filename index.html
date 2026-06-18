@@ -79,6 +79,8 @@ body{background:#1a1340;min-height:100%}
 .hanja-word{font-size:14px;color:#888;margin-top:-4px}
 .pos-badge{font-size:11px;background:#f3f0fb;color:#7c4fb0;padding:4px 12px;border-radius:99px;font-weight:600;margin-top:4px}
 .tap-hint{font-size:12px;color:#ccc;position:absolute;bottom:16px;font-weight:500}
+.example-box{background:#fdf6e3;border-radius:14px;padding:10px 16px;text-align:center;width:100%;max-width:420px;min-height:20px}
+.example-box p{font-size:13px;color:#8a7a4e;margin:0;line-height:1.5}
 .speak-btn{position:absolute;top:10px;right:10px;background:#f3f0fb;border:none;border-radius:18px;padding:16px 20px;font-size:38px;cursor:pointer;color:#7c4fb0;line-height:1}
 .speak-btn:active{background:#e6def5}
 
@@ -149,6 +151,7 @@ body{background:#1a1340;min-height:100%}
     <button class="reload-btn" onclick="reloadDeck()" title="シャッフルして最初から">↺</button>
   </div>
   <div class="card-area">
+    <div class="example-box"><p id="example-text">&nbsp;</p></div>
     <div class="card-outer" onclick="flipCard()">
       <div class="card-inner" id="card">
         <div class="face front">
@@ -319,6 +322,7 @@ function renderCard(){
     document.getElementById("jp").textContent=w.jp;
     document.getElementById("hanja").textContent=w.hanja||"";
     document.getElementById("pos").textContent=w.pos;
+    document.getElementById("example-text").textContent=w.ko_ex||"\u00a0";
     const pct=Math.round(idx/deck.length*100);
     document.getElementById("prog-fill").style.width=pct+"%";
     document.getElementById("prog-cur").textContent=idx+1;
@@ -343,6 +347,9 @@ function flipCard(){
   if(idx>=deck.length)return;
   flipped=!flipped;
   document.getElementById("card").classList.toggle("flipped",flipped);
+  const w=deck[idx];
+  document.getElementById("example-text").textContent=
+    flipped?(w.jp_ex||"\u00a0"):(w.ko_ex||"\u00a0");
   if(flipped){
     document.getElementById("btn-ok").disabled=false;
     document.getElementById("btn-ng").disabled=false;
