@@ -81,8 +81,6 @@ body{background:#1a1340;min-height:100%}
 .tap-hint{font-size:12px;color:#ccc;position:absolute;bottom:16px;font-weight:500}
 .example-box{background:#fdf6e3;border-radius:14px;padding:10px 16px;text-align:center;width:100%;max-width:420px;min-height:20px}
 .example-box p{font-size:13px;color:#8a7a4e;margin:0;line-height:1.5}
-.speak-btn{position:absolute;top:10px;right:10px;background:#f3f0fb;border:none;border-radius:18px;padding:16px 20px;font-size:38px;cursor:pointer;color:#7c4fb0;line-height:1}
-.speak-btn:active{background:#e6def5}
 
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px}
 .ans-btn{padding:16px;border-radius:16px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:transform 0.1s;box-shadow:0 4px 12px rgba(0,0,0,0.18)}
@@ -158,13 +156,11 @@ body{background:#1a1340;min-height:100%}
           <div class="ko-word" id="ko"></div>
           <div class="reading" id="reading"></div>
           <div class="tap-hint">タップして確認</div>
-          <button class="speak-btn" onclick="speak(event)">🔊</button>
         </div>
         <div class="face back">
           <div class="jp-word" id="jp"></div>
           <div class="hanja-word" id="hanja"></div>
           <div class="pos-badge" id="pos"></div>
-          <button class="speak-btn" onclick="speak(event)">🔊</button>
         </div>
       </div>
     </div>
@@ -353,11 +349,11 @@ function flipCard(){
   if(flipped){
     document.getElementById("btn-ok").disabled=false;
     document.getElementById("btn-ng").disabled=false;
+    speak();
   }
 }
 
-function speak(e){
-  e.stopPropagation();
+function speak(){
   if(!currentWord)return;
   const u=new SpeechSynthesisUtterance(currentWord.ko);
   u.lang="ko-KR";
