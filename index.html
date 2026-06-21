@@ -37,13 +37,14 @@ body{background:#1a1340;min-height:100%}
 .topik-btn{padding:11px 0;border-radius:12px;border:none;background:transparent;color:rgba(255,255,255,0.65);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
 .topik-btn.active{background:rgba(255,255,255,0.95);color:#5b2a86;box-shadow:0 3px 10px rgba(0,0,0,0.15)}
 
-.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
 .stat-card{background:rgba(255,255,255,0.14);backdrop-filter:blur(10px);border-radius:16px;padding:13px 10px;border:1px solid rgba(255,255,255,0.22);text-align:center}
 .stat-card .num{font-size:24px;font-weight:700;color:#fff}
 .stat-card .lbl{font-size:10.5px;color:rgba(255,255,255,0.68);margin-top:2px;font-weight:500}
 .stat-card.green .num{color:#4ade80}
 .stat-card.red .num{color:#fb7185}
 .stat-card.blue .num{color:#60a5fa}
+.stat-card.yellow .num{color:#ffc83d}
 
 .menu-btn{background:rgba(255,255,255,0.13);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.22);border-radius:16px;padding:14px 16px;font-size:15px;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer;width:100%;color:#fff;transition:background 0.15s}
 .menu-btn:active{background:rgba(255,255,255,0.25)}
@@ -72,6 +73,9 @@ body{background:#1a1340;min-height:100%}
 .card-inner{width:100%;min-height:270px;position:relative;transform-style:preserve-3d;transition:transform 0.4s cubic-bezier(.4,0,.2,1)}
 .card-inner.flipped{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;background:#fff;border-radius:24px;box-shadow:0 10px 36px rgba(0,0,0,0.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:28px 20px;min-height:270px}
+.star-btn{position:absolute;bottom:12px;left:12px;background:none;border:none;font-size:32px;cursor:pointer;line-height:1;color:#ddd;transition:transform 0.15s}
+.star-btn.starred{color:#ffc83d}
+.star-btn:active{transform:scale(1.2)}
 .face.back{transform:rotateY(180deg)}
 .ko-word{font-size:48px;font-weight:700;letter-spacing:-1px;color:#1a1a1a}
 .reading{font-size:15px;color:#aaa;letter-spacing:0.5px;font-weight:500}
@@ -121,6 +125,7 @@ body{background:#1a1340;min-height:100%}
   </div>
   <div class="stat-row">
     <div class="stat-card green"><div class="num" id="h-mastered">0</div><div class="lbl">習得済み</div></div>
+    <div class="stat-card yellow"><div class="num" id="h-perfect">0</div><div class="lbl">完璧</div></div>
     <div class="stat-card red"><div class="num" id="h-weak">0</div><div class="lbl">要復習</div></div>
     <div class="stat-card blue"><div class="num" id="h-total">0</div><div class="lbl">総単語数</div></div>
   </div>
@@ -137,7 +142,7 @@ body{background:#1a1340;min-height:100%}
   </button>
   <button class="menu-btn" onclick="startAll()">
     <div class="icon icon-all">≡</div>
-    <div><div>全単語シャッフル</div><div class="meta" id="all-meta">全単語をランダムに</div></div>
+    <div><div>単語シャッフル</div><div class="meta" id="all-meta">全単語をランダムに</div></div>
   </button>
 </div>
 
@@ -156,11 +161,13 @@ body{background:#1a1340;min-height:100%}
           <div class="ko-word" id="ko"></div>
           <div class="reading" id="reading"></div>
           <div class="tap-hint">タップして確認</div>
+          <button class="star-btn" id="star-front" onclick="toggleStar(event)">★</button>
         </div>
         <div class="face back">
           <div class="jp-word" id="jp"></div>
           <div class="hanja-word" id="hanja"></div>
           <div class="pos-badge" id="pos"></div>
+          <button class="star-btn" id="star-back" onclick="toggleStar(event)">★</button>
         </div>
       </div>
     </div>
@@ -190,7 +197,7 @@ body{background:#1a1340;min-height:100%}
 const LS_KEY="kf_v4";
 let ALL_WORDS=[];
 let WORDS=[];
-let state={"1":{mastered:{},weak:{}},"2":{mastered:{},weak:{}}};
+let state={"1":{mastered:{},weak:{},perfect:{}},"2":{mastered:{},weak:{},perfect:{}}};
 let deck=[],idx=0,ngList=[],okCount=0,flipped=false,currentLevel="all",currentTopik="1";
 let currentWord=null;
 
@@ -218,6 +225,9 @@ function loadState(){
       if(parsed["1"]&&parsed["2"]) state=parsed;
     }
   }catch(e){}
+  // 旧データにperfectフィールドがない場合に備える
+  if(!state["1"].perfect) state["1"].perfect={};
+  if(!state["2"].perfect) state["2"].perfect={};
 }
 function saveState(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
 function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
@@ -273,13 +283,15 @@ function getFiltered(){
 function updateHome(){
   const st=curState();
   document.getElementById("h-mastered").textContent=Object.keys(st.mastered).length;
+  document.getElementById("h-perfect").textContent=Object.keys(st.perfect).length;
   document.getElementById("h-weak").textContent=Object.keys(st.weak).length;
   document.getElementById("h-total").textContent=WORDS.length;
   const filtered=getFiltered();
   const newWords=filtered.filter(w=>!st.mastered[w.ko]&&!st.weak[w.ko]);
+  const shuffleWords=filtered.filter(w=>!st.perfect[w.ko]);
   document.getElementById("new-meta").textContent=newWords.length+"語 未学習";
   document.getElementById("review-meta").textContent=filtered.filter(w=>st.weak[w.ko]).length+"語 要復習";
-  document.getElementById("all-meta").textContent=filtered.length+"語";
+  document.getElementById("all-meta").textContent=shuffleWords.length+"語（完璧な単語を除く）";
 }
 
 function startNew(){
@@ -296,7 +308,12 @@ function startReview(){
   if(words.length===0){alert("要復習の単語がありません");return;}
   startDeck(words);
 }
-function startAll(){startDeck(getFiltered());}
+function startAll(){
+  const st=curState();
+  const words=getFiltered().filter(w=>!st.perfect[w.ko]);
+  if(words.length===0){alert("すべて完璧な単語です！");return;}
+  startDeck(words);
+}
 function startDeck(words){
   deck=shuffle(words);idx=0;ngList=[];okCount=0;
   showScreen("study");renderCard();
@@ -325,6 +342,7 @@ function renderCard(){
     document.getElementById("prog-total").textContent=deck.length;
     document.getElementById("btn-ok").disabled=true;
     document.getElementById("btn-ng").disabled=true;
+    updateStarUI();
   }
 
   flipped=false;
@@ -362,6 +380,30 @@ function speak(){
   speechSynthesis.speak(u);
 }
 
+function toggleStar(e){
+  e.stopPropagation();
+  if(!currentWord)return;
+  const st=curState();
+  const w=currentWord;
+  if(st.perfect[w.ko]){
+    delete st.perfect[w.ko];
+  }else{
+    st.perfect[w.ko]=true;
+    st.mastered[w.ko]=true;
+    delete st.weak[w.ko];
+  }
+  saveState();
+  updateStarUI();
+}
+
+function updateStarUI(){
+  if(!currentWord)return;
+  const st=curState();
+  const isStarred=!!st.perfect[currentWord.ko];
+  document.getElementById("star-front").classList.toggle("starred",isStarred);
+  document.getElementById("star-back").classList.toggle("starred",isStarred);
+}
+
 function answer(ok){
   const st=curState();
   const w=deck[idx];
@@ -373,6 +415,7 @@ function answer(ok){
     ngList.push(w);
     st.weak[w.ko]=(st.weak[w.ko]||0)+1;
     delete st.mastered[w.ko];
+    delete st.perfect[w.ko];
   }
   saveState();idx++;renderCard();
 }
