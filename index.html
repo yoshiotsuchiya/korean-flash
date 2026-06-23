@@ -53,6 +53,7 @@ body{background:#1a1340;min-height:100%}
 .icon-new{background:rgba(74,222,128,0.3)}
 .icon-review{background:rgba(251,113,133,0.3)}
 .icon-all{background:rgba(96,165,250,0.3)}
+.icon-perfect{background:rgba(255,200,61,0.3)}
 #level-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 #level-bar::-webkit-scrollbar{display:none}
 .lv-btn{flex-shrink:0;padding:6px 14px;border-radius:99px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);font-size:12px;cursor:pointer;font-weight:600;color:rgba(255,255,255,0.78);transition:all 0.15s}
@@ -144,6 +145,10 @@ body{background:#1a1340;min-height:100%}
     <div class="icon icon-all">≡</div>
     <div><div>単語シャッフル</div><div class="meta" id="all-meta">全単語をランダムに</div></div>
   </button>
+  <button class="menu-btn" onclick="startPerfect()">
+    <div class="icon icon-perfect">★</div>
+    <div><div>完璧</div><div class="meta" id="perfect-meta">完璧な単語だけ見返す</div></div>
+  </button>
 </div>
 
 <div id="study" class="screen">
@@ -198,7 +203,7 @@ const LS_KEY="kf_v4";
 let ALL_WORDS=[];
 let WORDS=[];
 let state={"1":{mastered:{},weak:{},perfect:{}},"2":{mastered:{},weak:{},perfect:{}}};
-let deck=[],idx=0,ngList=[],okCount=0,flipped=false,currentLevel="all",currentTopik="1";
+let deck=[],idx=0,ngList=[],okCount=0,flipped=false,currentLevel="all",currentTopik="1",isPerfectMode=false;
 let currentWord=null;
 
 async function init(){
@@ -292,9 +297,11 @@ function updateHome(){
   document.getElementById("new-meta").textContent=newWords.length+"語 未学習";
   document.getElementById("review-meta").textContent=filtered.filter(w=>st.weak[w.ko]).length+"語 要復習";
   document.getElementById("all-meta").textContent=shuffleWords.length+"語（完璧な単語を除く）";
+  document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+"語";
 }
 
 function startNew(){
+  isPerfectMode=false;
   const st=curState();
   const filtered=getFiltered();
   let words=filtered.filter(w=>!st.mastered[w.ko]&&!st.weak[w.ko]);
@@ -303,15 +310,24 @@ function startNew(){
   startDeck(words);
 }
 function startReview(){
+  isPerfectMode=false;
   const st=curState();
   const words=getFiltered().filter(w=>st.weak[w.ko]);
   if(words.length===0){alert("要復習の単語がありません");return;}
   startDeck(words);
 }
 function startAll(){
+  isPerfectMode=false;
   const st=curState();
   const words=getFiltered().filter(w=>!st.perfect[w.ko]);
   if(words.length===0){alert("すべて完璧な単語です！");return;}
+  startDeck(words);
+}
+function startPerfect(){
+  const st=curState();
+  const words=getFiltered().filter(w=>st.perfect[w.ko]);
+  if(words.length===0){alert("完璧な単語がまだありません");return;}
+  isPerfectMode=true;
   startDeck(words);
 }
 function startDeck(words){
@@ -342,6 +358,7 @@ function renderCard(){
     document.getElementById("prog-total").textContent=deck.length;
     document.getElementById("btn-ok").disabled=true;
     document.getElementById("btn-ng").disabled=true;
+    document.querySelector(".btn-row").style.display=isPerfectMode?"none":"grid";
     updateStarUI();
   }
 
@@ -359,14 +376,20 @@ function renderCard(){
 
 function flipCard(){
   if(idx>=deck.length)return;
+  if(isPerfectMode&&flipped){
+    idx++;renderCard();
+    return;
+  }
   flipped=!flipped;
   document.getElementById("card").classList.toggle("flipped",flipped);
   const w=deck[idx];
   document.getElementById("example-text").textContent=
     flipped?(w.jp_ex||"\u00a0"):(w.ko_ex||"\u00a0");
   if(flipped){
-    document.getElementById("btn-ok").disabled=false;
-    document.getElementById("btn-ng").disabled=false;
+    if(!isPerfectMode){
+      document.getElementById("btn-ok").disabled=false;
+      document.getElementById("btn-ng").disabled=false;
+    }
     speak();
   }
 }
