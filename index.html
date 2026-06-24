@@ -31,6 +31,17 @@ body{background:#1a1340;min-height:100%}
 /* HOME */
 #home{gap:12px;justify-content:center}
 #home h1{font-size:25px;font-weight:700;text-align:center;color:#fff;margin-bottom:2px;text-shadow:0 2px 10px rgba(0,0,0,0.25)}
+.home-header{position:relative;display:flex;align-items:center;justify-content:center}
+.settings-btn{position:absolute;right:0;top:0;background:rgba(255,255,255,0.15);border:none;font-size:20px;padding:8px 10px;border-radius:12px;cursor:pointer;line-height:1}
+.settings-btn:active{background:rgba(255,255,255,0.3)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:360px;box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.modal-box h3{font-size:18px;font-weight:700;color:#1a1a1a;margin-bottom:16px;text-align:center}
+.modal-item{display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:14px;background:#f7f5fc;cursor:pointer;margin-bottom:10px;font-size:15px;font-weight:600;color:#1a1a1a}
+.modal-item:active{background:#ece7f7}
+.modal-item .modal-icon{font-size:20px}
+.modal-close{width:100%;padding:14px;border-radius:14px;border:none;background:#f0f0f0;color:#666;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px}
 #home .subtitle{text-align:center;color:rgba(255,255,255,0.65);font-size:13px;margin-top:-6px;margin-bottom:2px}
 
 .topik-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,0.1);padding:5px;border-radius:16px;border:1px solid rgba(255,255,255,0.18)}
@@ -66,8 +77,6 @@ body{background:#1a1340;min-height:100%}
 .prog-wrap{flex:1;height:6px;background:rgba(255,255,255,0.22);border-radius:99px;overflow:hidden}
 .prog-fill{height:100%;background:#4ade80;border-radius:99px;transition:width 0.3s}
 .prog-label{font-size:13px;color:rgba(255,255,255,0.85);white-space:nowrap;font-weight:600}
-.reload-btn{background:rgba(255,255,255,0.18);border:none;font-size:16px;padding:8px 10px;cursor:pointer;color:#fff;border-radius:10px;line-height:1}
-.reload-btn:active{background:rgba(255,255,255,0.32)}
 
 .card-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;perspective:1000px}
 .card-outer{width:100%;cursor:pointer;max-width:420px}
@@ -84,8 +93,9 @@ body{background:#1a1340;min-height:100%}
 .hanja-word{font-size:14px;color:#888;margin-top:-4px}
 .pos-badge{font-size:11px;background:#f3f0fb;color:#7c4fb0;padding:4px 12px;border-radius:99px;font-weight:600;margin-top:4px}
 .tap-hint{font-size:12px;color:#ccc;position:absolute;bottom:16px;font-weight:500}
-.example-box{background:#fdf6e3;border-radius:14px;padding:10px 16px;text-align:center;width:100%;max-width:420px;min-height:20px}
-.example-box p{font-size:13px;color:#8a7a4e;margin:0;line-height:1.5}
+.example-wrap{display:flex;flex-direction:column;gap:6px;width:100%;max-width:420px}
+.example-box{background:#fdf6e3;border-radius:14px;padding:9px 16px;text-align:center;width:100%;min-height:18px}
+.example-box p{font-size:12.5px;color:#8a7a4e;margin:0;line-height:1.4}
 
 .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px}
 .ans-btn{padding:16px;border-radius:16px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:transform 0.1s;box-shadow:0 4px 12px rgba(0,0,0,0.18)}
@@ -118,7 +128,10 @@ body{background:#1a1340;min-height:100%}
 <div id="app" style="display:none">
 
 <div id="home" class="screen active">
-  <h1>🇰🇷 韓国語カード</h1>
+  <div class="home-header">
+    <h1>🇰🇷 韓国語カード</h1>
+    <button class="settings-btn" onclick="openSettings()">⚙️</button>
+  </div>
   <p class="subtitle" id="subtitle">TOPIK 1級・2級 対応</p>
   <div class="topik-toggle">
     <button class="topik-btn active" data-topik="1" onclick="setTopik(this)">TOPIK 1級</button>
@@ -156,10 +169,12 @@ body{background:#1a1340;min-height:100%}
     <button class="back-btn" onclick="goHome()">✕</button>
     <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
     <div class="prog-label"><span id="prog-cur">1</span>/<span id="prog-total">1</span></div>
-    <button class="reload-btn" onclick="reloadDeck()" title="シャッフルして最初から">↺</button>
   </div>
   <div class="card-area">
-    <div class="example-box"><p id="example-text">&nbsp;</p></div>
+    <div class="example-wrap">
+      <div class="example-box"><p id="example-text">&nbsp;</p></div>
+      <div class="example-box"><p id="example-text2">&nbsp;</p></div>
+    </div>
     <div class="card-outer" onclick="flipCard()">
       <div class="card-inner" id="card">
         <div class="face front">
@@ -194,6 +209,17 @@ body{background:#1a1340;min-height:100%}
   <button class="done-btn white" onclick="retryDeck()">もう一度</button>
   <button class="done-btn danger" id="done-review-btn" onclick="reviewWrong()">間違いだけ復習</button>
   <button class="done-btn white" onclick="goHome()">ホームに戻る</button>
+</div>
+
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal-box">
+    <h3>⚙️ 設定</h3>
+    <div class="modal-item" onclick="forceReload()">
+      <span class="modal-icon">🔄</span>
+      <span>最新版を読み込む</span>
+    </div>
+    <button class="modal-close" onclick="closeSettings()">閉じる</button>
+  </div>
 </div>
 
 </div>
@@ -336,7 +362,6 @@ function startDeck(words){
 }
 function retryDeck(){startDeck([...deck]);}
 function reviewWrong(){if(ngList.length>0)startDeck([...ngList]);}
-function reloadDeck(){startDeck([...deck]);}
 
 function renderCard(){
   if(idx>=deck.length){showDone();return;}
@@ -352,6 +377,7 @@ function renderCard(){
     document.getElementById("hanja").textContent=w.hanja||"";
     document.getElementById("pos").textContent=w.pos;
     document.getElementById("example-text").textContent=w.ko_ex||"\u00a0";
+    document.getElementById("example-text2").textContent=w.ko_ex2||"\u00a0";
     const pct=Math.round(idx/deck.length*100);
     document.getElementById("prog-fill").style.width=pct+"%";
     document.getElementById("prog-cur").textContent=idx+1;
@@ -385,6 +411,8 @@ function flipCard(){
   const w=deck[idx];
   document.getElementById("example-text").textContent=
     flipped?(w.jp_ex||"\u00a0"):(w.ko_ex||"\u00a0");
+  document.getElementById("example-text2").textContent=
+    flipped?(w.jp_ex2||"\u00a0"):(w.ko_ex2||"\u00a0");
   if(flipped){
     if(!isPerfectMode){
       document.getElementById("btn-ok").disabled=false;
@@ -460,6 +488,27 @@ function goHome(){showScreen("home");updateHome();}
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+}
+
+function openSettings(){
+  document.getElementById("settings-modal").classList.add("active");
+}
+function closeSettings(){
+  document.getElementById("settings-modal").classList.remove("active");
+}
+
+async function forceReload(){
+  // 学習データ（localStorage）には一切触れず、HTML/JSONのキャッシュだけを破棄して最新版を取得する
+  try{
+    if("caches" in window){
+      const names=await caches.keys();
+      for(const name of names){ await caches.delete(name); }
+    }
+  }catch(e){}
+  // 強制的にキャッシュを無視してこのページ自体を再取得し直す
+  const url=new URL(window.location.href);
+  url.searchParams.set("_r", Date.now());
+  window.location.replace(url.toString());
 }
 
 init();
