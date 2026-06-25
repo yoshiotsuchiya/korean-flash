@@ -257,7 +257,7 @@ body{background:#1a1340;min-height:100%}
       <span>日本語</span><span>🇯🇵</span>
     </div>
     <div class="lang-modal-item" data-lang="en" onclick="setLang(this)">
-      <span>English（開発中）</span><span>🇺🇸</span>
+      <span>English</span><span>🇺🇸</span>
     </div>
     <div class="lang-modal-item" data-lang="zh" onclick="setLang(this)">
       <span>中文（开发中）</span><span>🇨🇳</span>
@@ -457,11 +457,13 @@ function renderCard(){
   function fillCard(){
     const w=deck[idx];
     currentWord=w;
+    const meaning=(currentLang==="en"&&w.en)?w.en:w.jp;
+    const posLabel=(currentLang==="en"&&w.pos_en)?w.pos_en:w.pos;
     document.getElementById("ko").textContent=w.ko;
     document.getElementById("reading").textContent=w.r;
-    document.getElementById("jp").textContent=w.jp;
+    document.getElementById("jp").textContent=meaning;
     document.getElementById("hanja").textContent=w.hanja||"";
-    document.getElementById("pos").textContent=w.pos;
+    document.getElementById("pos").textContent=posLabel;
     document.getElementById("example-text").textContent=w.ko_ex||"\u00a0";
     document.getElementById("example-text2").textContent=w.ko_ex2||"\u00a0";
     const pct=Math.round(idx/deck.length*100);
@@ -495,10 +497,12 @@ function flipCard(){
   flipped=!flipped;
   document.getElementById("card").classList.toggle("flipped",flipped);
   const w=deck[idx];
+  const exTrans=(currentLang==="en"&&w.en_ex)?w.en_ex:w.jp_ex;
+  const exTrans2=(currentLang==="en"&&w.en_ex2)?w.en_ex2:w.jp_ex2;
   document.getElementById("example-text").textContent=
-    flipped?(w.jp_ex||"\u00a0"):(w.ko_ex||"\u00a0");
+    flipped?(exTrans||"\u00a0"):(w.ko_ex||"\u00a0");
   document.getElementById("example-text2").textContent=
-    flipped?(w.jp_ex2||"\u00a0"):(w.ko_ex2||"\u00a0");
+    flipped?(exTrans2||"\u00a0"):(w.ko_ex2||"\u00a0");
   if(flipped){
     if(!isPerfectMode){
       document.getElementById("btn-ok").disabled=false;
@@ -612,7 +616,7 @@ const UI_TEXT={
     langClose:"閉じる / Close"
   },
   en:{
-    appTitle:"🇰🇷 Korean Cards (In Development)",
+    appTitle:"🇰🇷 Korean Cards",
     subtitle:"Studying TOPIK {n}",
     subtitleDefault:"TOPIK Level 1 & 2",
     statMastered:"Mastered",
@@ -728,8 +732,9 @@ function setLang(el){
   applyLangToUI();
   updateHome();
   closeLangModal();
-  // 注: 単語データ（意味・例文）の英語版は今後追加予定。
-  // 現時点ではUI文言のみ英語化され、単語の意味・例文は日本語のまま表示される。
+  // English: word meaning, part of speech, and example sentence translations now use
+  // the en / pos_en / en_ex / en_ex2 fields when available (see fillCard / flipCard).
+  // Chinese (zh) data is not yet available, so it falls back to Japanese for word content.
 }
 
 function openSettings(){
