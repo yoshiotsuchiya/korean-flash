@@ -70,6 +70,15 @@ body{background:#1a1340;min-height:100%}
 .icon-review{background:rgba(251,113,133,0.3)}
 .icon-all{background:rgba(96,165,250,0.3)}
 .icon-perfect{background:rgba(255,200,61,0.3)}
+.icon-similar{background:rgba(255,138,210,0.3)}
+.similar-group{background:rgba(255,255,255,0.13);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.22);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.similar-group .similar-ko{font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
+.similar-item{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,0.12)}
+.similar-item:first-of-type{border-top:none}
+.similar-item .similar-jp{color:#fff;font-size:14px;font-weight:600}
+.similar-item .similar-pos{color:rgba(255,255,255,0.55);font-size:11px}
+.similar-item .similar-lv{color:rgba(255,255,255,0.45);font-size:11px;margin-left:auto}
+#similar-list{overflow-y:auto;flex:1;padding-bottom:8px}
 #level-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 #level-bar::-webkit-scrollbar{display:none}
 .lv-btn{flex-shrink:0;padding:6px 14px;border-radius:99px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);font-size:12px;cursor:pointer;font-weight:600;color:rgba(255,255,255,0.78);transition:all 0.15s}
@@ -168,6 +177,19 @@ body{background:#1a1340;min-height:100%}
     <div class="icon icon-perfect">★</div>
     <div><div>完璧</div><div class="meta" id="perfect-meta">完璧な単語だけ見返す</div></div>
   </button>
+  <button class="menu-btn" onclick="openSimilarScreen()">
+    <div class="icon icon-similar">⚠️</div>
+    <div><div>似た単語に注意</div><div class="meta">同じ表記で意味が違う単語</div></div>
+  </button>
+</div>
+
+<div id="similar" class="screen" style="padding-bottom:0">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goHome()">✕</button>
+    <div style="flex:1;text-align:center;color:#fff;font-weight:700;font-size:15px">似た単語に注意</div>
+    <div style="width:36px"></div>
+  </div>
+  <div id="similar-list"></div>
 </div>
 
 <div id="study" class="screen">
@@ -384,6 +406,41 @@ function startPerfect(){
   if(words.length===0){alert("完璧な単語がまだありません");return;}
   isPerfectMode=true;
   startDeck(words);
+}
+
+function openSimilarScreen(){
+  // ALL_WORDS全体から、韓国語表記(ko)が完全一致するグループを動的に検出する
+  const groups={};
+  ALL_WORDS.forEach(w=>{
+    if(!groups[w.ko]) groups[w.ko]=[];
+    groups[w.ko].push(w);
+  });
+  const dupeGroups=Object.entries(groups).filter(([ko,ws])=>ws.length>1);
+
+  const listEl=document.getElementById("similar-list");
+  listEl.innerHTML="";
+
+  if(dupeGroups.length===0){
+    listEl.innerHTML="<p style='color:rgba(255,255,255,0.7);text-align:center;padding:20px'>同音異義語が見つかりませんでした</p>";
+  }else{
+    dupeGroups.forEach(([ko,ws])=>{
+      const groupDiv=document.createElement("div");
+      groupDiv.className="similar-group";
+      const koTitle=document.createElement("div");
+      koTitle.className="similar-ko";
+      koTitle.textContent=ko;
+      groupDiv.appendChild(koTitle);
+      ws.forEach(w=>{
+        const item=document.createElement("div");
+        item.className="similar-item";
+        item.innerHTML=`<span class="similar-jp">${w.jp}</span><span class="similar-pos">${w.pos}</span><span class="similar-lv">TOPIK${w.topik} Lv${w.lv}</span>`;
+        groupDiv.appendChild(item);
+      });
+      listEl.appendChild(groupDiv);
+    });
+  }
+
+  showScreen("similar");
 }
 function startDeck(words){
   deck=shuffle(words);idx=0;ngList=[];okCount=0;
