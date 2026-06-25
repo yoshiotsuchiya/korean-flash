@@ -179,14 +179,14 @@ body{background:#1a1340;min-height:100%}
   </button>
   <button class="menu-btn" onclick="openSimilarScreen()">
     <div class="icon icon-similar">⚠️</div>
-    <div><div>似た単語に注意</div><div class="meta">同じ表記で意味が違う単語</div></div>
+    <div><div id="similar-menu-title">似た単語に注意</div><div class="meta" id="similar-menu-meta">同じ表記で意味が違う単語</div></div>
   </button>
 </div>
 
 <div id="similar" class="screen" style="padding-bottom:0">
   <div class="top-bar">
     <button class="back-btn" onclick="goHome()">✕</button>
-    <div style="flex:1;text-align:center;color:#fff;font-weight:700;font-size:15px">似た単語に注意</div>
+    <div id="similar-screen-title" style="flex:1;text-align:center;color:#fff;font-weight:700;font-size:15px">似た単語に注意</div>
     <div style="width:36px"></div>
   </div>
   <div id="similar-list"></div>
@@ -420,8 +420,11 @@ function openSimilarScreen(){
   const listEl=document.getElementById("similar-list");
   listEl.innerHTML="";
 
+  const noneFoundMap={ja:"同音異義語が見つかりませんでした",en:"No look-alike words found",zh:"未找到同形词"};
+
   if(dupeGroups.length===0){
-    listEl.innerHTML="<p style='color:rgba(255,255,255,0.7);text-align:center;padding:20px'>同音異義語が見つかりませんでした</p>";
+    const msg=noneFoundMap[currentLang]||noneFoundMap.ja;
+    listEl.innerHTML=`<p style='color:rgba(255,255,255,0.7);text-align:center;padding:20px'>${msg}</p>`;
   }else{
     dupeGroups.forEach(([ko,ws])=>{
       const groupDiv=document.createElement("div");
@@ -431,9 +434,11 @@ function openSimilarScreen(){
       koTitle.textContent=ko;
       groupDiv.appendChild(koTitle);
       ws.forEach(w=>{
+        const meaning=(currentLang==="en"&&w.en)?w.en:w.jp;
+        const posLabel=(currentLang==="en"&&w.pos_en)?w.pos_en:w.pos;
         const item=document.createElement("div");
         item.className="similar-item";
-        item.innerHTML=`<span class="similar-jp">${w.jp}</span><span class="similar-pos">${w.pos}</span><span class="similar-lv">TOPIK${w.topik} Lv${w.lv}</span>`;
+        item.innerHTML=`<span class="similar-jp">${meaning}</span><span class="similar-pos">${posLabel}</span><span class="similar-lv">TOPIK${w.topik} Lv${w.lv}</span>`;
         groupDiv.appendChild(item);
       });
       listEl.appendChild(groupDiv);
@@ -599,6 +604,9 @@ const UI_TEXT={
     menuAllTitle:"単語シャッフル",
     menuPerfectTitle:"完璧",
     menuPerfectMeta:"完璧な単語だけ見返す",
+    menuSimilarTitle:"似た単語に注意",
+    menuSimilarMeta:"同じ表記で意味が違う単語",
+    similarScreenTitle:"似た単語に注意",
     tapHint:"タップして確認",
     btnNg:"✗ まだ",
     btnOk:"✓ 覚えた",
@@ -631,6 +639,9 @@ const UI_TEXT={
     menuAllTitle:"Shuffle All",
     menuPerfectTitle:"Perfect",
     menuPerfectMeta:"Review perfected words only",
+    menuSimilarTitle:"Watch out for look-alikes",
+    menuSimilarMeta:"Same spelling, different meaning",
+    similarScreenTitle:"Watch out for look-alikes",
     tapHint:"Tap to reveal",
     btnNg:"✗ Not yet",
     btnOk:"✓ Got it",
@@ -663,6 +674,9 @@ const UI_TEXT={
     menuAllTitle:"随机打乱",
     menuPerfectTitle:"完美",
     menuPerfectMeta:"只看完美单词",
+    menuSimilarTitle:"注意同形词",
+    menuSimilarMeta:"写法相同但意思不同的单词",
+    similarScreenTitle:"注意同形词",
     tapHint:"点击查看",
     btnNg:"✗ 还没",
     btnOk:"✓ 记住了",
@@ -692,6 +706,9 @@ function applyLangToUI(){
   document.querySelectorAll(".menu-btn")[1].querySelector("div > div").textContent=t("menuReviewTitle");
   document.querySelectorAll(".menu-btn")[2].querySelector("div > div").textContent=t("menuAllTitle");
   document.querySelectorAll(".menu-btn")[3].querySelector("div > div").textContent=t("menuPerfectTitle");
+  document.getElementById("similar-menu-title").textContent=t("menuSimilarTitle");
+  document.getElementById("similar-menu-meta").textContent=t("menuSimilarMeta");
+  document.getElementById("similar-screen-title").textContent=t("similarScreenTitle");
   document.querySelector("#level-bar .lv-btn[data-lv='all']").textContent=t("levelAll");
   document.querySelector(".tap-hint").textContent=t("tapHint");
   document.getElementById("btn-ng").textContent=t("btnNg");
