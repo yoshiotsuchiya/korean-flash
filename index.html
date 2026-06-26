@@ -260,7 +260,7 @@ body{background:#1a1340;min-height:100%}
       <span>English</span><span>🇺🇸</span>
     </div>
     <div class="lang-modal-item" data-lang="zh" onclick="setLang(this)">
-      <span>中文（开发中）</span><span>🇨🇳</span>
+      <span>中文</span><span>🇨🇳</span>
     </div>
     <button class="modal-close" onclick="closeLangModal()">閉じる / Close / 关闭</button>
   </div>
@@ -434,8 +434,8 @@ function openSimilarScreen(){
       koTitle.textContent=ko;
       groupDiv.appendChild(koTitle);
       ws.forEach(w=>{
-        const meaning=(currentLang==="en"&&w.en)?w.en:w.jp;
-        const posLabel=(currentLang==="en"&&w.pos_en)?w.pos_en:w.pos;
+        const meaning=currentLang==="en"&&w.en?w.en:(currentLang==="zh"&&w.zh?w.zh:w.jp);
+        const posLabel=currentLang==="en"&&w.pos_en?w.pos_en:(currentLang==="zh"&&w.pos_zh?w.pos_zh:w.pos);
         const item=document.createElement("div");
         item.className="similar-item";
         item.innerHTML=`<span class="similar-jp">${meaning}</span><span class="similar-pos">${posLabel}</span><span class="similar-lv">TOPIK${w.topik} Lv${w.lv}</span>`;
@@ -462,8 +462,8 @@ function renderCard(){
   function fillCard(){
     const w=deck[idx];
     currentWord=w;
-    const meaning=(currentLang==="en"&&w.en)?w.en:w.jp;
-    const posLabel=(currentLang==="en"&&w.pos_en)?w.pos_en:w.pos;
+    const meaning=currentLang==="en"&&w.en?w.en:(currentLang==="zh"&&w.zh?w.zh:w.jp);
+    const posLabel=currentLang==="en"&&w.pos_en?w.pos_en:(currentLang==="zh"&&w.pos_zh?w.pos_zh:w.pos);
     document.getElementById("ko").textContent=w.ko;
     document.getElementById("reading").textContent=w.r;
     document.getElementById("jp").textContent=meaning;
@@ -502,8 +502,8 @@ function flipCard(){
   flipped=!flipped;
   document.getElementById("card").classList.toggle("flipped",flipped);
   const w=deck[idx];
-  const exTrans=(currentLang==="en"&&w.en_ex)?w.en_ex:w.jp_ex;
-  const exTrans2=(currentLang==="en"&&w.en_ex2)?w.en_ex2:w.jp_ex2;
+  const exTrans=currentLang==="en"&&w.en_ex?w.en_ex:(currentLang==="zh"&&w.zh_ex?w.zh_ex:w.jp_ex);
+  const exTrans2=currentLang==="en"&&w.en_ex2?w.en_ex2:(currentLang==="zh"&&w.zh_ex2?w.zh_ex2:w.jp_ex2);
   document.getElementById("example-text").textContent=
     flipped?(exTrans||"\u00a0"):(w.ko_ex||"\u00a0");
   document.getElementById("example-text2").textContent=
@@ -659,7 +659,7 @@ const UI_TEXT={
     langClose:"Close"
   },
   zh:{
-    appTitle:"🇰🇷 韩语卡片（开发中）",
+    appTitle:"🇰🇷 韩语卡片",
     subtitle:"正在学习 TOPIK {n}",
     subtitleDefault:"TOPIK 1级・2级",
     statMastered:"已掌握",
