@@ -386,28 +386,28 @@ function startNew(){
   let words=filtered.filter(w=>!st.mastered[w.ko]&&!st.weak[w.ko]);
   if(words.length===0) words=filtered.filter(w=>!st.mastered[w.ko]);
   if(words.length===0){alert("このレベルは全て習得済みです！復習モードをどうぞ");return;}
-  startDeck(words);
+  startDeck(words,"new");
 }
 function startReview(){
   isPerfectMode=false;
   const st=curState();
   const words=getFiltered().filter(w=>st.weak[w.ko]);
   if(words.length===0){alert("要復習の単語がありません");return;}
-  startDeck(words);
+  startDeck(words,"review");
 }
 function startAll(){
   isPerfectMode=false;
   const st=curState();
   const words=getFiltered().filter(w=>!st.perfect[w.ko]);
   if(words.length===0){alert("すべて完璧な単語です！");return;}
-  startDeck(words);
+  startDeck(words,"all");
 }
 function startPerfect(){
   const st=curState();
   const words=getFiltered().filter(w=>st.perfect[w.ko]);
   if(words.length===0){alert("完璧な単語がまだありません");return;}
   isPerfectMode=true;
-  startDeck(words);
+  startDeck(words,"perfect");
 }
 
 function openSimilarScreen(){
@@ -449,8 +449,39 @@ function openSimilarScreen(){
 
   showScreen("similar");
 }
-function startDeck(words){
-  deck=shuffle(words);idx=0;ngList=[];okCount=0;
+const SESSION_KEY="kf_v4_session";
+let sessionMode=null;
+function sessionId(mode){return mode+"|"+currentTopik+"|"+currentLevel;}
+function saveSession(){
+  if(!sessionMode)return;
+  try{
+    if(idx>=deck.length){localStorage.removeItem(SESSION_KEY);return;}
+    localStorage.setItem(SESSION_KEY,JSON.stringify({
+      id:sessionId(sessionMode),
+      deck:deck.map(w=>ALL_WORDS.indexOf(w)),
+      idx:idx,ok:okCount,
+      ng:ngList.map(w=>ALL_WORDS.indexOf(w))
+    }));
+  }catch(e){}
+}
+function loadSession(mode){
+  try{
+    const s=JSON.parse(localStorage.getItem(SESSION_KEY)||"null");
+    if(!s||s.id!==sessionId(mode))return null;
+    const d=s.deck.map(i=>ALL_WORDS[i]);
+    if(d.some(w=>!w)||s.idx<=0||s.idx>=d.length)return null;
+    return {deck:d,idx:s.idx,ok:s.ok||0,ng:(s.ng||[]).map(i=>ALL_WORDS[i]).filter(Boolean)};
+  }catch(e){return null;}
+}
+function startDeck(words,mode){
+  sessionMode=mode||null;
+  const saved=mode?loadSession(mode):null;
+  if(saved){
+    deck=saved.deck;idx=saved.idx;ngList=saved.ng;okCount=saved.ok;
+  }else{
+    deck=shuffle(words);idx=0;ngList=[];okCount=0;
+    saveSession();
+  }
   showScreen("study");renderCard();
 }
 function retryDeck(){startDeck([...deck]);}
@@ -498,7 +529,7 @@ function renderCard(){
 function flipCard(){
   if(idx>=deck.length)return;
   if(isPerfectMode&&flipped){
-    idx++;renderCard();
+    idx++;saveSession();renderCard();
     return;
   }
   flipped=!flipped;
@@ -565,7 +596,7 @@ function answer(ok){
     delete st.mastered[w.ko];
     delete st.perfect[w.ko];
   }
-  saveState();idx++;renderCard();
+  saveState();idx++;saveSession();renderCard();
 }
 
 function showDone(){
