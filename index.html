@@ -49,7 +49,7 @@ body{background:#1a1340;min-height:100%}
 .modal-close{width:100%;padding:14px;border-radius:14px;border:none;background:#f0f0f0;color:#666;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px}
 #home .subtitle{text-align:center;color:rgba(255,255,255,0.65);font-size:13px;margin-top:-6px;margin-bottom:2px}
 
-.topik-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,0.1);padding:5px;border-radius:16px;border:1px solid rgba(255,255,255,0.18)}
+.topik-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:rgba(255,255,255,0.1);padding:5px;border-radius:16px;border:1px solid rgba(255,255,255,0.18)}
 .topik-btn{padding:11px 0;border-radius:12px;border:none;background:transparent;color:rgba(255,255,255,0.65);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
 .topik-btn.active{background:rgba(255,255,255,0.95);color:#5b2a86;box-shadow:0 3px 10px rgba(0,0,0,0.15)}
 
@@ -111,9 +111,7 @@ body{background:#1a1340;min-height:100%}
 .example-box{background:#fdf6e3;border-radius:14px;padding:9px 16px;text-align:center;width:100%;min-height:18px}
 .example-box p{font-size:12.5px;color:#8a7a4e;margin:0;line-height:1.4}
 
-.btn-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;width:100%;max-width:420px}
-#btn-ng{grid-column:3;padding:16px 4px;font-size:14px;white-space:nowrap}
-#btn-ok{grid-column:4;padding:16px 4px;font-size:14px;white-space:nowrap}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px}
 .ans-btn{padding:16px;border-radius:16px;border:none;font-size:15px;font-weight:700;cursor:pointer;transition:transform 0.1s;box-shadow:0 4px 12px rgba(0,0,0,0.18)}
 .ans-btn:active{transform:scale(0.96)}
 .ans-btn:disabled{opacity:0.3;cursor:default;box-shadow:none}
@@ -149,10 +147,11 @@ body{background:#1a1340;min-height:100%}
     <h1 id="app-title">🇰🇷 韓国語カード</h1>
     <button class="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
-  <p class="subtitle" id="subtitle">TOPIK 1級・2級 対応</p>
+  <p class="subtitle" id="subtitle">TOPIK 1〜3級 対応</p>
   <div class="topik-toggle">
     <button class="topik-btn active" data-topik="1" onclick="setTopik(this)">TOPIK 1級</button>
     <button class="topik-btn" data-topik="2" onclick="setTopik(this)">TOPIK 2級</button>
+    <button class="topik-btn" data-topik="3" onclick="setTopik(this)">TOPIK 3級</button>
   </div>
   <div class="stat-row">
     <div class="stat-card green"><div class="num" id="h-mastered">0</div><div class="lbl">習得済み</div></div>
@@ -274,7 +273,7 @@ body{background:#1a1340;min-height:100%}
 const LS_KEY="kf_v4";
 let ALL_WORDS=[];
 let WORDS=[];
-let state={"1":{mastered:{},weak:{},perfect:{}},"2":{mastered:{},weak:{},perfect:{}}};
+let state={"1":{mastered:{},weak:{},perfect:{}},"2":{mastered:{},weak:{},perfect:{}},"3":{mastered:{},weak:{},perfect:{}}};
 let deck=[],idx=0,ngList=[],okCount=0,flipped=false,currentLevel="all",currentTopik="1",isPerfectMode=false;
 let currentWord=null;
 
@@ -303,8 +302,8 @@ function loadState(){
     }
   }catch(e){}
   // 旧データにperfectフィールドがない場合に備える
-  if(!state["1"].perfect) state["1"].perfect={};
-  if(!state["2"].perfect) state["2"].perfect={};
+  if(!state["3"]) state["3"]={mastered:{},weak:{},perfect:{}};
+  ["1","2","3"].forEach(k=>{if(!state[k].perfect) state[k].perfect={};});
 }
 function saveState(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
 function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
@@ -386,28 +385,28 @@ function startNew(){
   let words=filtered.filter(w=>!st.mastered[w.ko]&&!st.weak[w.ko]);
   if(words.length===0) words=filtered.filter(w=>!st.mastered[w.ko]);
   if(words.length===0){alert("このレベルは全て習得済みです！復習モードをどうぞ");return;}
-  startDeck(words,"new");
+  startDeck(words);
 }
 function startReview(){
   isPerfectMode=false;
   const st=curState();
   const words=getFiltered().filter(w=>st.weak[w.ko]);
   if(words.length===0){alert("要復習の単語がありません");return;}
-  startDeck(words,"review");
+  startDeck(words);
 }
 function startAll(){
   isPerfectMode=false;
   const st=curState();
   const words=getFiltered().filter(w=>!st.perfect[w.ko]);
   if(words.length===0){alert("すべて完璧な単語です！");return;}
-  startDeck(words,"all");
+  startDeck(words);
 }
 function startPerfect(){
   const st=curState();
   const words=getFiltered().filter(w=>st.perfect[w.ko]);
   if(words.length===0){alert("完璧な単語がまだありません");return;}
   isPerfectMode=true;
-  startDeck(words,"perfect");
+  startDeck(words);
 }
 
 function openSimilarScreen(){
@@ -449,39 +448,8 @@ function openSimilarScreen(){
 
   showScreen("similar");
 }
-const SESSION_KEY="kf_v4_session";
-let sessionMode=null;
-function sessionId(mode){return mode+"|"+currentTopik+"|"+currentLevel;}
-function saveSession(){
-  if(!sessionMode)return;
-  try{
-    if(idx>=deck.length){localStorage.removeItem(SESSION_KEY);return;}
-    localStorage.setItem(SESSION_KEY,JSON.stringify({
-      id:sessionId(sessionMode),
-      deck:deck.map(w=>ALL_WORDS.indexOf(w)),
-      idx:idx,ok:okCount,
-      ng:ngList.map(w=>ALL_WORDS.indexOf(w))
-    }));
-  }catch(e){}
-}
-function loadSession(mode){
-  try{
-    const s=JSON.parse(localStorage.getItem(SESSION_KEY)||"null");
-    if(!s||s.id!==sessionId(mode))return null;
-    const d=s.deck.map(i=>ALL_WORDS[i]);
-    if(d.some(w=>!w)||s.idx<=0||s.idx>=d.length)return null;
-    return {deck:d,idx:s.idx,ok:s.ok||0,ng:(s.ng||[]).map(i=>ALL_WORDS[i]).filter(Boolean)};
-  }catch(e){return null;}
-}
-function startDeck(words,mode){
-  sessionMode=mode||null;
-  const saved=mode?loadSession(mode):null;
-  if(saved){
-    deck=saved.deck;idx=saved.idx;ngList=saved.ng;okCount=saved.ok;
-  }else{
-    deck=shuffle(words);idx=0;ngList=[];okCount=0;
-    saveSession();
-  }
+function startDeck(words){
+  deck=shuffle(words);idx=0;ngList=[];okCount=0;
   showScreen("study");renderCard();
 }
 function retryDeck(){startDeck([...deck]);}
@@ -529,7 +497,7 @@ function renderCard(){
 function flipCard(){
   if(idx>=deck.length)return;
   if(isPerfectMode&&flipped){
-    idx++;saveSession();renderCard();
+    idx++;renderCard();
     return;
   }
   flipped=!flipped;
@@ -596,7 +564,7 @@ function answer(ok){
     delete st.mastered[w.ko];
     delete st.perfect[w.ko];
   }
-  saveState();idx++;saveSession();renderCard();
+  saveState();idx++;renderCard();
 }
 
 function showDone(){
@@ -624,7 +592,7 @@ const UI_TEXT={
   ja:{
     appTitle:"🇰🇷 韓国語カード",
     subtitle:"TOPIK {n}級 学習中",
-    subtitleDefault:"TOPIK 1級・2級 対応",
+    subtitleDefault:"TOPIK 1〜3級 対応",
     statMastered:"習得済み",
     statPerfect:"完璧",
     statWeak:"要復習",
@@ -659,7 +627,7 @@ const UI_TEXT={
   en:{
     appTitle:"🇰🇷 Korean Cards",
     subtitle:"Studying TOPIK {n}",
-    subtitleDefault:"TOPIK Level 1 & 2",
+    subtitleDefault:"TOPIK Level 1–3",
     statMastered:"Mastered",
     statPerfect:"Perfect",
     statWeak:"To Review",
@@ -694,7 +662,7 @@ const UI_TEXT={
   zh:{
     appTitle:"🇰🇷 韩语卡片",
     subtitle:"正在学习 TOPIK {n}",
-    subtitleDefault:"TOPIK 1级・2级",
+    subtitleDefault:"TOPIK 1–3级",
     statMastered:"已掌握",
     statPerfect:"完美",
     statWeak:"待复习",
