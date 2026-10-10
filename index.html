@@ -286,6 +286,7 @@ async function init(){
     return;
   }
   loadState();
+  buildKeys();
   setTopikData();
   buildLevelBar();
   updateHome();
@@ -320,6 +321,18 @@ function setTopik(btn){
   buildLevelBar();
   updateHome();
 }
+
+// 同じ級に同じ表記の単語が複数ある場合、2つ目以降は「表記|意味」を進捗キーにする（1つ目は従来通り表記のみ＝既存の進捗を保持）
+const KEY_MAP=new Map();
+function buildKeys(){
+  const seen={};
+  ALL_WORDS.forEach(w=>{
+    const id=w.topik+"\u0000"+w.ko;
+    KEY_MAP.set(w, seen[id]? w.ko+"|"+w.jp : w.ko);
+    seen[id]=true;
+  });
+}
+function K(w){return KEY_MAP.get(w)||w.ko;}
 
 function setTopikData(){
   WORDS=ALL_WORDS.filter(w=>w.topik===currentTopik);
@@ -363,8 +376,8 @@ function updateHome(){
   document.getElementById("h-weak").textContent=Object.keys(st.weak).length;
   document.getElementById("h-total").textContent=WORDS.length;
   const filtered=getFiltered();
-  const newWords=filtered.filter(w=>!st.mastered[w.ko]&&!st.weak[w.ko]);
-  const shuffleWords=filtered.filter(w=>!st.perfect[w.ko]);
+  const newWords=filtered.filter(w=>!st.mastered[K(w)]&&!st.weak[K(w)]);
+  const shuffleWords=filtered.filter(w=>!st.perfect[K(w)]);
 
   const unitMap={ja:"語",en:" words",zh:"个词"};
   const unlearnedMap={ja:" 未学習",en:" unlearned",zh:"未学习"};
@@ -373,7 +386,7 @@ function updateHome(){
 
   const unit=unitMap[currentLang]||unitMap.ja;
   document.getElementById("new-meta").textContent=newWords.length+unit+(unlearnedMap[currentLang]||unlearnedMap.ja);
-  document.getElementById("review-meta").textContent=filtered.filter(w=>st.weak[w.ko]).length+unit+(toReviewMap[currentLang]||toReviewMap.ja);
+  document.getElementById("review-meta").textContent=filtered.filter(w=>st.weak[K(w)]).length+unit+(toReviewMap[currentLang]||toReviewMap.ja);
   document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja);
   document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit;
 }
@@ -382,28 +395,28 @@ function startNew(){
   isPerfectMode=false;
   const st=curState();
   const filtered=getFiltered();
-  let words=filtered.filter(w=>!st.mastered[w.ko]&&!st.weak[w.ko]);
-  if(words.length===0) words=filtered.filter(w=>!st.mastered[w.ko]);
+  let words=filtered.filter(w=>!st.mastered[K(w)]&&!st.weak[K(w)]);
+  if(words.length===0) words=filtered.filter(w=>!st.mastered[K(w)]);
   if(words.length===0){alert("このレベルは全て習得済みです！復習モードをどうぞ");return;}
   startDeck(words);
 }
 function startReview(){
   isPerfectMode=false;
   const st=curState();
-  const words=getFiltered().filter(w=>st.weak[w.ko]);
+  const words=getFiltered().filter(w=>st.weak[K(w)]);
   if(words.length===0){alert("要復習の単語がありません");return;}
   startDeck(words);
 }
 function startAll(){
   isPerfectMode=false;
   const st=curState();
-  const words=getFiltered().filter(w=>!st.perfect[w.ko]);
+  const words=getFiltered().filter(w=>!st.perfect[K(w)]);
   if(words.length===0){alert("すべて完璧な単語です！");return;}
   startDeck(words);
 }
 function startPerfect(){
   const st=curState();
-  const words=getFiltered().filter(w=>st.perfect[w.ko]);
+  const words=getFiltered().filter(w=>st.perfect[K(w)]);
   if(words.length===0){alert("完璧な単語がまだありません");return;}
   isPerfectMode=true;
   startDeck(words);
@@ -532,12 +545,12 @@ function toggleStar(e){
   if(!currentWord)return;
   const st=curState();
   const w=currentWord;
-  if(st.perfect[w.ko]){
-    delete st.perfect[w.ko];
+  if(st.perfect[K(w)]){
+    delete st.perfect[K(w)];
   }else{
-    st.perfect[w.ko]=true;
-    st.mastered[w.ko]=true;
-    delete st.weak[w.ko];
+    st.perfect[K(w)]=true;
+    st.mastered[K(w)]=true;
+    delete st.weak[K(w)];
   }
   saveState();
   updateStarUI();
@@ -546,7 +559,7 @@ function toggleStar(e){
 function updateStarUI(){
   if(!currentWord)return;
   const st=curState();
-  const isStarred=!!st.perfect[currentWord.ko];
+  const isStarred=!!st.perfect[K(currentWord)];
   document.getElementById("star-front").classList.toggle("starred",isStarred);
   document.getElementById("star-back").classList.toggle("starred",isStarred);
 }
@@ -556,13 +569,13 @@ function answer(ok){
   const w=deck[idx];
   if(ok){
     okCount++;
-    st.mastered[w.ko]=true;
-    delete st.weak[w.ko];
+    st.mastered[K(w)]=true;
+    delete st.weak[K(w)];
   }else{
     ngList.push(w);
-    st.weak[w.ko]=(st.weak[w.ko]||0)+1;
-    delete st.mastered[w.ko];
-    delete st.perfect[w.ko];
+    st.weak[K(w)]=(st.weak[K(w)]||0)+1;
+    delete st.mastered[K(w)];
+    delete st.perfect[K(w)];
   }
   saveState();idx++;renderCard();
 }
@@ -572,7 +585,7 @@ function showDone(){
   document.getElementById("d-ok").textContent=okCount;
   document.getElementById("d-ng").textContent=ngList.length;
   document.getElementById("done-review-btn").disabled=ngList.length===0;
-  const allMastered=getFiltered().every(w=>st.mastered[w.ko]);
+  const allMastered=getFiltered().every(w=>st.mastered[K(w)]);
   document.getElementById("done-title").textContent=allMastered?"🏆 全部制覇！":"セット完了！";
   document.getElementById("done-sub").textContent=
     allMastered?"全単語習得済み！復習で定着させよう":
