@@ -49,8 +49,8 @@ body{background:#1a1340;min-height:100%}
 .modal-close{width:100%;padding:14px;border-radius:14px;border:none;background:#f0f0f0;color:#666;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px}
 #home .subtitle{text-align:center;color:rgba(255,255,255,0.65);font-size:13px;margin-top:-6px;margin-bottom:2px}
 
-.topik-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:rgba(255,255,255,0.1);padding:5px;border-radius:16px;border:1px solid rgba(255,255,255,0.18)}
-.topik-btn{padding:11px 0;border-radius:12px;border:none;background:transparent;color:rgba(255,255,255,0.65);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.topik-toggle{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;background:rgba(255,255,255,0.1);padding:5px;border-radius:16px;border:1px solid rgba(255,255,255,0.18)}
+.topik-btn{padding:11px 0;border-radius:12px;border:none;background:transparent;color:rgba(255,255,255,0.65);font-size:13px;white-space:nowrap;font-weight:700;cursor:pointer;transition:all 0.2s}
 .topik-btn.active{background:rgba(255,255,255,0.95);color:#5b2a86;box-shadow:0 3px 10px rgba(0,0,0,0.15)}
 
 .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px}
@@ -147,11 +147,12 @@ body{background:#1a1340;min-height:100%}
     <h1 id="app-title">🇰🇷 韓国語カード</h1>
     <button class="settings-btn" onclick="openSettings()">⚙️</button>
   </div>
-  <p class="subtitle" id="subtitle">TOPIK 1〜3級 対応</p>
+  <p class="subtitle" id="subtitle">TOPIK 1〜4級 対応</p>
   <div class="topik-toggle">
     <button class="topik-btn active" data-topik="1" onclick="setTopik(this)">TOPIK 1級</button>
     <button class="topik-btn" data-topik="2" onclick="setTopik(this)">TOPIK 2級</button>
     <button class="topik-btn" data-topik="3" onclick="setTopik(this)">TOPIK 3級</button>
+    <button class="topik-btn" data-topik="4" onclick="setTopik(this)">TOPIK 4級</button>
   </div>
   <div class="stat-row">
     <div class="stat-card green"><div class="num" id="h-mastered">0</div><div class="lbl">習得済み</div></div>
@@ -273,7 +274,7 @@ body{background:#1a1340;min-height:100%}
 const LS_KEY="kf_v4";
 let ALL_WORDS=[];
 let WORDS=[];
-let state={"1":{mastered:{},weak:{},perfect:{}},"2":{mastered:{},weak:{},perfect:{}},"3":{mastered:{},weak:{},perfect:{}}};
+let state={"1":{mastered:{},weak:{},perfect:{}},"2":{mastered:{},weak:{},perfect:{}},"3":{mastered:{},weak:{},perfect:{}},"4":{mastered:{},weak:{},perfect:{}}};
 let deck=[],idx=0,ngList=[],okCount=0,flipped=false,currentLevel="all",currentTopik="1",isPerfectMode=false;
 let currentWord=null;
 
@@ -303,8 +304,8 @@ function loadState(){
     }
   }catch(e){}
   // 旧データにperfectフィールドがない場合に備える
-  if(!state["3"]) state["3"]={mastered:{},weak:{},perfect:{}};
-  ["1","2","3"].forEach(k=>{if(!state[k].perfect) state[k].perfect={};});
+  ["3","4"].forEach(k=>{if(!state[k]) state[k]={mastered:{},weak:{},perfect:{}};});
+  ["1","2","3","4"].forEach(k=>{if(!state[k].perfect) state[k].perfect={};});
 }
 function saveState(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
 function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
@@ -605,7 +606,7 @@ const UI_TEXT={
   ja:{
     appTitle:"🇰🇷 韓国語カード",
     subtitle:"TOPIK {n}級 学習中",
-    subtitleDefault:"TOPIK 1〜3級 対応",
+    subtitleDefault:"TOPIK 1〜4級 対応",
     statMastered:"習得済み",
     statPerfect:"完璧",
     statWeak:"要復習",
@@ -640,7 +641,7 @@ const UI_TEXT={
   en:{
     appTitle:"🇰🇷 Korean Cards",
     subtitle:"Studying TOPIK {n}",
-    subtitleDefault:"TOPIK Level 1–3",
+    subtitleDefault:"TOPIK Level 1–4",
     statMastered:"Mastered",
     statPerfect:"Perfect",
     statWeak:"To Review",
@@ -675,7 +676,7 @@ const UI_TEXT={
   zh:{
     appTitle:"🇰🇷 韩语卡片",
     subtitle:"正在学习 TOPIK {n}",
-    subtitleDefault:"TOPIK 1–3级",
+    subtitleDefault:"TOPIK 1–4级",
     statMastered:"已掌握",
     statPerfect:"完美",
     statWeak:"待复习",
