@@ -672,11 +672,33 @@ function flipCard(){
   }
 }
 
+// 端末に入っている韓国語の声から、いちばん高音質なものを選ぶ
+let KO_VOICE=null;
+function pickKoVoice(){
+  try{
+    const vs=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang));
+    if(!vs.length)return;
+    const score=v=>{const n=v.name||"";let s=0;
+      if(/premium|프리미엄/i.test(n))s+=50;
+      if(/enhanced|拡張|향상/i.test(n))s+=40;
+      if(/neural|natural|online/i.test(n))s+=30;
+      if(/google/i.test(n))s+=10;
+      if(/yuna|유나|sora|heami|sunhi|injoon/i.test(n))s+=5;
+      if(/compact|eloquence|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/i.test(n))s-=30;
+      return s;};
+    KO_VOICE=vs.sort((a,b)=>score(b)-score(a))[0];
+  }catch(e){}
+}
+try{pickKoVoice();speechSynthesis.addEventListener("voiceschanged",pickKoVoice);}catch(e){}
+function koUtter(text,rate){
+  const u=new SpeechSynthesisUtterance(text);u.lang="ko-KR";u.rate=rate||0.95;
+  if(!KO_VOICE)pickKoVoice();
+  if(KO_VOICE){try{u.voice=KO_VOICE;}catch(e){}}
+  return u;
+}
 function speak(){
   if(!currentWord)return;
-  const u=new SpeechSynthesisUtterance(currentWord.ko);
-  u.lang="ko-KR";
-  u.rate=0.9;
+  const u=koUtter(currentWord.ko,0.9);
   speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
@@ -1030,7 +1052,7 @@ function sfx(kind){
 }
 function speakKo(text){
   if(!SND.on)return;
-  try{const u=new SpeechSynthesisUtterance(text);u.lang="ko-KR";u.rate=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+  try{const u=koUtter(text,1);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
 }
 
 // ---- BGM（その場で作曲・演奏するシンセポップ。Am→F→C→G）----
