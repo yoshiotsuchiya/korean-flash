@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="韓国語">
 <title>韓国語フラッシュカード</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2b1a5e">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;font-family:-apple-system,sans-serif;color:#1a1a1a;overflow:hidden}
@@ -130,6 +134,44 @@ body{background:#1a1340;min-height:100%}
 .done-btn:disabled{opacity:0.3;cursor:default}
 
 #loading{position:fixed;inset:0;background:linear-gradient(160deg,#2b1a5e 0%,#5b2a86 45%,#a13d8f 75%,#e2667a 100%);display:flex;align-items:center;justify-content:center;font-size:15px;color:rgba(255,255,255,0.85);font-weight:600}
+
+/* HOME scroll when tall */
+#home{justify-content:flex-start;overflow-y:auto;scrollbar-width:none}
+#home::-webkit-scrollbar{display:none}
+#home>*{flex-shrink:0}
+#home::before,#home::after{content:"";flex:1 0 0}
+.menu-btn.game-btn{background:linear-gradient(120deg,rgba(255,200,61,0.32),rgba(255,138,210,0.32));border-color:rgba(255,220,140,0.55)}
+.icon-game{background:rgba(255,200,61,0.45)}
+
+/* GAME */
+#game{gap:8px;padding-bottom:0}
+.game-hud{display:flex;align-items:center;gap:10px;color:#fff}
+.game-hud .hud-score{flex:1;text-align:center;font-weight:800;font-size:20px;letter-spacing:0.5px;font-variant-numeric:tabular-nums}
+.game-hud .hud-lives{font-size:16px;letter-spacing:2px;min-width:64px;text-align:right}
+.game-hud .hud-combo{position:absolute;left:50%;transform:translateX(-50%);top:46px;font-size:12px;font-weight:700;color:#ffd76a;pointer-events:none}
+#game-stage{position:relative;flex:1;border-radius:20px;overflow:hidden;background:rgba(10,6,40,0.35);border:1px solid rgba(255,255,255,0.15);touch-action:none;user-select:none;-webkit-user-select:none}
+#game-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#game-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center;padding:20px;background:rgba(10,6,40,0.55)}
+#game-overlay.hidden{display:none}
+#game-overlay .big{font-size:56px;font-weight:800;text-shadow:0 4px 20px rgba(0,0,0,0.4)}
+#game-overlay .hint{font-size:14px;color:rgba(255,255,255,0.8);line-height:1.6}
+
+/* GAME OVER */
+#gameover{gap:12px;align-items:center;text-align:center;overflow-y:auto}
+#gameover h2{font-size:26px;font-weight:800;color:#fff;margin-top:auto}
+#gameover .go-score{font-size:52px;font-weight:800;color:#ffd76a;line-height:1;font-variant-numeric:tabular-nums}
+#gameover .go-record{font-size:13px;font-weight:700;color:#1a1340;background:#ffd76a;padding:4px 12px;border-radius:99px}
+#gameover .go-sub{color:rgba(255,255,255,0.75);font-size:13px}
+.go-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%}
+.go-missed{width:100%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:12px 14px;text-align:left;color:#fff}
+.go-missed h4{font-size:13px;font-weight:700;margin-bottom:6px;color:rgba(255,255,255,0.85)}
+.go-missed .row{display:flex;gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,0.1);font-size:14px}
+.go-missed .row:first-of-type{border-top:none}
+.go-missed .row b{min-width:84px}
+.go-missed .row span{color:rgba(255,255,255,0.75)}
+.go-missed .note{font-size:11px;color:rgba(255,255,255,0.55);margin-top:6px}
+#gameover .done-btn{max-width:420px}
+#gameover>:last-child{margin-bottom:auto}
 </style>
 </head>
 <body>
@@ -182,6 +224,10 @@ body{background:#1a1340;min-height:100%}
   <button class="menu-btn" onclick="openSimilarScreen()">
     <div class="icon icon-similar">⚠️</div>
     <div><div id="similar-menu-title">似た単語に注意</div><div class="meta" id="similar-menu-meta">同じ表記で意味が違う単語</div></div>
+  </button>
+  <button class="menu-btn game-btn" onclick="startGame()">
+    <div class="icon icon-game">🎮</div>
+    <div><div id="game-menu-title">ゲーム</div><div class="meta" id="game-menu-meta">単語シューティング</div></div>
   </button>
 </div>
 
@@ -239,6 +285,34 @@ body{background:#1a1340;min-height:100%}
   <button class="done-btn white" onclick="retryDeck()">もう一度</button>
   <button class="done-btn danger" id="done-review-btn" onclick="reviewWrong()">間違いだけ復習</button>
   <button class="done-btn white" onclick="goHome()">ホームに戻る</button>
+</div>
+
+
+<div id="game" class="screen">
+  <div class="top-bar game-hud">
+    <button class="back-btn" onclick="quitGame()">✕</button>
+    <div class="hud-score" id="g-score">0</div>
+    <div class="hud-lives" id="g-lives">❤️❤️❤️</div>
+  </div>
+  <div id="game-stage">
+    <canvas id="game-canvas"></canvas>
+    <div id="game-overlay" class="hidden"></div>
+  </div>
+</div>
+
+<div id="gameover" class="screen">
+  <h2 id="go-title">ゲームオーバー</h2>
+  <div class="go-score" id="go-score">0</div>
+  <div class="go-record" id="go-record" style="display:none">🏆 ハイスコア更新！</div>
+  <div class="go-sub" id="go-best"></div>
+  <div class="go-stats stat-row">
+    <div class="stat-card green"><div class="num" id="go-correct">0</div><div class="lbl" id="go-lbl-correct">正解</div></div>
+    <div class="stat-card yellow"><div class="num" id="go-combo">0</div><div class="lbl" id="go-lbl-combo">最大コンボ</div></div>
+    <div class="stat-card red"><div class="num" id="go-miss">0</div><div class="lbl" id="go-lbl-miss">ミス</div></div>
+  </div>
+  <div class="go-missed" id="go-missed"></div>
+  <button class="done-btn white" id="go-retry" onclick="startGame()">もう一度</button>
+  <button class="done-btn white" id="go-home" onclick="goHome()">ホームに戻る</button>
 </div>
 
 <div class="modal-overlay" id="settings-modal">
@@ -390,6 +464,7 @@ function updateHome(){
   document.getElementById("review-meta").textContent=filtered.filter(w=>st.weak[K(w)]).length+unit+(toReviewMap[currentLang]||toReviewMap.ja);
   document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja);
   document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit;
+  if(typeof updateGameMenu==="function") updateGameMenu();
 }
 
 function startNew(){
@@ -791,6 +866,325 @@ async function forceReload(){
 }
 
 init();
+
+// ===================== 単語シューティング =====================
+const GAME_KEY="kf_game_v1";
+const G_TEXT={
+  ja:{menu:"ゲーム",sub:"単語シューティング",best:"ハイスコア",none:"まだ記録なし",howto:"韓国語の意味を<br>左右どちらか正しい方を撃て！<br><br>画面の左右をタップ（キーボードは ← →）",start:"タップでスタート",over:"ゲームオーバー",record:"🏆 ハイスコア更新！",bestIs:"ハイスコア ",correct:"正解",combo:"最大コンボ",miss:"ミス",missed:"間違えた単語",added:"↑ 苦手リストに追加しました",perfect:"ノーミス！",retry:"もう一度",home:"ホームに戻る",few:"このレベルは単語が少なすぎます",paused:"一時停止中<br>タップで再開",answer:"正解"},
+  en:{menu:"Game",sub:"Word Shooter",best:"High score",none:"No record yet",howto:"Shoot the correct meaning<br>on the left or right!<br><br>Tap left/right (keyboard: ← →)",start:"Tap to start",over:"Game Over",record:"🏆 New high score!",bestIs:"High score ",correct:"Correct",combo:"Max combo",miss:"Misses",missed:"Words you missed",added:"↑ Added to your review list",perfect:"No misses!",retry:"Play again",home:"Back to home",few:"Not enough words in this level",paused:"Paused<br>Tap to resume",answer:"Answer"},
+  zh:{menu:"游戏",sub:"单词射击",best:"最高分",none:"暂无记录",howto:"射击正确的意思<br>左边还是右边？<br><br>点击屏幕左右（键盘 ← →）",start:"点击开始",over:"游戏结束",record:"🏆 刷新最高分！",bestIs:"最高分 ",correct:"正确",combo:"最大连击",miss:"失误",missed:"答错的单词",added:"↑ 已加入待复习列表",perfect:"零失误！",retry:"再玩一次",home:"返回首页",few:"该级别单词太少",paused:"已暂停<br>点击继续",answer:"正确答案"}
+};
+function gt(k){return (G_TEXT[currentLang]||G_TEXT.ja)[k]||G_TEXT.ja[k];}
+function meaningOf(w){return currentLang==="en"&&w.en?w.en:(currentLang==="zh"&&w.zh?w.zh:w.jp);}
+function loadBest(){try{return JSON.parse(localStorage.getItem(GAME_KEY))||{};}catch(e){return {};}}
+function saveBest(b){try{localStorage.setItem(GAME_KEY,JSON.stringify(b));}catch(e){}}
+
+function updateGameMenu(){
+  const el=document.getElementById("game-menu-title"); if(!el)return;
+  el.textContent=gt("menu");
+  const b=loadBest()[currentTopik];
+  document.getElementById("game-menu-meta").textContent=gt("sub")+" · "+(b?gt("best")+" "+b.toLocaleString():gt("none"));
+}
+
+const G={};  // game state
+const GAME_EXCLUDE_POS={"ことわざ":1,"文法":1};
+
+function gamePool(){
+  return getFiltered().filter(w=>!GAME_EXCLUDE_POS[w.pos]);
+}
+function pickDistractor(w){
+  const m=meaningOf(w);
+  const ok=x=>x!==w&&x.ko!==w.ko&&meaningOf(x)!==m&&!GAME_EXCLUDE_POS[x.pos];
+  let cand=WORDS.filter(x=>x.pos===w.pos&&ok(x));
+  if(cand.length<3) cand=WORDS.filter(ok);
+  return cand[Math.floor(Math.random()*cand.length)];
+}
+
+function startGame(){
+  const pool=gamePool();
+  if(pool.length<2){alert(gt("few"));return;}
+  Object.assign(G,{
+    pool:shuffle(pool),pi:0,score:0,lives:3,combo:0,maxCombo:0,correct:0,missed:[],
+    speed:0.085,phase:"ready",q:null,shipX:0.5,shipTarget:0.5,bullet:null,particles:[],
+    flash:null,last:0,paused:false,banner:null
+  });
+  if(!G.stars){G.stars=[];for(let i=0;i<60;i++)G.stars.push({x:Math.random(),y:Math.random(),s:Math.random()*1.6+0.4,v:Math.random()*0.04+0.02});}
+  showScreen("game");
+  updateHud();
+  resizeGameCanvas();
+  showGameOverlay(`<div class="hint">${gt("howto")}</div><div class="big" style="font-size:22px;margin-top:10px">${gt("start")}</div>`);
+  G.phase="ready";
+  if(!G.raf) G.raf=requestAnimationFrame(gameLoop);
+}
+
+function showGameOverlay(html){const o=document.getElementById("game-overlay");o.innerHTML=html;o.classList.remove("hidden");}
+function hideGameOverlay(){document.getElementById("game-overlay").classList.add("hidden");}
+
+function beginCountdown(){
+  hideGameOverlay();
+  G.phase="count";G.countT=0;
+}
+
+function nextQuestion(){
+  if(G.pi>=G.pool.length){G.pool=shuffle(G.pool);G.pi=0;}
+  const w=G.pool[G.pi++];
+  const d=pickDistractor(w);
+  const correctSide=Math.random()<0.5?0:1;
+  const opts=correctSide===0?[w,d]:[d,w];
+  G.q={w,opts,correctSide,y:0,resolved:false,fade:[1,1],hit:-1};
+  G.phase="play";
+}
+
+function updateHud(){
+  document.getElementById("g-score").textContent=G.score.toLocaleString();
+  document.getElementById("g-lives").textContent="❤️".repeat(Math.max(G.lives,0))+"🖤".repeat(Math.max(3-G.lives,0));
+}
+
+function shoot(side){
+  if(G.phase==="ready"){beginCountdown();return;}
+  if(G.paused){G.paused=false;hideGameOverlay();G.last=0;return;}
+  if(G.phase!=="play"||!G.q||G.q.resolved||G.bullet)return;
+  G.shipTarget=side===0?0.27:0.73;
+  G.bullet={side,x:G.shipTarget,y:0.86,fireAt:0.09};   // fires after ship moves
+}
+
+function resolve(side,timeout){
+  const q=G.q; q.resolved=true;
+  const ok=!timeout&&side===q.correctSide;
+  const S=gameSize();
+  const ex=(i)=>({x:(i===0?0.27:0.73)*S.w,y:enemyY(q.y)*S.h});
+  if(ok){
+    G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);G.correct++;
+    const timeBonus=Math.round(60*(1-q.y));
+    const pts=Math.round((100+timeBonus)*(1+Math.min(G.combo-1,10)*0.1));
+    G.score+=pts;
+    burst(ex(side),"#ffd76a",26);
+    q.hit=side;
+    G.banner={text:"+"+pts+(G.combo>1?"  ×"+G.combo:""),color:"#ffd76a",t:0};
+    G.speed=Math.min(G.speed*1.045,0.32);
+    try{const u=new SpeechSynthesisUtterance(q.w.ko);u.lang="ko-KR";u.rate=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+    G.phase="after";G.afterT=0;G.afterDur=0.55;
+  }else{
+    G.combo=0;G.lives--;
+    if(!G.missed.includes(q.w)) G.missed.push(q.w);
+    if(!timeout) burst(ex(side),"#fb7185",18);
+    q.hit=-1;q.showCorrect=true;
+    G.banner={text:gt("answer")+"："+q.w.ko+" = "+meaningOf(q.w),color:"#fb7185",t:0};
+    G.flash={t:0};
+    if(navigator.vibrate) try{navigator.vibrate(120);}catch(e){}
+    G.phase="after";G.afterT=0;G.afterDur=1.6;
+  }
+  updateHud();
+}
+
+function burst(p,color,n){
+  for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=80+Math.random()*220;
+    G.particles.push({x:p.x,y:p.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:0.6+Math.random()*0.4,t:0,color});}
+}
+
+function endGame(){
+  G.phase="over";
+  // 間違えた単語を苦手リストへ
+  const st=curState();
+  G.missed.forEach(w=>{st.weak[K(w)]=(st.weak[K(w)]||0)+1;delete st.mastered[K(w)];delete st.perfect[K(w)];});
+  if(G.missed.length) saveState();
+  const best=loadBest();const prev=best[currentTopik]||0;const isRecord=G.score>prev;
+  if(isRecord){best[currentTopik]=G.score;saveBest(best);}
+  document.getElementById("go-title").textContent=gt("over");
+  document.getElementById("go-score").textContent=G.score.toLocaleString();
+  const rec=document.getElementById("go-record");rec.textContent=gt("record");rec.style.display=isRecord&&G.score>0?"inline-block":"none";
+  document.getElementById("go-best").textContent="TOPIK "+currentTopik+" · "+gt("bestIs")+Math.max(prev,G.score).toLocaleString();
+  document.getElementById("go-correct").textContent=G.correct;
+  document.getElementById("go-combo").textContent=G.maxCombo;
+  document.getElementById("go-miss").textContent=G.missed.length;
+  document.getElementById("go-lbl-correct").textContent=gt("correct");
+  document.getElementById("go-lbl-combo").textContent=gt("combo");
+  document.getElementById("go-lbl-miss").textContent=gt("miss");
+  document.getElementById("go-retry").textContent=gt("retry");
+  document.getElementById("go-home").textContent=gt("home");
+  const box=document.getElementById("go-missed");
+  if(G.missed.length){
+    box.innerHTML=`<h4>${gt("missed")}</h4>`+G.missed.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("")+`<div class="note">${gt("added")}</div>`;
+  }else box.innerHTML=`<h4>${gt("perfect")}</h4>`;
+  showScreen("gameover");
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function quitGame(){G.phase="quit";goHome();}
+
+// ---- canvas ----
+function gameSize(){const c=document.getElementById("game-canvas");return {w:c.clientWidth,h:c.clientHeight};}
+function resizeGameCanvas(){
+  const c=document.getElementById("game-canvas");const dpr=window.devicePixelRatio||1;
+  c.width=Math.round(c.clientWidth*dpr);c.height=Math.round(c.clientHeight*dpr);
+  c.getContext("2d").setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener("resize",()=>{if(document.getElementById("game").classList.contains("active"))resizeGameCanvas();});
+const ENEMY_TOP=0.22,ENEMY_BOTTOM=0.74;   // enemies travel between these (fraction of height)
+function enemyY(p){return ENEMY_TOP+(ENEMY_BOTTOM-ENEMY_TOP)*p;}
+
+function gameLoop(ts){
+  G.raf=requestAnimationFrame(gameLoop);
+  if(!document.getElementById("game").classList.contains("active")){G.last=0;return;}
+  const dt=G.last?Math.min((ts-G.last)/1000,0.05):0;G.last=ts;
+  if(!G.paused) stepGame(dt);
+  drawGame();
+}
+
+function stepGame(dt){
+  G.stars&&G.stars.forEach(s=>{s.y+=s.v*dt*(1+G.speed*8);if(s.y>1){s.y=0;s.x=Math.random();}});
+  G.shipX+=(G.shipTarget-G.shipX)*Math.min(1,dt*18);
+  G.particles.forEach(p=>{p.t+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;});
+  G.particles=G.particles.filter(p=>p.t<p.life);
+  if(G.banner){G.banner.t+=dt;}
+  if(G.flash){G.flash.t+=dt;if(G.flash.t>0.35)G.flash=null;}
+  if(G.phase==="count"){G.countT+=dt;if(G.countT>=2.4){G.banner=null;nextQuestion();}return;}
+  if(G.phase==="play"){
+    const q=G.q;
+    q.y+=G.speed*dt;
+    if(G.bullet){
+      const b=G.bullet;
+      if(b.fireAt>0){b.fireAt-=dt;}
+      else{b.y-=dt*2.6;b.x=b.side===0?0.27:0.73;
+        if(b.y<=enemyY(q.y)+0.04){G.bullet=null;resolve(b.side,false);return;}}
+    }
+    if(q.y>=1){G.bullet=null;resolve(-1,true);}
+  }else if(G.phase==="after"){
+    G.afterT+=dt;
+    G.q.fade=G.q.fade.map((f,i)=>i===G.q.hit?f:Math.max(0,f-dt*(G.q.showCorrect&&i===G.q.correctSide?0:2.5)));
+    if(G.afterT>=G.afterDur){
+      G.banner=null;
+      if(G.lives<=0){endGame();return;}
+      G.shipTarget=0.5;nextQuestion();
+    }
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function wrapText(ctx,text,maxW,maxLines,startSize,minSize,weight){
+  for(let size=startSize;size>=minSize;size--){
+    ctx.font=`${weight} ${size}px -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif`;
+    const lines=[];let cur="";
+    for(const ch of text){
+      const t=cur+ch;
+      if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=ch;}else cur=t;
+    }
+    if(cur)lines.push(cur);
+    if(lines.length<=maxLines) return {lines,size};
+  }
+  // still too long: truncate
+  const size=minSize;ctx.font=`${weight} ${size}px -apple-system,sans-serif`;
+  const lines=[];let cur="";
+  for(const ch of text){const t=cur+ch;if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=ch;if(lines.length===maxLines)break;}else cur=t;}
+  if(lines.length<maxLines&&cur)lines.push(cur);
+  lines[lines.length-1]=lines[lines.length-1].slice(0,-1)+"…";
+  return {lines,size};
+}
+
+function drawGame(){
+  const c=document.getElementById("game-canvas");const ctx=c.getContext("2d");const {w:W,h:H}=gameSize();
+  ctx.clearRect(0,0,W,H);
+  // stars
+  if(G.stars){ctx.fillStyle="rgba(255,255,255,0.7)";G.stars.forEach(s=>{ctx.globalAlpha=0.3+s.s/3;ctx.fillRect(s.x*W,s.y*H,s.s,s.s*2.5);});ctx.globalAlpha=1;}
+  // lane guides
+  ctx.strokeStyle="rgba(255,255,255,0.06)";ctx.lineWidth=1;ctx.setLineDash([4,8]);
+  ctx.beginPath();ctx.moveTo(W/2,H*0.18);ctx.lineTo(W/2,H*0.95);ctx.stroke();ctx.setLineDash([]);
+  // danger line
+  ctx.strokeStyle="rgba(251,113,133,0.35)";ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(12,H*0.82);ctx.lineTo(W-12,H*0.82);ctx.stroke();
+
+  const q=G.q;
+  // question word
+  if(q&&(G.phase==="play"||G.phase==="after")){
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    const kw=wrapText(ctx,q.w.ko,W-32,1,40,18,"800");
+    ctx.font=`800 ${kw.size}px -apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif`;
+    ctx.fillStyle="#fff";ctx.shadowColor="rgba(0,0,0,0.35)";ctx.shadowBlur=12;
+    ctx.fillText(kw.lines[0],W/2,H*0.085);ctx.shadowBlur=0;
+    ctx.font="500 12px -apple-system,sans-serif";ctx.fillStyle="rgba(255,255,255,0.55)";
+    ctx.fillText(q.w.r||"",W/2,H*0.085+kw.size*0.62+6);
+    // enemies
+    const ew=Math.min(W*0.42,200),eh=Math.max(64,Math.min(H*0.13,96));
+    for(let i=0;i<2;i++){
+      const f=q.fade[i];if(f<=0.01)continue;
+      const cx=(i===0?0.27:0.73)*W,cy=enemyY(q.y)*H;
+      const isCorrectShown=G.phase==="after"&&q.showCorrect&&i===q.correctSide;
+      const isHit=G.phase==="after"&&q.hit===i;
+      const wob=G.phase==="play"?Math.sin(performance.now()/300+i*2)*3:0;
+      ctx.globalAlpha=f;
+      ctx.save();ctx.translate(cx,cy+wob);
+      if(isHit){const s=1+Math.min(G.afterT*2,0.25);ctx.scale(s,s);ctx.globalAlpha=Math.max(0,f-G.afterT*1.6);}
+      ctx.shadowColor=isCorrectShown?"rgba(74,222,128,0.9)":(i===0?"rgba(255,138,210,0.8)":"rgba(122,252,255,0.8)");ctx.shadowBlur=18;
+      roundRect(ctx,-ew/2,-eh/2,ew,eh,18);ctx.fillStyle="#fff";ctx.fill();ctx.shadowBlur=0;
+      ctx.lineWidth=3;ctx.strokeStyle=isCorrectShown?"#4ade80":(isHit?"#ffd76a":(i===0?"#ff8ad2":"#7afcff"));ctx.stroke();
+      const tx=wrapText(ctx,meaningOf(q.opts[i]),ew-20,3,20,11,"700");
+      ctx.font=`700 ${tx.size}px -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif`;ctx.fillStyle="#1a1a1a";
+      const lh=tx.size*1.2,y0=-(tx.lines.length-1)*lh/2;
+      tx.lines.forEach((l,k)=>ctx.fillText(l,0,y0+k*lh));
+      ctx.restore();ctx.globalAlpha=1;
+    }
+  }
+  // bullet
+  if(G.bullet&&G.bullet.fireAt<=0){
+    const bx=G.bullet.x*W,by=G.bullet.y*H;
+    const grd=ctx.createLinearGradient(bx,by,bx,by+28);grd.addColorStop(0,"#fff6c2");grd.addColorStop(1,"rgba(255,200,61,0)");
+    ctx.fillStyle=grd;ctx.fillRect(bx-3,by,6,28);
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(bx,by,4,0,Math.PI*2);ctx.fill();
+  }
+  // ship
+  const sx=G.shipX*W,sy=H*0.9;
+  ctx.save();ctx.translate(sx,sy);
+  ctx.shadowColor="rgba(122,252,255,0.9)";ctx.shadowBlur=16;
+  ctx.fillStyle="#fff";ctx.beginPath();ctx.moveTo(0,-22);ctx.lineTo(18,14);ctx.lineTo(0,7);ctx.lineTo(-18,14);ctx.closePath();ctx.fill();
+  ctx.shadowBlur=0;ctx.fillStyle="#7afcff";ctx.beginPath();ctx.arc(0,-3,4,0,Math.PI*2);ctx.fill();
+  const fl=6+Math.random()*6;ctx.fillStyle="rgba(255,170,90,0.9)";ctx.beginPath();ctx.moveTo(-6,10);ctx.lineTo(0,10+fl);ctx.lineTo(6,10);ctx.fill();
+  ctx.restore();
+  // particles
+  G.particles.forEach(p=>{ctx.globalAlpha=Math.max(0,1-p.t/p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x-2,p.y-2,4,4);});ctx.globalAlpha=1;
+  // banner
+  if(G.banner){
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    const tx=wrapText(ctx,G.banner.text,W-40,2,G.banner.color==="#ffd76a"?24:17,12,"800");
+    ctx.font=`800 ${tx.size}px -apple-system,"Hiragino Sans",sans-serif`;
+    const yy=H*0.5-(G.banner.color==="#ffd76a"?G.banner.t*40:0);
+    if(G.banner.color!=="#ffd76a"){const bw=W-24,bh=tx.lines.length*tx.size*1.3+20;roundRect(ctx,12,yy-bh/2,bw,bh,14);ctx.fillStyle="rgba(20,10,50,0.85)";ctx.fill();}
+    ctx.fillStyle=G.banner.color;
+    const lh=tx.size*1.3,y0=yy-(tx.lines.length-1)*lh/2;tx.lines.forEach((l,k)=>ctx.fillText(l,W/2,y0+k*lh));
+  }
+  // combo indicator
+  if(G.combo>=2&&G.phase!=="over"){ctx.textAlign="right";ctx.textBaseline="top";ctx.font="800 14px -apple-system,sans-serif";ctx.fillStyle="#ffd76a";ctx.fillText(G.combo+" COMBO",W-12,10);}
+  // countdown
+  if(G.phase==="count"){
+    const n=3-Math.floor(G.countT/0.8);const fr=(G.countT%0.8)/0.8;
+    ctx.textAlign="center";ctx.textBaseline="middle";ctx.globalAlpha=1-fr*0.6;
+    ctx.font=`800 ${90+fr*40}px -apple-system,sans-serif`;ctx.fillStyle="#fff";ctx.fillText(n>0?n:"GO",W/2,H*0.45);ctx.globalAlpha=1;
+  }
+  // red flash
+  if(G.flash){ctx.fillStyle=`rgba(251,113,133,${0.35*(1-G.flash.t/0.35)})`;ctx.fillRect(0,0,W,H);}
+}
+
+// input
+(function(){
+  const stage=()=>document.getElementById("game-stage");
+  document.addEventListener("pointerdown",e=>{
+    const s=stage();if(!s||!document.getElementById("game").classList.contains("active"))return;
+    if(!s.contains(e.target))return;
+    e.preventDefault();
+    const r=s.getBoundingClientRect();
+    shoot(e.clientX-r.left<r.width/2?0:1);
+  },{passive:false});
+  document.addEventListener("keydown",e=>{
+    if(!document.getElementById("game").classList.contains("active"))return;
+    if(e.key==="ArrowLeft"||e.key==="a"||e.key==="A"){e.preventDefault();shoot(0);}
+    else if(e.key==="ArrowRight"||e.key==="d"||e.key==="D"){e.preventDefault();shoot(1);}
+    else if(e.key===" "||e.key==="Enter"){if(G.phase==="ready"||G.paused){e.preventDefault();shoot(0);}}
+  });
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden&&document.getElementById("game").classList.contains("active")&&(G.phase==="play"||G.phase==="count")){
+      G.paused=true;showGameOverlay(`<div class="big" style="font-size:24px">${gt("paused")}</div>`);
+    }
+  });
+})();
 </script>
 </body>
 </html>
