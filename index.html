@@ -204,6 +204,11 @@ body{background:#1a1340;min-height:100%}
 .bk-row span{flex:1;white-space:nowrap}
 .bk-main.bk-sub{background:#efe9fb;color:#5b2a86}
 .bk-msg .bk-sum{color:#444;font-weight:400}
+
+.vc-list{max-height:46vh;overflow-y:auto;margin-bottom:6px}
+.vc-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:#f7f5fc;margin-bottom:8px;cursor:pointer;font-size:14px;font-weight:600;color:#1a1a1a}
+.vc-item.active{background:#5b2a86;color:#fff}
+.vc-item .vc-sub{font-size:11px;font-weight:400;opacity:0.65;margin-left:auto;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -356,6 +361,10 @@ body{background:#1a1340;min-height:100%}
       <span class="modal-icon">🔄</span>
       <span>最新版を読み込む</span>
     </div>
+    <div class="modal-item" onclick="openVoice()">
+      <span class="modal-icon">🗣️</span>
+      <span id="vc-menu">読み上げの声</span>
+    </div>
     <div class="modal-item" onclick="openBackup()">
       <span class="modal-icon">📤</span>
       <span id="bk-menu-export">学習記録をバックアップ</span>
@@ -369,6 +378,14 @@ body{background:#1a1340;min-height:100%}
 </div>
 
 
+<div class="modal-overlay" id="voice-modal">
+  <div class="modal-box">
+    <h3 id="vc-title">🗣️ 読み上げの声</h3>
+    <p class="bk-desc" id="vc-desc"></p>
+    <div id="vc-list" class="vc-list"></div>
+    <button class="modal-close" id="vc-close" onclick="closeBk('voice-modal')">閉じる</button>
+  </div>
+</div>
 <div class="modal-overlay" id="backup-modal">
   <div class="modal-box">
     <h3 id="bk-title">📤 バックアップ</h3>
@@ -686,7 +703,9 @@ function pickKoVoice(){
       if(/yuna|유나|sora|heami|sunhi|injoon/i.test(n))s+=5;
       if(/compact|eloquence|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/i.test(n))s-=30;
       return s;};
-    KO_VOICE=vs.sort((a,b)=>score(b)-score(a))[0];
+    let saved=null;try{saved=localStorage.getItem("kf_voice");}catch(e){}
+    const chosen=saved&&vs.find(v=>v.voiceURI===saved||v.name===saved);
+    KO_VOICE=chosen||vs.sort((a,b)=>score(b)-score(a))[0];
   }catch(e){}
 }
 try{pickKoVoice();speechSynthesis.addEventListener("voiceschanged",pickKoVoice);}catch(e){}
@@ -1767,10 +1786,42 @@ function doRestore(){
   msg.innerHTML=esc(bt("done2"))+'<div class="bk-sum">'+levelSummary(state)+'</div>';
 }
 function applyBkLang(){
+  const vm=document.getElementById("vc-menu");if(vm&&typeof vt==="function")vm.textContent=vt("menu");
   const e=document.getElementById("bk-menu-export");if(e)e.textContent=bt("exp");
   const i=document.getElementById("bk-menu-import");if(i)i.textContent=bt("imp");
   document.querySelectorAll("#backup-modal .modal-close,#restore-modal .modal-close").forEach(b=>b.textContent=bt("close"));
 }
+
+// ---- 読み上げの声を選ぶ ----
+const VC_TEXT={ja:{menu:"読み上げの声",title:"🗣️ 読み上げの声",desc:"この端末に入っている韓国語の声です。タップすると試しに読み上げます。",none:"韓国語の声が見つかりません",auto:"おすすめ（自動）",close:"閉じる",sample:"안녕하세요. 만나서 반갑습니다."},
+  en:{menu:"Voice",title:"🗣️ Voice",desc:"Korean voices on this device. Tap to preview.",none:"No Korean voice found",auto:"Recommended (auto)",close:"Close",sample:"안녕하세요. 만나서 반갑습니다."},
+  zh:{menu:"朗读声音",title:"🗣️ 朗读声音",desc:"本设备上的韩语声音。点击可试听。",none:"未找到韩语声音",auto:"推荐（自动）",close:"关闭",sample:"안녕하세요. 만나서 반갑습니다."}};
+function vt(k){return (VC_TEXT[currentLang]||VC_TEXT.ja)[k];}
+function openVoice(){
+  closeSettings();
+  document.getElementById("vc-title").textContent=vt("title");
+  document.getElementById("vc-desc").textContent=vt("desc");
+  document.getElementById("vc-close").textContent=vt("close");
+  renderVoiceList();
+  document.getElementById("voice-modal").classList.add("active");
+}
+function renderVoiceList(){
+  const box=document.getElementById("vc-list");
+  let vs=[];try{vs=speechSynthesis.getVoices().filter(v=>/^ko/i.test(v.lang));}catch(e){}
+  if(!vs.length){box.innerHTML=`<p class="bk-desc">${vt("none")}</p>`;return;}
+  let saved=null;try{saved=localStorage.getItem("kf_voice");}catch(e){}
+  const items=[{id:"",name:vt("auto"),sub:""}].concat(vs.map(v=>({id:v.voiceURI||v.name,name:v.name,sub:v.localService===false?"online":v.lang})));
+  box.innerHTML="";
+  items.forEach(it=>{
+    const d=document.createElement("div");d.className="vc-item"+(((saved||"")===it.id)?" active":"");
+    d.innerHTML=`<span>${esc(it.name)}</span><span class="vc-sub">${esc(it.sub)}</span>`;
+    d.onclick=()=>{try{if(it.id)localStorage.setItem("kf_voice",it.id);else localStorage.removeItem("kf_voice");}catch(e){}
+      KO_VOICE=null;pickKoVoice();renderVoiceList();
+      try{speechSynthesis.cancel();speechSynthesis.speak(koUtter(vt("sample"),0.95));}catch(e){}};
+    box.appendChild(d);
+  });
+}
+try{speechSynthesis.addEventListener("voiceschanged",()=>{if(document.getElementById("voice-modal").classList.contains("active"))renderVoiceList();});}catch(e){}
 </script>
 </body>
 </html>
