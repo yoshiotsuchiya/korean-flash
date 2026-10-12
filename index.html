@@ -159,10 +159,11 @@ body{background:#1a1340;min-height:100%}
 /* GAME OVER */
 #gameover{gap:12px;align-items:center;text-align:center;overflow-y:auto}
 #gameover h2{font-size:26px;font-weight:800;color:#fff;margin-top:auto}
+.go-stats .num{font-size:20px!important}
 #gameover .go-score{font-size:52px;font-weight:800;color:#ffd76a;line-height:1;font-variant-numeric:tabular-nums}
 #gameover .go-record{font-size:13px;font-weight:700;color:#1a1340;background:#ffd76a;padding:4px 12px;border-radius:99px}
 #gameover .go-sub{color:rgba(255,255,255,0.75);font-size:13px}
-.go-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%}
+.go-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%}
 .go-missed{width:100%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:12px 14px;text-align:left;color:#fff}
 .go-missed h4{font-size:13px;font-weight:700;margin-bottom:6px;color:rgba(255,255,255,0.85)}
 .go-missed .row{display:flex;gap:10px;padding:5px 0;border-top:1px solid rgba(255,255,255,0.1);font-size:14px}
@@ -300,6 +301,7 @@ body{background:#1a1340;min-height:100%}
     <button class="back-btn" onclick="quitGame()">✕</button>
     <div class="hud-score" id="g-score">0</div>
     <div class="hud-lives" id="g-lives">❤️❤️❤️</div>
+    <button class="back-btn" id="g-sound" onclick="toggleSound()">🔊</button>
   </div>
   <div id="game-stage">
     <canvas id="game-canvas"></canvas>
@@ -315,6 +317,7 @@ body{background:#1a1340;min-height:100%}
   <div class="go-stats stat-row">
     <div class="stat-card green"><div class="num" id="go-correct">0</div><div class="lbl" id="go-lbl-correct">正解</div></div>
     <div class="stat-card yellow"><div class="num" id="go-combo">0</div><div class="lbl" id="go-lbl-combo">最大コンボ</div></div>
+    <div class="stat-card blue"><div class="num" id="go-fast">-</div><div class="lbl" id="go-lbl-fast">最速</div></div>
     <div class="stat-card red"><div class="num" id="go-miss">0</div><div class="lbl" id="go-lbl-miss">ミス</div></div>
   </div>
   <div class="go-missed" id="go-missed"></div>
@@ -907,9 +910,9 @@ init();
 // ===================== 単語シューティング =====================
 const GAME_KEY="kf_game_v1";
 const G_TEXT={
-  ja:{menu:"ゲーム",sub:"単語シューティング",best:"ハイスコア",none:"まだ記録なし",howto:"韓国語の意味を<br>左右どちらか正しい方を撃て！<br><br>画面の左右をタップ（キーボードは ← →）",start:"タップでスタート",over:"ゲームオーバー",record:"🏆 ハイスコア更新！",bestIs:"ハイスコア ",correct:"正解",combo:"最大コンボ",miss:"ミス",missed:"間違えた単語",added:"↑ 苦手リストに追加しました",perfect:"ノーミス！",retry:"もう一度",home:"ホームに戻る",few:"このレベルは単語が少なすぎます",paused:"一時停止中<br>タップで再開",answer:"正解"},
-  en:{menu:"Game",sub:"Word Shooter",best:"High score",none:"No record yet",howto:"Shoot the correct meaning<br>on the left or right!<br><br>Tap left/right (keyboard: ← →)",start:"Tap to start",over:"Game Over",record:"🏆 New high score!",bestIs:"High score ",correct:"Correct",combo:"Max combo",miss:"Misses",missed:"Words you missed",added:"↑ Added to your review list",perfect:"No misses!",retry:"Play again",home:"Back to home",few:"Not enough words in this level",paused:"Paused<br>Tap to resume",answer:"Answer"},
-  zh:{menu:"游戏",sub:"单词射击",best:"最高分",none:"暂无记录",howto:"射击正确的意思<br>左边还是右边？<br><br>点击屏幕左右（键盘 ← →）",start:"点击开始",over:"游戏结束",record:"🏆 刷新最高分！",bestIs:"最高分 ",correct:"正确",combo:"最大连击",miss:"失误",missed:"答错的单词",added:"↑ 已加入待复习列表",perfect:"零失误！",retry:"再玩一次",home:"返回首页",few:"该级别单词太少",paused:"已暂停<br>点击继续",answer:"正确答案"}
+  ja:{menu:"ゲーム",sub:"単語シューティング",best:"ハイスコア",none:"まだ記録なし",howto:"韓国語の意味を<br>左右どちらか正しい方を撃て！<br>⚡ 早く撃つほど高得点<br><br>画面の左右をタップ（キーボードは ← →）",start:"タップでスタート",over:"ゲームオーバー",record:"🏆 ハイスコア更新！",bestIs:"ハイスコア ",correct:"正解",combo:"最大コンボ",miss:"ミス",missed:"間違えた単語",added:"↑ 苦手リストに追加しました",perfect:"ノーミス！",retry:"もう一度",home:"ホームに戻る",few:"このレベルは単語が少なすぎます",paused:"一時停止中<br>タップで再開",answer:"正解",godspeed:"神速！",quick:"早撃ち！",sec:"秒",fastest:"最速"},
+  en:{menu:"Game",sub:"Word Shooter",best:"High score",none:"No record yet",howto:"Shoot the correct meaning<br>on the left or right!<br><br>Tap left/right (keyboard: ← →)",start:"Tap to start",over:"Game Over",record:"🏆 New high score!",bestIs:"High score ",correct:"Correct",combo:"Max combo",miss:"Misses",missed:"Words you missed",added:"↑ Added to your review list",perfect:"No misses!",retry:"Play again",home:"Back to home",few:"Not enough words in this level",paused:"Paused<br>Tap to resume",answer:"Answer",godspeed:"Lightning!",quick:"Quick!",sec:"s",fastest:"Fastest"},
+  zh:{menu:"游戏",sub:"单词射击",best:"最高分",none:"暂无记录",howto:"射击正确的意思<br>左边还是右边？<br><br>点击屏幕左右（键盘 ← →）",start:"点击开始",over:"游戏结束",record:"🏆 刷新最高分！",bestIs:"最高分 ",correct:"正确",combo:"最大连击",miss:"失误",missed:"答错的单词",added:"↑ 已加入待复习列表",perfect:"零失误！",retry:"再玩一次",home:"返回首页",few:"该级别单词太少",paused:"已暂停<br>点击继续",answer:"正确答案",godspeed:"神速！",quick:"快枪手！",sec:"秒",fastest:"最快"}
 };
 function gt(k){return (G_TEXT[currentLang]||G_TEXT.ja)[k]||G_TEXT.ja[k];}
 function meaningOf(w){return currentLang==="en"&&w.en?w.en:(currentLang==="zh"&&w.zh?w.zh:w.jp);}
@@ -937,13 +940,99 @@ function pickDistractor(w){
   return cand[Math.floor(Math.random()*cand.length)];
 }
 
+// ---- sound ----
+const SND={ctx:null,on:true};
+try{SND.on=localStorage.getItem("kf_sound")!=="off";}catch(e){}
+function audioUnlock(){
+  try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){}   // iPhoneのマナーモードでも鳴らす
+  try{
+    if(!SND.ctx){const AC=window.AudioContext||window.webkitAudioContext;if(AC){SND.ctx=new AC();
+      const comp=SND.ctx.createDynamicsCompressor();comp.threshold.value=-18;comp.ratio.value=4;
+      SND.master=SND.ctx.createGain();SND.master.gain.value=0.9;SND.master.connect(comp);comp.connect(SND.ctx.destination);}}
+    if(SND.ctx&&SND.ctx.state!=="running")SND.ctx.resume();
+    if(SND.ctx){const b=SND.ctx.createBuffer(1,1,22050),s=SND.ctx.createBufferSource();s.buffer=b;s.connect(SND.ctx.destination);s.start(0);}
+  }catch(e){}
+  if(!SND.speechUnlocked){try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);SND.speechUnlocked=true;}catch(e){}}
+}
+function tone(f1,f2,dur,type,vol,delay){
+  if(!SND.on||!SND.ctx)return;
+  try{
+    const c=SND.ctx,t=c.currentTime+(delay||0),o=c.createOscillator(),g=c.createGain();
+    o.type=type||"sine";o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(Math.max(f2,1),t+dur);
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.2,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g);g.connect(SND.master||c.destination);o.start(t);o.stop(t+dur+0.02);
+  }catch(e){}
+}
+function noiseBurst(dur,vol,f1,f2,delay){
+  if(!SND.on||!SND.ctx)return;
+  try{
+    const c=SND.ctx,t=c.currentTime+(delay||0);
+    if(!SND.noise){const n=c.sampleRate*1.5,b=c.createBuffer(1,n,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;SND.noise=b;}
+    const src=c.createBufferSource();src.buffer=SND.noise;
+    const lp=c.createBiquadFilter();lp.type="lowpass";lp.Q.value=0.7;
+    lp.frequency.setValueAtTime(f1,t);lp.frequency.exponentialRampToValueAtTime(Math.max(f2,40),t+dur);
+    const g=c.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.008);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    src.connect(lp);lp.connect(g);g.connect(SND.master||c.destination);src.start(t,Math.random()*0.5);src.stop(t+dur+0.05);
+  }catch(e){}
+}
+// やわらかいベル音（基音＋少しの倍音、ゆっくり減衰）
+function bell(freq,delay,vol,dur){
+  if(!SND.on||!SND.ctx)return;
+  try{
+    const c=SND.ctx,t=c.currentTime+(delay||0),d=dur||0.7;
+    [[1,1],[2.01,0.22],[3.0,0.07]].forEach(([m,a])=>{
+      const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.setValueAtTime(freq*m,t);
+      g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime((vol||0.12)*a,t+0.006);g.gain.exponentialRampToValueAtTime(0.0001,t+d/m);
+      o.connect(g);g.connect(SND.master||c.destination);o.start(t);o.stop(t+d+0.05);
+    });
+  }catch(e){}
+}
+// やわらかいレーザー「ピュン」
+function laser(){
+  if(!SND.on||!SND.ctx)return;
+  try{
+    const c=SND.ctx,t=c.currentTime,o=c.createOscillator(),g=c.createGain(),lp=c.createBiquadFilter();
+    o.type="triangle";o.frequency.setValueAtTime(1400,t);o.frequency.exponentialRampToValueAtTime(380,t+0.13);
+    lp.type="lowpass";lp.frequency.value=2600;
+    g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.16,t+0.006);g.gain.exponentialRampToValueAtTime(0.0001,t+0.15);
+    o.connect(lp);lp.connect(g);g.connect(SND.master||c.destination);o.start(t);o.stop(t+0.17);
+  }catch(e){}
+}
+function sfx(kind){
+  if(kind==="shot"){laser();}
+  else if(kind==="hit"){            // ポンッ＋キラン
+    noiseBurst(0.22,0.18,1400,120);tone(180,70,0.18,"sine",0.22);
+    bell(1318.5,0.05,0.13);bell(1975.5,0.12,0.11);
+  }
+  else if(kind==="fast"){           // ポンッ＋キラキラ（ドミソド）
+    noiseBurst(0.22,0.2,1600,120);tone(180,70,0.18,"sine",0.24);
+    bell(1046.5,0.04,0.12,0.5);bell(1318.5,0.10,0.12,0.5);bell(1568,0.16,0.12,0.5);bell(2093,0.22,0.12,0.9);
+  }
+  else if(kind==="miss"){           // ぽよん（低めでやさしく）
+    tone(330,165,0.32,"sine",0.22);tone(247,123,0.38,"triangle",0.10,0.06);
+  }
+  else if(kind==="beep"){bell(880,0,0.10,0.25);}
+  else if(kind==="go"){bell(1318.5,0,0.11,0.5);bell(1760,0,0.08,0.5);}
+  else if(kind==="over"){bell(784,0,0.12,0.6);bell(659.3,0.18,0.12,0.6);bell(523.3,0.36,0.12,1.2);}
+}
+function speakKo(text){
+  if(!SND.on)return;
+  try{const u=new SpeechSynthesisUtterance(text);u.lang="ko-KR";u.rate=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function toggleSound(){
+  SND.on=!SND.on;try{localStorage.setItem("kf_sound",SND.on?"on":"off");}catch(e){}
+  updateSoundBtn();if(SND.on){audioUnlock();sfx("beep");}else{try{speechSynthesis.cancel();}catch(e){}}
+}
+function updateSoundBtn(){const b=document.getElementById("g-sound");if(b)b.textContent=SND.on?"🔊":"🔇";}
+
 function startGame(){
+  audioUnlock();updateSoundBtn();
   const pool=gamePool();
   if(pool.length<2){alert(gt("few"));return;}
   Object.assign(G,{
     pool:shuffle(pool),pi:0,score:0,lives:3,combo:0,maxCombo:0,correct:0,missed:[],
     speed:0.085,phase:"ready",q:null,shipX:0.5,shipTarget:0.5,bullet:null,particles:[],
-    flash:null,last:0,paused:false,banner:null
+    flash:null,last:0,paused:false,banner:null,fastest:0
   });
   if(!G.stars){G.stars=[];for(let i=0;i<60;i++)G.stars.push({x:Math.random(),y:Math.random(),s:Math.random()*1.6+0.4,v:Math.random()*0.04+0.02});}
   showScreen("game");
@@ -968,7 +1057,7 @@ function nextQuestion(){
   const d=pickDistractor(w);
   const correctSide=Math.random()<0.5?0:1;
   const opts=correctSide===0?[w,d]:[d,w];
-  G.q={w,opts,correctSide,y:0,resolved:false,fade:[1,1],hit:-1};
+  G.q={w,opts,correctSide,y:0,t:0,resolved:false,fade:[1,1],hit:-1};
   G.phase="play";
 }
 
@@ -982,7 +1071,10 @@ function shoot(side){
   if(G.paused){G.paused=false;hideGameOverlay();G.last=0;return;}
   if(G.phase!=="play"||!G.q||G.q.resolved||G.bullet)return;
   G.shipTarget=side===0?0.27:0.73;
+  G.q.reactT=G.q.t;   // 早撃ち判定はタップした瞬間の時間で
   G.bullet={side,x:G.shipTarget,y:0.86,fireAt:0.09};   // fires after ship moves
+  audioUnlock();sfx("shot");
+  if(side===G.q.correctSide) speakKo(G.q.w.ko);   // iPhoneはタップの瞬間でないと発音できない
 }
 
 function resolve(side,timeout){
@@ -992,14 +1084,18 @@ function resolve(side,timeout){
   const ex=(i)=>({x:(i===0?0.27:0.73)*S.w,y:enemyY(q.y)*S.h});
   if(ok){
     G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);G.correct++;
-    const timeBonus=Math.round(60*(1-q.y));
-    const pts=Math.round((100+timeBonus)*(1+Math.min(G.combo-1,10)*0.1));
+    // 早撃ちボーナス：タップまでの秒数が短いほど大きい（最大+400）
+    const rt=q.reactT||0;
+    const speedBonus=Math.round(400*Math.pow(Math.max(0,1-rt/2.5),2));
+    const tier=rt<0.8?"⚡ "+gt("godspeed"):(rt<1.5?"🔥 "+gt("quick"):"");
+    const pts=Math.round((100+speedBonus)*(1+Math.min(G.combo-1,10)*0.1));
+    if(!G.fastest||rt<G.fastest)G.fastest=rt;
     G.score+=pts;
     burst(ex(side),"#ffd76a",26);
     q.hit=side;
-    G.banner={text:"+"+pts+(G.combo>1?"  ×"+G.combo:""),color:"#ffd76a",t:0};
+    G.banner={text:"+"+pts+(G.combo>1?"  ×"+G.combo:"")+(tier?"\n"+tier+" "+rt.toFixed(2)+gt("sec"):""),color:"#ffd76a",t:0};
+    sfx(tier?"fast":"hit");
     G.speed=Math.min(G.speed*1.045,0.32);
-    try{const u=new SpeechSynthesisUtterance(q.w.ko);u.lang="ko-KR";u.rate=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
     G.phase="after";G.afterT=0;G.afterDur=0.55;
   }else{
     G.combo=0;G.lives--;
@@ -1007,7 +1103,7 @@ function resolve(side,timeout){
     if(!timeout) burst(ex(side),"#fb7185",18);
     q.hit=-1;q.showCorrect=true;
     G.banner={text:gt("answer")+"："+q.w.ko+" = "+meaningOf(q.w),color:"#fb7185",t:0};
-    G.flash={t:0};
+    G.flash={t:0};sfx("miss");
     if(navigator.vibrate) try{navigator.vibrate(120);}catch(e){}
     G.phase="after";G.afterT=0;G.afterDur=1.6;
   }
@@ -1020,7 +1116,7 @@ function burst(p,color,n){
 }
 
 function endGame(){
-  G.phase="over";
+  G.phase="over";sfx("over");
   // 間違えた単語を苦手リストへ
   const st=curState();
   G.missed.forEach(w=>{st.weak[K(w)]=(st.weak[K(w)]||0)+1;delete st.mastered[K(w)];delete st.perfect[K(w)];});
@@ -1033,6 +1129,8 @@ function endGame(){
   document.getElementById("go-best").textContent="TOPIK "+currentTopik+" · "+gt("bestIs")+Math.max(prev,G.score).toLocaleString();
   document.getElementById("go-correct").textContent=G.correct;
   document.getElementById("go-combo").textContent=G.maxCombo;
+  document.getElementById("go-fast").textContent=G.fastest?G.fastest.toFixed(2)+gt("sec"):"-";
+  document.getElementById("go-lbl-fast").textContent=gt("fastest");
   document.getElementById("go-miss").textContent=G.missed.length;
   document.getElementById("go-lbl-correct").textContent=gt("correct");
   document.getElementById("go-lbl-combo").textContent=gt("combo");
@@ -1075,10 +1173,10 @@ function stepGame(dt){
   G.particles=G.particles.filter(p=>p.t<p.life);
   if(G.banner){G.banner.t+=dt;}
   if(G.flash){G.flash.t+=dt;if(G.flash.t>0.35)G.flash=null;}
-  if(G.phase==="count"){G.countT+=dt;if(G.countT>=2.4){G.banner=null;nextQuestion();}return;}
+  if(G.phase==="count"){const pc=Math.floor(G.countT/0.8);G.countT+=dt;const nc=Math.floor(G.countT/0.8);if(G.countT-dt<=0||nc!==pc)sfx(nc>=3?"go":"beep");if(G.countT>=2.4){G.banner=null;nextQuestion();}return;}
   if(G.phase==="play"){
     const q=G.q;
-    q.y+=G.speed*dt;
+    q.y+=G.speed*dt;q.t+=dt;
     if(G.bullet){
       const b=G.bullet;
       if(b.fireAt>0){b.fireAt-=dt;}
@@ -1115,7 +1213,7 @@ function wrapText(ctx,text,maxW,maxLines,startSize,minSize,weight){
   for(const ch of text){const t=cur+ch;if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=ch;if(lines.length===maxLines)break;}else cur=t;}
   if(lines.length<maxLines&&cur)lines.push(cur);
   lines[lines.length-1]=lines[lines.length-1].slice(0,-1)+"…";
-  return {lines,size};
+  return {lines,size,cut:true};
 }
 
 function drawGame(){
@@ -1154,7 +1252,7 @@ function drawGame(){
       ctx.shadowColor=isCorrectShown?"rgba(74,222,128,0.9)":(i===0?"rgba(255,138,210,0.8)":"rgba(122,252,255,0.8)");ctx.shadowBlur=18;
       roundRect(ctx,-ew/2,-eh/2,ew,eh,18);ctx.fillStyle="#fff";ctx.fill();ctx.shadowBlur=0;
       ctx.lineWidth=3;ctx.strokeStyle=isCorrectShown?"#4ade80":(isHit?"#ffd76a":(i===0?"#ff8ad2":"#7afcff"));ctx.stroke();
-      const tx=wrapText(ctx,meaningOf(q.opts[i]),ew-20,3,20,11,"700");
+      let tx=wrapText(ctx,meaningOf(q.opts[i]),ew-20,1,20,14,"700");if(tx.cut)tx=wrapText(ctx,meaningOf(q.opts[i]),ew-20,3,18,11,"700");
       ctx.font=`700 ${tx.size}px -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif`;ctx.fillStyle="#1a1a1a";
       const lh=tx.size*1.2,y0=-(tx.lines.length-1)*lh/2;
       tx.lines.forEach((l,k)=>ctx.fillText(l,0,y0+k*lh));
@@ -1181,7 +1279,7 @@ function drawGame(){
   // banner
   if(G.banner){
     ctx.textAlign="center";ctx.textBaseline="middle";
-    const tx=wrapText(ctx,G.banner.text,W-40,2,G.banner.color==="#ffd76a"?24:17,12,"800");
+    const parts=G.banner.text.split("\n");const tx={lines:[],size:99};parts.forEach((pt,ix)=>{const r=wrapText(ctx,pt,W-40,2,G.banner.color==="#ffd76a"?(ix?18:26):17,12,"800");tx.lines.push(...r.lines);tx.size=Math.min(tx.size,r.size);});
     ctx.font=`800 ${tx.size}px -apple-system,"Hiragino Sans",sans-serif`;
     const yy=H*0.5-(G.banner.color==="#ffd76a"?G.banner.t*40:0);
     if(G.banner.color!=="#ffd76a"){const bw=W-24,bh=tx.lines.length*tx.size*1.3+20;roundRect(ctx,12,yy-bh/2,bw,bh,14);ctx.fillStyle="rgba(20,10,50,0.85)";ctx.fill();}
