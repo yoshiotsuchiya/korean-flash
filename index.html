@@ -172,6 +172,13 @@ body{background:#1a1340;min-height:100%}
 .go-missed .note{font-size:11px;color:rgba(255,255,255,0.55);margin-top:6px}
 #gameover .done-btn{max-width:420px}
 #gameover>:last-child{margin-bottom:auto}
+
+.bk-desc{font-size:13px;color:#555;line-height:1.6;margin:-6px 0 10px;text-align:center}
+.bk-code{width:100%;height:110px;border-radius:12px;border:1px solid #ddd;padding:10px;font-size:11px;font-family:ui-monospace,Menlo,monospace;color:#444;background:#f7f5fc;resize:none;word-break:break-all}
+.bk-main{width:100%;padding:14px;border-radius:14px;border:none;background:#5b2a86;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}
+.bk-main:active{opacity:0.85}
+.bk-msg{font-size:13px;color:#1D9E75;text-align:center;min-height:18px;margin:8px 0 2px;line-height:1.5;font-weight:600}
+.bk-msg.err{color:#e24b4a}
 </style>
 </head>
 <body>
@@ -322,10 +329,39 @@ body{background:#1a1340;min-height:100%}
       <span class="modal-icon">🔄</span>
       <span>最新版を読み込む</span>
     </div>
+    <div class="modal-item" onclick="openBackup()">
+      <span class="modal-icon">📤</span>
+      <span id="bk-menu-export">学習記録をバックアップ</span>
+    </div>
+    <div class="modal-item" onclick="openRestore()">
+      <span class="modal-icon">📥</span>
+      <span id="bk-menu-import">学習記録を復元</span>
+    </div>
     <button class="modal-close" onclick="closeSettings()">閉じる</button>
   </div>
 </div>
 
+
+<div class="modal-overlay" id="backup-modal">
+  <div class="modal-box">
+    <h3 id="bk-title">📤 バックアップ</h3>
+    <p class="bk-desc" id="bk-desc"></p>
+    <textarea id="bk-code" class="bk-code" readonly></textarea>
+    <button class="bk-main" id="bk-copy" onclick="copyBackup()">コピーする</button>
+    <p class="bk-msg" id="bk-msg"></p>
+    <button class="modal-close" onclick="closeBk('backup-modal')">閉じる</button>
+  </div>
+</div>
+<div class="modal-overlay" id="restore-modal">
+  <div class="modal-box">
+    <h3 id="rs-title">📥 復元</h3>
+    <p class="bk-desc" id="rs-desc"></p>
+    <textarea id="rs-code" class="bk-code" placeholder="KFB1:..."></textarea>
+    <button class="bk-main" id="rs-btn" onclick="doRestore()">復元する</button>
+    <p class="bk-msg" id="rs-msg"></p>
+    <button class="modal-close" onclick="closeBk('restore-modal')">閉じる</button>
+  </div>
+</div>
 <div class="modal-overlay" id="lang-modal">
   <div class="modal-box">
     <h3>🌐 Language</h3>
@@ -465,6 +501,7 @@ function updateHome(){
   document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja);
   document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit;
   if(typeof updateGameMenu==="function") updateGameMenu();
+  if(typeof applyBkLang==="function") applyBkLang();
 }
 
 function startNew(){
@@ -1185,6 +1222,98 @@ function drawGame(){
     }
   });
 })();
+
+// ===================== バックアップ / 復元 =====================
+const BK_TEXT={
+  ja:{exp:"学習記録をバックアップ",imp:"学習記録を復元",bkTitle:"📤 バックアップ",rsTitle:"📥 復元",
+      bkDesc:"下のコードをコピーして、メモアプリなどに貼って保存してください。<br>新しいアプリの「学習記録を復元」に貼り付けると引き継げます。",
+      rsDesc:"バックアップしたコードを貼り付けてください。<br>今ある記録は消えず、合わせた形で残ります。",
+      copy:"コピーする",copied:"✓ コピーしました",copyFail:"コードを長押しして全選択→コピーしてください",
+      restore:"復元する",empty:"コードを貼り付けてください",bad:"コードが正しくありません。最初から最後まで全部貼り付けてください",
+      done:"✓ 復元しました（{n}語の記録）",close:"閉じる",summary:"習得済み {m}語・要復習 {w}語・完璧 {p}語"},
+  en:{exp:"Back up progress",imp:"Restore progress",bkTitle:"📤 Backup",rsTitle:"📥 Restore",
+      bkDesc:"Copy this code and keep it somewhere (e.g. Notes).<br>Paste it into “Restore progress” in the new app.",
+      rsDesc:"Paste your backup code.<br>Existing progress is kept and merged.",
+      copy:"Copy",copied:"✓ Copied",copyFail:"Long-press the code, select all and copy",
+      restore:"Restore",empty:"Paste a code first",bad:"Invalid code. Paste the whole code from start to end",
+      done:"✓ Restored ({n} words)",close:"Close",summary:"Mastered {m} · Review {w} · Perfect {p}"},
+  zh:{exp:"备份学习记录",imp:"恢复学习记录",bkTitle:"📤 备份",rsTitle:"📥 恢复",
+      bkDesc:"复制下面的代码并保存到备忘录等处。<br>在新应用的“恢复学习记录”中粘贴即可继承。",
+      rsDesc:"请粘贴备份代码。<br>现有记录不会丢失，将合并保存。",
+      copy:"复制",copied:"✓ 已复制",copyFail:"请长按代码，全选后复制",
+      restore:"恢复",empty:"请先粘贴代码",bad:"代码不正确，请完整粘贴",
+      done:"✓ 已恢复（{n}个单词的记录）",close:"关闭",summary:"已掌握 {m} · 待复习 {w} · 完美 {p}"}
+};
+function bt(k){return (BK_TEXT[currentLang]||BK_TEXT.ja)[k]||BK_TEXT.ja[k];}
+function b64enc(str){return btoa(unescape(encodeURIComponent(str)));}
+function b64dec(b){return decodeURIComponent(escape(atob(b)));}
+function countState(){let m=0,w=0,p=0;Object.values(state).forEach(s=>{m+=Object.keys(s.mastered||{}).length;w+=Object.keys(s.weak||{}).length;p+=Object.keys(s.perfect||{}).length;});return {m,w,p};}
+function closeBk(id){document.getElementById(id).classList.remove("active");}
+
+function openBackup(){
+  closeSettings();
+  let game={};try{game=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
+  const payload={v:1,t:Date.now(),state,game};
+  document.getElementById("bk-code").value="KFB1:"+b64enc(JSON.stringify(payload));
+  const c=countState();
+  document.getElementById("bk-title").textContent=bt("bkTitle");
+  document.getElementById("bk-desc").innerHTML=bt("bkDesc")+"<br><b>"+bt("summary").replace("{m}",c.m).replace("{w}",c.w).replace("{p}",c.p)+"</b>";
+  document.getElementById("bk-copy").textContent=bt("copy");
+  const msg=document.getElementById("bk-msg");msg.textContent="";msg.classList.remove("err");
+  document.getElementById("backup-modal").classList.add("active");
+}
+async function copyBackup(){
+  const ta=document.getElementById("bk-code"),msg=document.getElementById("bk-msg");
+  let ok=false;
+  try{await navigator.clipboard.writeText(ta.value);ok=true;}catch(e){}
+  if(!ok){try{ta.removeAttribute("readonly");ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);ok=document.execCommand("copy");ta.setAttribute("readonly","");}catch(e){}}
+  msg.classList.toggle("err",!ok);
+  msg.textContent=ok?bt("copied"):bt("copyFail");
+}
+function openRestore(){
+  closeSettings();
+  document.getElementById("rs-title").textContent=bt("rsTitle");
+  document.getElementById("rs-desc").innerHTML=bt("rsDesc");
+  document.getElementById("rs-btn").textContent=bt("restore");
+  document.getElementById("rs-code").value="";
+  const msg=document.getElementById("rs-msg");msg.textContent="";msg.classList.remove("err");
+  document.getElementById("restore-modal").classList.add("active");
+}
+function doRestore(){
+  const raw=document.getElementById("rs-code").value.replace(/\s+/g,"");
+  const msg=document.getElementById("rs-msg");msg.classList.add("err");
+  if(!raw){msg.textContent=bt("empty");return;}
+  let data;
+  try{
+    if(!raw.startsWith("KFB1:"))throw 0;
+    data=JSON.parse(b64dec(raw.slice(5)));
+    if(!data||typeof data.state!=="object")throw 0;
+  }catch(e){msg.textContent=bt("bad");return;}
+  // 合体（今ある記録は消さない）
+  Object.entries(data.state).forEach(([tp,src])=>{
+    if(!src||typeof src!=="object")return;
+    if(!state[tp])state[tp]={mastered:{},weak:{},perfect:{}};
+    const dst=state[tp];["mastered","weak","perfect"].forEach(k=>{if(!dst[k])dst[k]={};});
+    Object.keys(src.perfect||{}).forEach(k=>{dst.perfect[k]=true;dst.mastered[k]=true;delete dst.weak[k];});
+    Object.keys(src.mastered||{}).forEach(k=>{if(!dst.weak[k])dst.mastered[k]=true;});
+    Object.entries(src.weak||{}).forEach(([k,v])=>{if(!dst.perfect[k]&&!dst.mastered[k])dst.weak[k]=Math.max(dst.weak[k]||0,Number(v)||1);});
+  });
+  saveState();
+  if(data.game&&typeof data.game==="object"){
+    let g={};try{g=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
+    Object.entries(data.game).forEach(([k,v])=>{g[k]=Math.max(g[k]||0,Number(v)||0);});
+    try{localStorage.setItem("kf_game_v1",JSON.stringify(g));}catch(e){}
+  }
+  updateHome();
+  const c=countState();
+  msg.classList.remove("err");
+  msg.textContent=bt("done").replace("{n}",c.m+c.w);
+}
+function applyBkLang(){
+  const e=document.getElementById("bk-menu-export");if(e)e.textContent=bt("exp");
+  const i=document.getElementById("bk-menu-import");if(i)i.textContent=bt("imp");
+  document.querySelectorAll("#backup-modal .modal-close,#restore-modal .modal-close").forEach(b=>b.textContent=bt("close"));
+}
 </script>
 </body>
 </html>
