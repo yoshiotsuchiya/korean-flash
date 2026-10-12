@@ -197,6 +197,13 @@ body{background:#1a1340;min-height:100%}
 @keyframes gblink{0%,100%{opacity:1}50%{opacity:0.35}}
 #gameover h2{font-style:italic;letter-spacing:1px;text-shadow:0 0 16px rgba(255,110,199,0.7)}
 #gameover .go-score{background:linear-gradient(180deg,#fff,#ffe27a 50%,#ff6ec7);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,110,199,0.6))}
+
+.bk-sum{margin-top:8px;background:#f7f5fc;border-radius:10px;padding:6px 10px;text-align:left}
+.bk-row{display:flex;gap:10px;font-size:12px;color:#444;padding:2px 0}
+.bk-row b{min-width:34px;color:#5b2a86}
+.bk-row span{flex:1;white-space:nowrap}
+.bk-main.bk-sub{background:#efe9fb;color:#5b2a86}
+.bk-msg .bk-sum{color:#444;font-weight:400}
 </style>
 </head>
 <body>
@@ -366,8 +373,9 @@ body{background:#1a1340;min-height:100%}
   <div class="modal-box">
     <h3 id="bk-title">📤 バックアップ</h3>
     <p class="bk-desc" id="bk-desc"></p>
-    <textarea id="bk-code" class="bk-code" readonly></textarea>
+    <textarea id="bk-code" class="bk-code" readonly onfocus="this.select()"></textarea>
     <button class="bk-main" id="bk-copy" onclick="copyBackup()">コピーする</button>
+    <button class="bk-main bk-sub" id="bk-share" onclick="shareBackup()">メモなどに保存（共有）</button>
     <p class="bk-msg" id="bk-msg"></p>
     <button class="modal-close" onclick="closeBk('backup-modal')">閉じる</button>
   </div>
@@ -376,7 +384,7 @@ body{background:#1a1340;min-height:100%}
   <div class="modal-box">
     <h3 id="rs-title">📥 復元</h3>
     <p class="bk-desc" id="rs-desc"></p>
-    <textarea id="rs-code" class="bk-code" placeholder="KFB1:..."></textarea>
+    <textarea id="rs-code" class="bk-code" placeholder="KFB1:..." autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false"></textarea>
     <button class="bk-main" id="rs-btn" onclick="doRestore()">復元する</button>
     <p class="bk-msg" id="rs-msg"></p>
     <button class="modal-close" onclick="closeBk('restore-modal')">閉じる</button>
@@ -437,7 +445,7 @@ function loadState(){
   ["3","4"].forEach(k=>{if(!state[k]) state[k]={mastered:{},weak:{},perfect:{}};});
   ["1","2","3","4"].forEach(k=>{if(!state[k].perfect) state[k].perfect={};});
 }
-function saveState(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
+function saveState(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));return true;}catch(e){console.error(e);return false;}}
 function shuffle(a){let b=[...a];for(let i=b.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 
 function curState(){return state[currentTopik];}
@@ -1635,24 +1643,30 @@ const BK_TEXT={
       rsDesc:"バックアップしたコードを貼り付けてください。<br>今ある記録は消えず、合わせた形で残ります。",
       copy:"コピーする",copied:"✓ コピーしました",copyFail:"コードを長押しして全選択→コピーしてください",
       restore:"復元する",empty:"コードを貼り付けてください",bad:"コードが正しくありません。最初から最後まで全部貼り付けてください",
-      done:"✓ 復元しました（{n}語の記録）",close:"閉じる",summary:"習得済み {m}語・要復習 {w}語・完璧 {p}語"},
+      done:"✓ 復元しました（{n}語の記録）",done2:"✓ 復元しました",saveFail:"保存できませんでした。アプリを開き直してもう一度試してください",share:"メモなどに保存（共有）",close:"閉じる",summary:"習得済み {m}語・要復習 {w}語・完璧 {p}語"},
   en:{exp:"Back up progress",imp:"Restore progress",bkTitle:"📤 Backup",rsTitle:"📥 Restore",
       bkDesc:"Copy this code and keep it somewhere (e.g. Notes).<br>Paste it into “Restore progress” in the new app.",
       rsDesc:"Paste your backup code.<br>Existing progress is kept and merged.",
       copy:"Copy",copied:"✓ Copied",copyFail:"Long-press the code, select all and copy",
       restore:"Restore",empty:"Paste a code first",bad:"Invalid code. Paste the whole code from start to end",
-      done:"✓ Restored ({n} words)",close:"Close",summary:"Mastered {m} · Review {w} · Perfect {p}"},
+      done:"✓ Restored ({n} words)",done2:"✓ Restored",saveFail:"Could not save. Reopen the app and try again",share:"Save to Notes (Share)",close:"Close",summary:"Mastered {m} · Review {w} · Perfect {p}"},
   zh:{exp:"备份学习记录",imp:"恢复学习记录",bkTitle:"📤 备份",rsTitle:"📥 恢复",
       bkDesc:"复制下面的代码并保存到备忘录等处。<br>在新应用的“恢复学习记录”中粘贴即可继承。",
       rsDesc:"请粘贴备份代码。<br>现有记录不会丢失，将合并保存。",
       copy:"复制",copied:"✓ 已复制",copyFail:"请长按代码，全选后复制",
       restore:"恢复",empty:"请先粘贴代码",bad:"代码不正确，请完整粘贴",
-      done:"✓ 已恢复（{n}个单词的记录）",close:"关闭",summary:"已掌握 {m} · 待复习 {w} · 完美 {p}"}
+      done:"✓ 已恢复（{n}个单词的记录）",done2:"✓ 已恢复",saveFail:"保存失败，请重新打开应用后再试",share:"保存到备忘录（分享）",close:"关闭",summary:"已掌握 {m} · 待复习 {w} · 完美 {p}"}
 };
 function bt(k){return (BK_TEXT[currentLang]||BK_TEXT.ja)[k]||BK_TEXT.ja[k];}
 function b64enc(str){return btoa(unescape(encodeURIComponent(str)));}
 function b64dec(b){return decodeURIComponent(escape(atob(b)));}
 function countState(){let m=0,w=0,p=0;Object.values(state).forEach(s=>{m+=Object.keys(s.mastered||{}).length;w+=Object.keys(s.weak||{}).length;p+=Object.keys(s.perfect||{}).length;});return {m,w,p};}
+function levelSummary(st){
+  const lbl={ja:["級","習得","復習","完璧"],en:["TOPIK ","Mastered","Review","Perfect"],zh:["级","已掌握","待复习","完美"]}[currentLang]||["級","習得","復習","完璧"];
+  return Object.keys(st).sort().map(tp=>{const s=st[tp]||{};const m=Object.keys(s.mastered||{}).length,w=Object.keys(s.weak||{}).length,p=Object.keys(s.perfect||{}).length;
+    const name=currentLang==="en"?lbl[0]+tp:tp+lbl[0];
+    return `<div class="bk-row"><b>${name}</b><span>${lbl[1]} ${m}</span><span>${lbl[2]} ${w}</span><span>${lbl[3]} ${p}</span></div>`;}).join("");
+}
 function closeBk(id){document.getElementById(id).classList.remove("active");}
 
 function openBackup(){
@@ -1660,20 +1674,35 @@ function openBackup(){
   let game={};try{game=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
   const payload={v:1,t:Date.now(),state,game};
   document.getElementById("bk-code").value="KFB1:"+b64enc(JSON.stringify(payload));
-  const c=countState();
   document.getElementById("bk-title").textContent=bt("bkTitle");
-  document.getElementById("bk-desc").innerHTML=bt("bkDesc")+"<br><b>"+bt("summary").replace("{m}",c.m).replace("{w}",c.w).replace("{p}",c.p)+"</b>";
+  document.getElementById("bk-desc").innerHTML=bt("bkDesc")+'<div class="bk-sum">'+levelSummary(state)+'</div>';
+  const sh=document.getElementById("bk-share");sh.style.display=navigator.share?"block":"none";sh.textContent=bt("share");
   document.getElementById("bk-copy").textContent=bt("copy");
   const msg=document.getElementById("bk-msg");msg.textContent="";msg.classList.remove("err");
   document.getElementById("backup-modal").classList.add("active");
 }
 async function copyBackup(){
-  const ta=document.getElementById("bk-code"),msg=document.getElementById("bk-msg");
-  let ok=false;
-  try{await navigator.clipboard.writeText(ta.value);ok=true;}catch(e){}
-  if(!ok){try{ta.removeAttribute("readonly");ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);ok=document.execCommand("copy");ta.setAttribute("readonly","");}catch(e){}}
+  const ta=document.getElementById("bk-code"),msg=document.getElementById("bk-msg"),text=ta.value;
+  let ok=false,err="";
+  try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);ok=true;}}catch(e){err=e&&e.name||String(e);}
+  if(!ok){   // iPhone向けの予備手段
+    try{
+      const tmp=document.createElement("textarea");tmp.value=text;tmp.setAttribute("contenteditable","true");
+      tmp.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px";
+      document.body.appendChild(tmp);
+      const range=document.createRange();range.selectNodeContents(tmp);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+      tmp.setSelectionRange(0,text.length);
+      ok=document.execCommand("copy");document.body.removeChild(tmp);
+    }catch(e){err=err||(e&&e.name)||String(e);}
+  }
   msg.classList.toggle("err",!ok);
   msg.textContent=ok?bt("copied"):bt("copyFail");
+  if(!ok){ta.focus();ta.select();try{ta.setSelectionRange(0,text.length);}catch(e){}}
+}
+async function shareBackup(){
+  const msg=document.getElementById("bk-msg");
+  try{await navigator.share({title:"韓国語カード バックアップ",text:document.getElementById("bk-code").value});msg.classList.remove("err");msg.textContent="";}
+  catch(e){if(e&&e.name==="AbortError")return;msg.classList.add("err");msg.textContent=bt("copyFail");}
 }
 function openRestore(){
   closeSettings();
@@ -1685,7 +1714,8 @@ function openRestore(){
   document.getElementById("restore-modal").classList.add("active");
 }
 function doRestore(){
-  const raw=document.getElementById("rs-code").value.replace(/\s+/g,"");
+  let raw=document.getElementById("rs-code").value.replace(/[\s\u200b-\u200d\ufeff]+/g,"").replace(/^KFB1[:：]/i,"KFB1:");
+  if(!raw.startsWith("KFB1:")){const i=raw.indexOf("eyJ");if(i>=0)raw="KFB1:"+raw.slice(i);}
   const msg=document.getElementById("rs-msg");msg.classList.add("err");
   if(!raw){msg.textContent=bt("empty");return;}
   let data;
@@ -1703,16 +1733,16 @@ function doRestore(){
     Object.keys(src.mastered||{}).forEach(k=>{if(!dst.weak[k])dst.mastered[k]=true;});
     Object.entries(src.weak||{}).forEach(([k,v])=>{if(!dst.perfect[k]&&!dst.mastered[k])dst.weak[k]=Math.max(dst.weak[k]||0,Number(v)||1);});
   });
-  saveState();
+  const saved=saveState();
   if(data.game&&typeof data.game==="object"){
     let g={};try{g=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
     Object.entries(data.game).forEach(([k,v])=>{g[k]=Math.max(g[k]||0,Number(v)||0);});
     try{localStorage.setItem("kf_game_v1",JSON.stringify(g));}catch(e){}
   }
   updateHome();
-  const c=countState();
+  if(!saved){msg.classList.add("err");msg.textContent=bt("saveFail");return;}
   msg.classList.remove("err");
-  msg.textContent=bt("done").replace("{n}",c.m+c.w);
+  msg.innerHTML=esc(bt("done2"))+'<div class="bk-sum">'+levelSummary(state)+'</div>';
 }
 function applyBkLang(){
   const e=document.getElementById("bk-menu-export");if(e)e.textContent=bt("exp");
