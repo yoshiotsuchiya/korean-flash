@@ -2028,7 +2028,7 @@ function startVTest(){
   const order=shuffle(qs);
   const nListen=Math.round(order.length*VT_LISTEN_RATE);
   order.forEach((q,i)=>{q.listen=i<nListen;q.choices=vtChoices(q.w);});
-  Object.assign(VT,{N,qs:shuffle(order),i:-1,res:[],timer:null,t0:0,answered:false});
+  Object.assign(VT,{N,qs:shuffle(order),i:-1,res:[],timer:null,t0:0,answered:false,active:true,run:(VT.run||0)+1});
   document.getElementById("vt-intro").style.display="none";
   document.getElementById("vt-q").style.display="flex";
   vtNext();
@@ -2036,6 +2036,7 @@ function startVTest(){
 
 function vtNext(){
   clearInterval(VT.timer);
+  if(!VT.active)return;
   VT.i++;
   if(VT.i>=VT.qs.length){vtFinish();return;}
   const q=VT.qs[VT.i];VT.answered=false;
@@ -2062,7 +2063,7 @@ function vtNext(){
   if(!q.listen)vtStartTimer();
 }
 function vtStartTimer(){
-  if(VT.started||VT.answered)return;VT.started=true;
+  if(!VT.active||VT.started||VT.answered)return;VT.started=true;
   const q=VT.qs[VT.i];const limit=q.listen?VT_TIME_LISTEN:VT_TIME;
   VT.t0=performance.now();
   const bar=document.getElementById("vt-timer");
@@ -2075,12 +2076,12 @@ function vtStartTimer(){
 }
 function vtSpeak(byTap){
   const q=VT.qs[VT.i];if(!q)return;
-  try{const u=koUtter(q.w.ko,0.9);u.onstart=()=>vtStartTimer();speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+  try{const run=VT.run;const u=koUtter(q.w.ko,0.9);u.onstart=()=>{if(VT.active&&VT.run===run)vtStartTimer();};speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
   if(byTap){const b=document.getElementById("vt-play");if(b){b.classList.remove("big");b.textContent="🔊 "+vtt("replay");}setTimeout(vtStartTimer,600);}
 }
 
 function vtAnswer(ci){
-  if(VT.answered)return;VT.answered=true;clearInterval(VT.timer);
+  if(!VT.active||VT.answered)return;VT.answered=true;clearInterval(VT.timer);
   const q=VT.qs[VT.i];
   const correctIdx=q.choices.indexOf(q.w);
   const kind=ci===correctIdx?"r":(ci>=0?"w":"s");   // r=正解 w=不正解 s=わからない/時間切れ
@@ -2090,13 +2091,12 @@ function vtAnswer(ci){
   if(q.listen)document.getElementById("vt-word").innerHTML=`<div class="vt-ko">${esc(q.w.ko)}</div>`;
   try{if(kind==="r")sfx("beep");}catch(e){}
   const wait=kind==="r"?450:1100;
-  setTimeout(()=>{
-    // 次が聞き取り問題なら、タップの流れの中で読み上げられるよう少しでも早く進める
-    vtNext();
-  },wait);
+  const run=VT.run;
+  setTimeout(()=>{if(VT.active&&VT.run===run)vtNext();},wait);
 }
 
 function vtFinish(){
+  if(!VT.active)return;VT.active=false;clearInterval(VT.timer);
   const N=VT.N;const lines={};let knownTotal=0;
   const sizes={},pHat={};
   for(let l=1;l<=N;l++){
@@ -2151,7 +2151,7 @@ function vtFinish(){
     <button class="done-btn white" onclick="goHome()">${vtt("home")}</button>`;
   showScreen("vresult");res.scrollTop=0;
 }
-function quitVTest(){clearInterval(VT.timer);goHome();}
+function quitVTest(){VT.active=false;clearInterval(VT.timer);try{speechSynthesis.cancel();}catch(e){}goHome();}
 </script>
 </body>
 </html>
