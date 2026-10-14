@@ -209,6 +209,56 @@ body{background:#1a1340;min-height:100%}
 .vc-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:#f7f5fc;margin-bottom:8px;cursor:pointer;font-size:14px;font-weight:600;color:#1a1a1a}
 .vc-item.active{background:#5b2a86;color:#fff}
 .vc-item .vc-sub{font-size:11px;font-weight:400;opacity:0.65;margin-left:auto;white-space:nowrap}
+
+/* VOCAB TEST */
+.menu-btn.vt-btn{background:linear-gradient(120deg,rgba(94,242,255,0.22),rgba(96,165,250,0.28));border-color:rgba(150,220,255,0.5)}
+.icon-vt{background:rgba(96,165,250,0.45)}
+.vt-intro{flex:1;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;color:#fff;display:flex}
+.vt-intro h2{font-size:26px;font-weight:800}
+.vt-badge{font-size:52px}
+.vt-line{font-size:15px;font-weight:700;color:#ffe27a}
+.vt-rules{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:12px 16px;text-align:left;font-size:13px;line-height:1.7;width:100%;max-width:420px;color:rgba(255,255,255,0.9)}
+.vt-intro .done-btn{max-width:420px}
+.vt-q{flex:1;flex-direction:column;gap:12px}
+.vt-timer-wrap{height:6px;background:rgba(255,255,255,0.15);border-radius:99px;overflow:hidden}
+.vt-timer{height:100%;width:100%;background:linear-gradient(90deg,#5ef2ff,#60a5fa);border-radius:99px}
+.vt-timer.low{background:linear-gradient(90deg,#fb7185,#f97316)}
+.vt-word{min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fff;border-radius:24px;box-shadow:0 10px 36px rgba(0,0,0,0.25);padding:20px}
+.vt-ko{font-size:44px;font-weight:800;color:#1a1a1a;text-align:center;word-break:keep-all}
+.vt-listen{font-size:18px;font-weight:800;color:#5b2a86}
+.vt-replay{border:none;background:#f3f0fb;color:#5b2a86;font-weight:700;font-size:14px;padding:10px 18px;border-radius:99px;cursor:pointer}
+.vt-replay.big{font-size:17px;padding:16px 26px;background:#5b2a86;color:#fff}
+.vt-choices{display:flex;flex-direction:column;gap:9px}
+.vt-choice{padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.14);backdrop-filter:blur(10px);color:#fff;font-size:15px;font-weight:700;text-align:left;cursor:pointer;transition:transform .08s}
+.vt-choice:active{transform:scale(0.98)}
+.vt-choice.vt-dk{background:transparent;border-style:dashed;color:rgba(255,255,255,0.7);text-align:center;font-weight:600}
+.vt-choice.ok{background:#4ade80;border-color:#4ade80;color:#0b3d1f}
+.vt-choice.ng{background:#fb7185;border-color:#fb7185;color:#4a0b16}
+.vt-choice:disabled{cursor:default}
+#vresult{gap:12px;align-items:center;text-align:center;color:#fff;overflow-y:auto;scrollbar-width:none}
+#vresult::-webkit-scrollbar{display:none}
+#vresult>*{flex-shrink:0;width:100%;max-width:440px}
+#vresult h2{font-size:22px;font-weight:800;margin-top:6px}
+.vt-ring{width:170px!important;height:170px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),rgba(255,255,255,0.15) 0);display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.3))}
+.vt-ring-in{width:140px;height:140px;border-radius:50%;background:#2b1a5e;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.vt-pct{font-size:46px;font-weight:900;line-height:1}
+.vt-pct small{font-size:18px;margin-left:2px}
+.vt-lvl{font-size:13px;font-weight:800;margin-top:4px}
+.vt-sub{font-size:14px;font-weight:700;color:rgba(255,255,255,0.85)}
+.vt-delta{font-size:13px;color:#ffe27a;font-weight:700}
+.vt-card{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:12px 14px;text-align:left}
+.vt-bar{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px}
+.vt-bl{min-width:62px;color:rgba(255,255,255,0.85)}
+.vt-bt{flex:1;height:10px;background:rgba(255,255,255,0.15);border-radius:99px;overflow:hidden}
+.vt-bf{height:100%;border-radius:99px}
+.vt-bar b{min-width:40px;text-align:right}
+.vt-known{margin-top:8px;font-size:15px;font-weight:800;color:#fff}
+.vt-detail{font-size:12px;color:rgba(255,255,255,0.65);margin-top:4px}
+.vt-h4{font-size:13px;font-weight:700;margin-bottom:6px;color:rgba(255,255,255,0.85)}
+.vt-hrow{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-top:1px solid rgba(255,255,255,0.1)}
+.vt-hrow:first-of-type{border-top:none}
+.vt-note{font-size:11px;color:rgba(255,255,255,0.6);line-height:1.5}
+#vresult .done-btn{max-width:440px}
 </style>
 </head>
 <body>
@@ -242,6 +292,14 @@ body{background:#1a1340;min-height:100%}
   <div id="level-bar">
     <button class="lv-btn active" data-lv="all" onclick="setLevel(this)">全て</button>
   </div>
+  <button class="menu-btn game-btn" onclick="startGame()">
+    <div class="icon icon-game">🎮</div>
+    <div><div id="game-menu-title">ゲーム</div><div class="meta" id="game-menu-meta">単語シューティング</div></div>
+  </button>
+  <button class="menu-btn vt-btn" onclick="openVTest()">
+    <div class="icon icon-vt">📊</div>
+    <div><div id="vt-menu-title">単語力テスト</div><div class="meta" id="vt-menu-meta">50問で今の単語力をチェック</div></div>
+  </button>
   <button class="menu-btn" onclick="startNew()">
     <div class="icon icon-new">▶</div>
     <div><div>新しい単語を学ぶ</div><div class="meta" id="new-meta">未学習の単語からスタート</div></div>
@@ -261,10 +319,6 @@ body{background:#1a1340;min-height:100%}
   <button class="menu-btn" onclick="openSimilarScreen()">
     <div class="icon icon-similar">⚠️</div>
     <div><div id="similar-menu-title">似た単語に注意</div><div class="meta" id="similar-menu-meta">同じ表記で意味が違う単語</div></div>
-  </button>
-  <button class="menu-btn game-btn" onclick="startGame()">
-    <div class="icon icon-game">🎮</div>
-    <div><div id="game-menu-title">ゲーム</div><div class="meta" id="game-menu-meta">単語シューティング</div></div>
   </button>
 </div>
 
@@ -354,6 +408,21 @@ body{background:#1a1340;min-height:100%}
   <button class="done-btn white" id="go-home" onclick="goHome()">ホームに戻る</button>
 </div>
 
+
+<div id="vtest" class="screen">
+  <div id="vt-intro" class="vt-intro"></div>
+  <div id="vt-q" class="vt-q" style="display:none">
+    <div class="top-bar">
+      <button class="back-btn" onclick="quitVTest()">✕</button>
+      <div class="prog-wrap"><div class="prog-fill" id="vt-prog" style="width:0%"></div></div>
+      <div class="prog-label" id="vt-count">1/50</div>
+    </div>
+    <div class="vt-timer-wrap"><div class="vt-timer" id="vt-timer"></div></div>
+    <div class="vt-word" id="vt-word"></div>
+    <div class="vt-choices" id="vt-choices"></div>
+  </div>
+</div>
+<div id="vresult" class="screen"></div>
 <div class="modal-overlay" id="settings-modal">
   <div class="modal-box">
     <h3>⚙️ 設定</h3>
@@ -546,6 +615,7 @@ function updateHome(){
   document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja);
   document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit;
   if(typeof updateGameMenu==="function") updateGameMenu();
+  if(typeof updateVTMenu==="function") updateVTMenu();
   if(typeof applyBkLang==="function") applyBkLang();
 }
 
@@ -898,10 +968,10 @@ function t(key){
 function applyLangToUI(){
   document.getElementById("app-title").textContent=t("appTitle");
   document.getElementById("new-meta").dataset.base=t("menuNewMeta");
-  document.querySelectorAll(".menu-btn")[0].querySelector("div > div").textContent=t("menuNewTitle");
-  document.querySelectorAll(".menu-btn")[1].querySelector("div > div").textContent=t("menuReviewTitle");
-  document.querySelectorAll(".menu-btn")[2].querySelector("div > div").textContent=t("menuAllTitle");
-  document.querySelectorAll(".menu-btn")[3].querySelector("div > div").textContent=t("menuPerfectTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[0].querySelector("div > div").textContent=t("menuNewTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[1].querySelector("div > div").textContent=t("menuReviewTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[2].querySelector("div > div").textContent=t("menuAllTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[3].querySelector("div > div").textContent=t("menuPerfectTitle");
   document.getElementById("similar-menu-title").textContent=t("menuSimilarTitle");
   document.getElementById("similar-menu-meta").textContent=t("menuSimilarMeta");
   document.getElementById("similar-screen-title").textContent=t("similarScreenTitle");
@@ -1713,7 +1783,8 @@ function closeBk(id){document.getElementById(id).classList.remove("active");}
 function openBackup(){
   closeSettings();
   let game={};try{game=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
-  const payload={v:1,t:Date.now(),state,game};
+  let vtest=[];try{vtest=JSON.parse(localStorage.getItem("kf_vtest_v1"))||[];}catch(e){}
+  const payload={v:1,t:Date.now(),state,game,vtest};
   document.getElementById("bk-code").value="KFB1:"+b64enc(JSON.stringify(payload));
   document.getElementById("bk-title").textContent=bt("bkTitle");
   document.getElementById("bk-desc").innerHTML=bt("bkDesc")+'<div class="bk-sum">'+levelSummary(state)+'</div>';
@@ -1775,6 +1846,11 @@ function doRestore(){
     Object.entries(src.weak||{}).forEach(([k,v])=>{if(!dst.perfect[k]&&!dst.mastered[k])dst.weak[k]=Math.max(dst.weak[k]||0,Number(v)||1);});
   });
   const saved=saveState();
+  if(Array.isArray(data.vtest)){
+    let h=[];try{h=JSON.parse(localStorage.getItem("kf_vtest_v1"))||[];}catch(e){}
+    const seen=new Set(h.map(x=>x.t));data.vtest.forEach(x=>{if(x&&x.t&&!seen.has(x.t))h.push(x);});
+    h.sort((a,b)=>a.t-b.t);try{localStorage.setItem("kf_vtest_v1",JSON.stringify(h.slice(-50)));}catch(e){}
+  }
   if(data.game&&typeof data.game==="object"){
     let g={};try{g=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
     Object.entries(data.game).forEach(([k,v])=>{g[k]=Math.max(g[k]||0,Number(v)||0);});
@@ -1822,6 +1898,204 @@ function renderVoiceList(){
   });
 }
 try{speechSynthesis.addEventListener("voiceschanged",()=>{if(document.getElementById("voice-modal").classList.contains("active"))renderVoiceList();});}catch(e){}
+
+// ===================== 単語力テスト =====================
+const VT_KEY="kf_vtest_v1";
+const VT_TOTAL=50,VT_TIME=5,VT_TIME_LISTEN=7,VT_LISTEN_RATE=0.2;
+const VT_TEXT={
+  ja:{menu:"単語力テスト",meta:"50問で今の単語力をチェック",metaLast:"前回 {p}%（TOPIK {n}級ライン）",
+      introTitle:"単語力テスト",introLine:"TOPIK {n}級ラインまでの単語から50問",
+      intro1:"4択で正しい意味を選んでください",intro2:"1問5秒。わからなければ「わからない」を押す方が正確に測れます",intro3:"🎧 のマークの問題は音声だけで出ます",
+      start:"スタート",dontKnow:"わからない",listen:"🎧 聞いて答える",replay:"もう一度聞く",tapPlay:"タップして聞く",
+      resTitle:"テスト結果",readiness:"TOPIK {n}級ライン 単語の準備度",line:"{n}級ライン",known:"推定 約{k}語を習得",
+      detail:"正解 {r}／不正解 {w}／わからない・時間切れ {s}",listenAcc:"聞き取り問題 {a}/{b}",
+      prev:"前回より {d}",first:"初回の記録です",missed:"間違えた・わからなかった単語",added:"↑ 苦手リストに追加しました",
+      note:"※ 単語の準備度の目安です。合格を保証するものではありません。まぐれ当たりの分は差し引いて計算しています。",
+      again:"もう一度受ける",home:"ホームに戻る",history:"これまでの記録",few:"単語が少なすぎます",
+      lv:["要強化","もう少し","合格ライン","十分"]},
+  en:{menu:"Vocab Test",meta:"Check your vocabulary in 50 questions",metaLast:"Last: {p}% (TOPIK {n} line)",
+      introTitle:"Vocabulary Test",introLine:"50 questions up to TOPIK {n}",
+      intro1:"Choose the correct meaning (4 choices)",intro2:"5 seconds each. Pressing “I don't know” gives a more accurate result",intro3:"🎧 questions are audio only",
+      start:"Start",dontKnow:"I don't know",listen:"🎧 Listen and answer",replay:"Play again",tapPlay:"Tap to listen",
+      resTitle:"Results",readiness:"Vocabulary readiness for TOPIK {n}",line:"TOPIK {n} line",known:"About {k} words known",
+      detail:"Correct {r} / Wrong {w} / Skipped·Timeout {s}",listenAcc:"Listening {a}/{b}",
+      prev:"{d} vs last time",first:"First record",missed:"Missed words",added:"↑ Added to your review list",
+      note:"* An estimate of vocabulary readiness only, not a pass guarantee. Lucky guesses are corrected for.",
+      again:"Take again",home:"Back to home",history:"History",few:"Not enough words",
+      lv:["Needs work","Almost","Pass line","Solid"]},
+  zh:{menu:"词汇测试",meta:"50题检测当前词汇量",metaLast:"上次 {p}%（TOPIK {n}级）",
+      introTitle:"词汇测试",introLine:"从TOPIK {n}级以内的单词中出50题",
+      intro1:"四选一，选择正确的意思",intro2:"每题5秒。不会的话按“不知道”，结果更准确",intro3:"带🎧的题目只有声音",
+      start:"开始",dontKnow:"不知道",listen:"🎧 听音作答",replay:"再听一次",tapPlay:"点击收听",
+      resTitle:"测试结果",readiness:"TOPIK {n}级 词汇准备度",line:"{n}级",known:"估计掌握约{k}个单词",
+      detail:"正确 {r}／错误 {w}／不知道・超时 {s}",listenAcc:"听力题 {a}/{b}",
+      prev:"比上次 {d}",first:"首次记录",missed:"答错或不会的单词",added:"↑ 已加入待复习列表",
+      note:"※ 仅为词汇准备度的参考，不保证合格。已扣除猜对的部分。",
+      again:"再测一次",home:"返回首页",history:"历史记录",few:"单词太少",
+      lv:["需加强","差一点","达标","充分"]}
+};
+function vtt(k){return (VT_TEXT[currentLang]||VT_TEXT.ja)[k];}
+function loadVT(){try{return JSON.parse(localStorage.getItem(VT_KEY))||[];}catch(e){return [];}}
+function saveVT(h){try{localStorage.setItem(VT_KEY,JSON.stringify(h.slice(-50)));}catch(e){}}
+const VT={};
+
+function vtPool(tp){return ALL_WORDS.filter(w=>w.topik===tp&&!GAME_EXCLUDE_POS[w.pos]);}
+function vtChoices(w){
+  const m=meaningOf(w),picked=[];
+  const base=x=>x!==w&&x.ko!==w.ko&&!GAME_EXCLUDE_POS[x.pos]&&meaningOf(x)!==m&&!similarMeaning(meaningOf(x),m)
+    &&!picked.some(p=>meaningOf(p)===meaningOf(x)||similarMeaning(meaningOf(p),meaningOf(x)));
+  const near=ALL_WORDS.filter(x=>Math.abs(Number(x.topik)-Number(w.topik))<=1);
+  const tries=[LOOSE_POS[w.pos]?near.filter(x=>!LOOSE_POS[x.pos]):near.filter(x=>x.pos===w.pos),near,ALL_WORDS];
+  for(const list of tries){
+    const cand=shuffle(list);
+    for(const x of cand){if(picked.length>=3)break;if(base(x))picked.push(x);}
+    if(picked.length>=3)break;
+  }
+  return shuffle([w,...picked]);
+}
+function updateVTMenu(){
+  const t=document.getElementById("vt-menu-title");if(!t)return;
+  t.textContent=vtt("menu");
+  const h=loadVT().filter(r=>r.topik===currentTopik);const last=h[h.length-1];
+  document.getElementById("vt-menu-meta").textContent=last?vtt("metaLast").replace("{p}",last.ready).replace("{n}",currentTopik):vtt("meta");
+}
+
+function openVTest(){
+  const N=Number(currentTopik);
+  const intro=document.getElementById("vt-intro");
+  intro.innerHTML=`<div class="vt-badge">📊</div>
+    <h2>${vtt("introTitle")}</h2>
+    <p class="vt-line">${vtt("introLine").replace("{n}",N)}</p>
+    <div class="vt-rules"><p>✓ ${vtt("intro1")}</p><p>⏱ ${vtt("intro2")}</p><p>${vtt("intro3")}</p></div>
+    <button class="done-btn white" onclick="startVTest()">${vtt("start")}</button>
+    <button class="done-btn danger" onclick="goHome()">${vtt("home")}</button>`;
+  intro.style.display="flex";document.getElementById("vt-q").style.display="none";
+  showScreen("vtest");
+}
+
+function startVTest(){
+  try{audioUnlock();}catch(e){}
+  const N=Number(currentTopik);
+  const per=[];for(let l=1;l<=N;l++)per.push(Math.floor(VT_TOTAL/N)+((l<=VT_TOTAL%N)?1:0));
+  const qs=[];
+  for(let l=1;l<=N;l++){
+    const pool=shuffle(vtPool(String(l)));
+    if(pool.length<4){alert(vtt("few"));return;}
+    pool.slice(0,per[l-1]).forEach(w=>qs.push({w,lv:l}));
+  }
+  const order=shuffle(qs);
+  const nListen=Math.round(order.length*VT_LISTEN_RATE);
+  order.forEach((q,i)=>{q.listen=i<nListen;q.choices=vtChoices(q.w);});
+  Object.assign(VT,{N,qs:shuffle(order),i:-1,res:[],timer:null,t0:0,answered:false});
+  document.getElementById("vt-intro").style.display="none";
+  document.getElementById("vt-q").style.display="flex";
+  vtNext();
+}
+
+function vtNext(){
+  clearInterval(VT.timer);
+  VT.i++;
+  if(VT.i>=VT.qs.length){vtFinish();return;}
+  const q=VT.qs[VT.i];VT.answered=false;
+  document.getElementById("vt-prog").style.width=(VT.i/VT.qs.length*100)+"%";
+  document.getElementById("vt-count").textContent=(VT.i+1)+"/"+VT.qs.length;
+  const word=document.getElementById("vt-word");
+  const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  VT.started=false;
+  if(q.listen){
+    if(isIOS){   // iPhoneはタップしないと音が出ないので、タップで再生＆タイマー開始
+      word.innerHTML=`<div class="vt-listen">${vtt("listen")}</div><button class="vt-replay big" onclick="vtSpeak();vtStartTimer()">🔊 ${vtt("tapPlay")}</button>`;
+    }else{
+      word.innerHTML=`<div class="vt-listen">${vtt("listen")}</div><button class="vt-replay" onclick="vtSpeak()">🔊 ${vtt("replay")}</button>`;
+      vtSpeak();
+    }
+  }else{
+    word.innerHTML=`<div class="vt-ko">${esc(q.w.ko)}</div>`;
+  }
+  const box=document.getElementById("vt-choices");box.innerHTML="";
+  q.choices.forEach((c,ci)=>{
+    const b=document.createElement("button");b.className="vt-choice";b.textContent=meaningOf(c);
+    b.onclick=()=>vtAnswer(ci);box.appendChild(b);
+  });
+  const dk=document.createElement("button");dk.className="vt-choice vt-dk";dk.textContent=vtt("dontKnow");dk.onclick=()=>vtAnswer(-1);box.appendChild(dk);
+  const bar=document.getElementById("vt-timer");bar.style.width="100%";bar.classList.remove("low");
+  if(!(q.listen&&isIOS))vtStartTimer();
+}
+function vtStartTimer(){
+  if(VT.started||VT.answered)return;VT.started=true;
+  const q=VT.qs[VT.i];const limit=q.listen?VT_TIME_LISTEN:VT_TIME;
+  VT.t0=performance.now();
+  const bar=document.getElementById("vt-timer");
+  clearInterval(VT.timer);
+  VT.timer=setInterval(()=>{
+    const el=(performance.now()-VT.t0)/1000,left=Math.max(0,1-el/limit);
+    bar.style.width=(left*100)+"%";bar.classList.toggle("low",left<0.35);
+    if(el>=limit)vtAnswer(-2);
+  },50);
+}
+function vtSpeak(){const q=VT.qs[VT.i];if(!q)return;try{const u=koUtter(q.w.ko,0.9);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+
+function vtAnswer(ci){
+  if(VT.answered)return;VT.answered=true;clearInterval(VT.timer);
+  const q=VT.qs[VT.i];
+  const correctIdx=q.choices.indexOf(q.w);
+  const kind=ci===correctIdx?"r":(ci>=0?"w":"s");   // r=正解 w=不正解 s=わからない/時間切れ
+  VT.res.push({w:q.w,lv:q.lv,listen:q.listen,kind,timeout:ci===-2});
+  const btns=document.querySelectorAll("#vt-choices .vt-choice");
+  btns.forEach((b,bi)=>{b.disabled=true;if(bi===correctIdx)b.classList.add("ok");else if(bi===ci)b.classList.add("ng");});
+  if(q.listen)document.getElementById("vt-word").innerHTML=`<div class="vt-ko">${esc(q.w.ko)}</div>`;
+  try{if(kind==="r")sfx("beep");}catch(e){}
+  const wait=kind==="r"?450:1100;
+  setTimeout(()=>{
+    // 次が聞き取り問題なら、タップの流れの中で読み上げられるよう少しでも早く進める
+    vtNext();
+  },wait);
+}
+
+function vtFinish(){
+  const N=VT.N;const lines={};let knownTotal=0;
+  const sizes={},pHat={};
+  for(let l=1;l<=N;l++){
+    const rs=VT.res.filter(r=>r.lv===l);const n=rs.length||1;
+    const R=rs.filter(r=>r.kind==="r").length,W=rs.filter(r=>r.kind==="w").length;
+    pHat[l]=Math.max(0,Math.min(1,(R-W/3)/n));   // 4択のまぐれ当たりを補正
+    sizes[l]=vtPool(String(l)).length;
+  }
+  for(let g=1;g<=N;g++){
+    let k=0,s=0;for(let l=1;l<=g;l++){k+=pHat[l]*sizes[l];s+=sizes[l];}
+    lines[g]=Math.round(k/s*100);
+  }
+  for(let l=1;l<=N;l++)knownTotal+=pHat[l]*sizes[l];
+  const R=VT.res.filter(r=>r.kind==="r").length,W=VT.res.filter(r=>r.kind==="w").length,S=VT.res.length-R-W;
+  const L=VT.res.filter(r=>r.listen),La=L.filter(r=>r.kind==="r").length;
+  const hist=loadVT();const prev=[...hist].reverse().find(h=>h.topik===String(N));
+  const rec={t:Date.now(),topik:String(N),ready:lines[N],lines,known:Math.round(knownTotal),r:R,w:W,s:S};
+  hist.push(rec);saveVT(hist);
+  // 間違えた・わからなかった単語を苦手リストへ
+  const missed=VT.res.filter(r=>r.kind!=="r").map(r=>r.w);
+  missed.forEach(w=>{const st=state[w.topik];if(!st)return;const k=K(w);st.weak[k]=(st.weak[k]||0)+1;delete st.mastered[k];delete st.perfect[k];});
+  if(missed.length)saveState();
+  // 表示
+  const lvLabel=p=>vtt("lv")[p>=90?3:p>=75?2:p>=55?1:0];
+  const col=p=>p>=90?"#4ade80":p>=75?"#ffd76a":p>=55?"#fb923c":"#fb7185";
+  const diff=prev?rec.ready-prev.ready:null;
+  const bars=Object.keys(lines).map(g=>`<div class="vt-bar"><span class="vt-bl">${vtt("line").replace("{n}",g)}</span><div class="vt-bt"><div class="vt-bf" style="width:${lines[g]}%;background:${col(lines[g])}"></div></div><b style="color:${col(lines[g])}">${lines[g]}%</b></div>`).join("");
+  const histRows=hist.filter(h=>h.topik===String(N)).slice(-5).reverse().map(h=>{const d=new Date(h.t);return `<div class="vt-hrow"><span>${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}</span><b style="color:${col(h.ready)}">${h.ready}%</b></div>`;}).join("");
+  const res=document.getElementById("vresult");
+  res.innerHTML=`<h2>${vtt("resTitle")}</h2>
+    <div class="vt-ring" style="--p:${rec.ready};--c:${col(rec.ready)}"><div class="vt-ring-in"><div class="vt-pct">${rec.ready}<small>%</small></div><div class="vt-lvl" style="color:${col(rec.ready)}">${lvLabel(rec.ready)}</div></div></div>
+    <div class="vt-sub">${vtt("readiness").replace("{n}",N)}</div>
+    <div class="vt-delta">${diff===null?vtt("first"):vtt("prev").replace("{d}",(diff>=0?"+":"")+diff+"%")}</div>
+    <div class="vt-card">${bars}<div class="vt-known">${vtt("known").replace("{k}",rec.known.toLocaleString())}</div>
+      <div class="vt-detail">${vtt("detail").replace("{r}",R).replace("{w}",W).replace("{s}",S)}${L.length?" ・ "+vtt("listenAcc").replace("{a}",La).replace("{b}",L.length):""}</div></div>
+    ${missed.length?`<div class="go-missed"><h4>${vtt("missed")}</h4>${missed.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("")}<div class="note">${vtt("added")}</div></div>`:""}
+    <div class="vt-card"><h4 class="vt-h4">${vtt("history")}</h4>${histRows}</div>
+    <p class="vt-note">${vtt("note")}</p>
+    <button class="done-btn white" onclick="openVTest()">${vtt("again")}</button>
+    <button class="done-btn white" onclick="goHome()">${vtt("home")}</button>`;
+  showScreen("vresult");res.scrollTop=0;
+}
+function quitVTest(){clearInterval(VT.timer);goHome();}
 </script>
 </body>
 </html>
