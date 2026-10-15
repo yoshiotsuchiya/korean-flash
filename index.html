@@ -293,6 +293,11 @@ body{background:#1a1340;min-height:100%}
 .orb{display:none}
 .vt-bl2{min-width:92px}
 .vt-split{border-color:rgba(255,226,122,0.45)}
+
+.g-modes{display:flex;gap:8px;background:rgba(255,255,255,0.1);padding:4px;border-radius:99px;border:1px solid rgba(255,255,255,0.25)}
+.g-mode{border:none;background:transparent;color:rgba(255,255,255,0.75);font-weight:800;font-size:13px;padding:9px 16px;border-radius:99px;cursor:pointer}
+.g-mode.active{background:#fff;color:#5b2a86}
+.g-mode.off{opacity:0.35;cursor:default}
 </style>
 </head>
 <body>
@@ -1081,9 +1086,9 @@ init();
 // ===================== 単語シューティング =====================
 const GAME_KEY="kf_game_v1";
 const G_TEXT={
-  ja:{menu:"ゲーム",sub:"単語シューティング",best:"ハイスコア",none:"まだ記録なし",howto:"韓国語の正しい意味を撃ち抜け！<br>⚡ 早く撃つほど高得点",ctrl:"画面の左右をタップ（キーボードは ← →）",start:"TAP TO START",over:"ゲームオーバー",record:"🏆 ハイスコア更新！",bestIs:"ハイスコア ",correct:"正解",combo:"最大コンボ",miss:"ミス",missed:"間違えた単語",added:"↑ 苦手リストに追加しました",perfect:"ノーミス！",retry:"もう一度",home:"ホームに戻る",few:"このレベルは単語が少なすぎます",paused:"一時停止中<br>タップで再開",answer:"正解",godspeed:"神速！",quick:"早撃ち！",sec:"秒",fastest:"最速"},
-  en:{menu:"Game",sub:"Word Shooter",best:"High score",none:"No record yet",howto:"Shoot the correct meaning!<br>⚡ Faster shots score more",ctrl:"Tap left/right (keyboard: ← →)",start:"TAP TO START",over:"Game Over",record:"🏆 New high score!",bestIs:"High score ",correct:"Correct",combo:"Max combo",miss:"Misses",missed:"Words you missed",added:"↑ Added to your review list",perfect:"No misses!",retry:"Play again",home:"Back to home",few:"Not enough words in this level",paused:"Paused<br>Tap to resume",answer:"Answer",godspeed:"Lightning!",quick:"Quick!",sec:"s",fastest:"Fastest"},
-  zh:{menu:"游戏",sub:"单词射击",best:"最高分",none:"暂无记录",howto:"击中正确的意思！<br>⚡ 越快得分越高",ctrl:"点击屏幕左右（键盘 ← →）",start:"TAP TO START",over:"游戏结束",record:"🏆 刷新最高分！",bestIs:"最高分 ",correct:"正确",combo:"最大连击",miss:"失误",missed:"答错的单词",added:"↑ 已加入待复习列表",perfect:"零失误！",retry:"再玩一次",home:"返回首页",few:"该级别单词太少",paused:"已暂停<br>点击继续",answer:"正确答案",godspeed:"神速！",quick:"快枪手！",sec:"秒",fastest:"最快"}
+  ja:{menu:"ゲーム",sub:"単語シューティング",best:"ハイスコア",none:"まだ記録なし",howto:"韓国語の正しい意味を撃ち抜け！<br>⚡ 早く撃つほど高得点",ctrl:"画面の左右をタップ（キーボードは ← →）",start:"TAP TO START",over:"ゲームオーバー",record:"🏆 ハイスコア更新！",bestIs:"ハイスコア ",correct:"正解",combo:"最大コンボ",miss:"ミス",missed:"間違えた単語",added:"↑ 苦手リストに追加しました",perfect:"ノーミス！",retry:"もう一度",home:"ホームに戻る",few:"このレベルは単語が少なすぎます",paused:"一時停止中<br>タップで再開",answer:"正解",godspeed:"神速！",quick:"早撃ち！",sec:"秒",fastest:"最速",modeAll:"全部",modeWeak:"苦手だけ（{n}語）",weakModeDesc:"苦手 {n}語だけが出ます",weakModeTitle:"苦手モード（ハイスコア対象外）",graduated:"2回目！",graduatedList:"✌️ 2回以上当てた単語 {n}語（カードで確認して「覚えた」へ）",allClear:"🎓 苦手ぜんぶ卒業！"},
+  en:{menu:"Game",sub:"Word Shooter",best:"High score",none:"No record yet",howto:"Shoot the correct meaning!<br>⚡ Faster shots score more",ctrl:"Tap left/right (keyboard: ← →)",start:"TAP TO START",over:"Game Over",record:"🏆 New high score!",bestIs:"High score ",correct:"Correct",combo:"Max combo",miss:"Misses",missed:"Words you missed",added:"↑ Added to your review list",perfect:"No misses!",retry:"Play again",home:"Back to home",few:"Not enough words in this level",paused:"Paused<br>Tap to resume",answer:"Answer",godspeed:"Lightning!",quick:"Quick!",sec:"s",fastest:"Fastest",modeAll:"All words",modeWeak:"Weak only ({n})",weakModeDesc:"Only your {n} weak words",weakModeTitle:"Weak mode (no high score)",graduated:"Twice!",graduatedList:"✌️ Hit twice or more: {n} (confirm with cards)",allClear:"🎓 All weak words cleared!"},
+  zh:{menu:"游戏",sub:"单词射击",best:"最高分",none:"暂无记录",howto:"击中正确的意思！<br>⚡ 越快得分越高",ctrl:"点击屏幕左右（键盘 ← →）",start:"TAP TO START",over:"游戏结束",record:"🏆 刷新最高分！",bestIs:"最高分 ",correct:"正确",combo:"最大连击",miss:"失误",missed:"答错的单词",added:"↑ 已加入待复习列表",perfect:"零失误！",retry:"再玩一次",home:"返回首页",few:"该级别单词太少",paused:"已暂停<br>点击继续",answer:"正确答案",godspeed:"神速！",quick:"快枪手！",sec:"秒",fastest:"最快",modeAll:"全部",modeWeak:"只练弱项（{n}）",weakModeDesc:"只出 {n} 个弱项单词",weakModeTitle:"弱项模式（不计最高分）",graduated:"第2次！",graduatedList:"✌️ 击中2次以上 {n}个（请用卡片确认）",allClear:"🎓 弱项全部毕业！"}
 };
 function gt(k){return (G_TEXT[currentLang]||G_TEXT.ja)[k]||G_TEXT.ja[k];}
 function meaningOf(w){return currentLang==="en"&&w.en?w.en:(currentLang==="zh"&&w.zh?w.zh:w.jp);}
@@ -1100,8 +1105,20 @@ function updateGameMenu(){
 const G={};  // game state
 const GAME_EXCLUDE_POS={"ことわざ":1,"文法":1};
 
-function gamePool(){
-  return getFiltered().filter(w=>!GAME_EXCLUDE_POS[w.pos]);
+function gamePool(mode){
+  const base=getFiltered().filter(w=>!GAME_EXCLUDE_POS[w.pos]);
+  if(mode==="weak"){const st=curState();return base.filter(w=>st.weak[K(w)]);}
+  return base;
+}
+let gameMode="all";
+function setGameMode(m,ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  if(m==="weak"&&gamePool("weak").length<1)return;
+  gameMode=m;
+  G.pool=shuffle(gamePool(m));G.pi=0;
+  document.querySelectorAll(".g-mode").forEach(b=>b.classList.toggle("active",b.dataset.mode===m));
+  const bestEl=document.querySelector(".g-best");
+  if(bestEl){const best=loadBest()[currentTopik]||0;bestEl.textContent=m==="weak"?gt("weakModeDesc").replace("{n}",G.pool.length):"TOPIK "+currentTopik+" · "+gt("best")+" "+best.toLocaleString();}
 }
 const LOOSE_POS={"挨拶":1,"感動詞":1,"フレーズ":1};
 function meaningParts(m){return m.replace(/[（）()〜~・、,／/「」]/g," ").split(/\s+/).filter(x=>x.length>=2);}
@@ -1249,22 +1266,28 @@ function updateSoundBtn(){const b=document.getElementById("g-sound");if(b)b.text
 // ===================== ゲーム進行 =====================
 function startGame(){
   audioUnlock();updateSoundBtn();stopBGM(0.1);
-  const pool=gamePool();
-  if(pool.length<2){alert(gt("few"));return;}
+  if(gameMode==="weak"&&gamePool("weak").length<1)gameMode="all";
+  const pool=gamePool(gameMode);
+  if(pool.length<(gameMode==="weak"?1:2)){alert(gt("few"));return;}
   Object.assign(G,{
     pool:shuffle(pool),pi:0,qn:0,score:0,shownScore:0,lives:3,combo:0,maxCombo:0,correct:0,missed:[],
     speed:0.085,phase:"ready",q:null,shipX:0.5,shipTarget:0.5,shipV:0,bullet:null,particles:[],rings:[],floaters:[],debris:[],
-    flash:null,last:0,paused:false,banner:null,fastest:0,shake:0,muzzle:0,shieldHit:0,time:0
+    flash:null,last:0,paused:false,banner:null,fastest:0,shake:0,muzzle:0,shieldHit:0,time:0,hits:{},graduated:[]
   });
   initScenery();
   showScreen("game");
   updateHud();
   resizeGameCanvas();
   const best=loadBest()[currentTopik]||0;
+  const nWeak=gamePool("weak").length;
   showGameOverlay(`<div class="g-logo">WORD<br>SHOOTER</div>
     <div class="hint">${gt("howto")}</div>
+    <div class="g-modes">
+      <button class="g-mode${gameMode==="all"?" active":""}" data-mode="all" onpointerdown="setGameMode('all',event)">${gt("modeAll")}</button>
+      <button class="g-mode${gameMode==="weak"?" active":""}${nWeak<1?" off":""}" data-mode="weak" onpointerdown="setGameMode('weak',event)">${gt("modeWeak").replace("{n}",nWeak)}</button>
+    </div>
     <div class="g-ctrl">${gt("ctrl")}</div>
-    <div class="g-best">TOPIK ${currentTopik} · ${gt("best")} ${best.toLocaleString()}</div>
+    <div class="g-best">${gameMode==="weak"?gt("weakModeDesc").replace("{n}",pool.length):"TOPIK "+currentTopik+" · "+gt("best")+" "+best.toLocaleString()}</div>
     <div class="g-start">${gt("start")}</div>`);
   G.phase="ready";
   if(!G.raf) G.raf=requestAnimationFrame(gameLoop);
@@ -1314,6 +1337,8 @@ function resolve(side,timeout){
   const ex=(i)=>({x:laneX(i)*S.w,y:enemyY(q.y)*S.h});
   if(ok){
     G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);G.correct++;
+    if(gameMode==="weak"){const k=K(q.w);G.hits[k]=(G.hits[k]||0)+1;
+      if(G.hits[k]===2&&!G.graduated.includes(q.w)){G.graduated.push(q.w);const gp=ex(side);G.floaters.push({x:gp.x,y:gp.y-44,text:gt("graduated"),sub:"",t:0,color:"#4ade80"});}}
     // 早撃ちボーナス：タップまでの秒数が短いほど大きい（最大+400）
     const rt=q.reactT||0;
     const speedBonus=Math.round(400*Math.pow(Math.max(0,1-rt/2.5),2));
@@ -1357,12 +1382,12 @@ function endGame(){
   const st=curState();
   G.missed.forEach(w=>{st.weak[K(w)]=(st.weak[K(w)]||0)+1;delete st.mastered[K(w)];delete st.perfect[K(w)];});
   if(G.missed.length) saveState();
-  const best=loadBest();const prev=best[currentTopik]||0;const isRecord=G.score>prev;
+  const best=loadBest();const prev=best[currentTopik]||0;const isRecord=gameMode!=="weak"&&G.score>prev;
   if(isRecord){best[currentTopik]=G.score;saveBest(best);}
   document.getElementById("go-title").textContent=gt("over");
   document.getElementById("go-score").textContent=G.score.toLocaleString();
   const rec=document.getElementById("go-record");rec.textContent=gt("record");rec.style.display=isRecord&&G.score>0?"inline-block":"none";
-  document.getElementById("go-best").textContent="TOPIK "+currentTopik+" · "+gt("bestIs")+Math.max(prev,G.score).toLocaleString();
+  document.getElementById("go-best").textContent=gameMode==="weak"?gt("weakModeTitle"):"TOPIK "+currentTopik+" · "+gt("bestIs")+Math.max(prev,G.score).toLocaleString();
   document.getElementById("go-correct").textContent=G.correct;
   document.getElementById("go-combo").textContent=G.maxCombo;
   document.getElementById("go-fast").innerHTML=G.fastest?G.fastest.toFixed(2)+'<small style="font-size:11px;margin-left:1px">'+gt("sec")+'</small>':"-";
@@ -1377,6 +1402,7 @@ function endGame(){
   if(G.missed.length){
     box.innerHTML=`<h4>${gt("missed")}</h4>`+G.missed.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("")+`<div class="note">${gt("added")}</div>`;
   }else box.innerHTML=`<h4>${gt("perfect")}</h4>`;
+  if(G.graduated&&G.graduated.length){box.innerHTML+=`<h4 style="margin-top:12px;color:#4ade80">${gt("graduatedList").replace("{n}",G.graduated.length)}</h4>`+G.graduated.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("");}
   showScreen("gameover");
 }
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -1764,7 +1790,7 @@ function drawGame(){
   const stage=()=>document.getElementById("game-stage");
   document.addEventListener("pointerdown",e=>{
     const s=stage();if(!s||!document.getElementById("game").classList.contains("active"))return;
-    if(!s.contains(e.target))return;
+    if(!s.contains(e.target)||e.target.closest(".g-mode"))return;
     e.preventDefault();
     const r=s.getBoundingClientRect();
     shoot(e.clientX-r.left<r.width/2?0:1);
