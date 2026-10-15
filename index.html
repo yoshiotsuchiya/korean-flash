@@ -298,6 +298,7 @@ body{background:#1a1340;min-height:100%}
 .g-mode{border:none;background:transparent;color:rgba(255,255,255,0.75);font-weight:800;font-size:13px;padding:9px 16px;border-radius:99px;cursor:pointer}
 .g-mode.active{background:#fff;color:#5b2a86}
 .g-mode.off{opacity:0.35;cursor:default}
+.new-badge{position:absolute;top:14px;left:16px;background:linear-gradient(90deg,#ff6ec7,#ffb347);color:#fff;font-size:11px;font-weight:900;letter-spacing:1px;padding:4px 10px;border-radius:99px;box-shadow:0 2px 8px rgba(255,110,199,0.4)}
 </style>
 </head>
 <body>
@@ -328,6 +329,7 @@ body{background:#1a1340;min-height:100%}
     <div class="stat-card red"><div class="num" id="h-weak">0</div><div class="lbl">要復習</div></div>
     <div class="stat-card blue"><div class="num" id="h-total">0</div><div class="lbl">総単語数</div></div>
   </div>
+  <span id="new-meta" style="display:none"></span>
   <div id="level-bar">
     <button class="lv-btn active" data-lv="all" onclick="setLevel(this)">全て</button>
   </div>
@@ -339,17 +341,13 @@ body{background:#1a1340;min-height:100%}
     <div class="icon icon-vt">📊</div>
     <div><div id="vt-menu-title">単語力テスト</div><div class="meta" id="vt-menu-meta">50問で今の単語力をチェック</div></div>
   </button>
-  <button class="menu-btn" onclick="startNew()">
-    <div class="icon icon-new">▶</div>
-    <div><div>新しい単語を学ぶ</div><div class="meta" id="new-meta">未学習の単語からスタート</div></div>
+  <button class="menu-btn" onclick="startAll()">
+    <div class="icon icon-all">≡</div>
+    <div><div>単語シャッフル</div><div class="meta" id="all-meta">全単語をランダムに</div></div>
   </button>
   <button class="menu-btn" onclick="startReview()">
     <div class="icon icon-review">↺</div>
     <div><div>苦手を復習</div><div class="meta" id="review-meta">要復習リストから</div></div>
-  </button>
-  <button class="menu-btn" onclick="startAll()">
-    <div class="icon icon-all">≡</div>
-    <div><div>単語シャッフル</div><div class="meta" id="all-meta">全単語をランダムに</div></div>
   </button>
   <button class="menu-btn" onclick="startPerfect()">
     <div class="icon icon-perfect">★</div>
@@ -384,6 +382,7 @@ body{background:#1a1340;min-height:100%}
     <div class="card-outer" onclick="flipCard()">
       <div class="card-inner" id="card">
         <div class="face front">
+          <div class="new-badge" id="new-badge">NEW</div>
           <div class="ko-word" id="ko"></div>
           <div class="reading" id="reading"></div>
           <div class="tap-hint">タップして確認</div>
@@ -652,7 +651,8 @@ function updateHome(){
   const unit=unitMap[currentLang]||unitMap.ja;
   document.getElementById("new-meta").textContent=newWords.length+unit+(unlearnedMap[currentLang]||unlearnedMap.ja);
   document.getElementById("review-meta").textContent=filtered.filter(w=>st.weak[K(w)]).length+unit+(toReviewMap[currentLang]||toReviewMap.ja);
-  document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja);
+  const newMap={ja:"・NEW {n}語",en:" · NEW {n}",zh:"・NEW {n}个"};
+  document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja)+(newWords.length?(newMap[currentLang]||newMap.ja).replace("{n}",newWords.length):"");
   document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit;
   if(typeof updateGameMenu==="function") updateGameMenu();
   if(typeof updateVTMenu==="function") updateVTMenu();
@@ -680,7 +680,11 @@ function startAll(){
   const st=curState();
   const words=getFiltered().filter(w=>!st.perfect[K(w)]);
   if(words.length===0){alert("すべて完璧な単語です！");return;}
-  startDeck(words);
+  // 未学習（NEW）の単語を先に出し、そのあと学習済みをランダムに
+  const isNew=w=>!st.mastered[K(w)]&&!st.weak[K(w)];
+  const deckOrder=[...shuffle(words.filter(isNew)),...shuffle(words.filter(w=>!isNew(w)))];
+  deck=deckOrder;idx=0;ngList=[];okCount=0;
+  showScreen("study");renderCard();
 }
 function startPerfect(){
   const st=curState();
@@ -748,6 +752,7 @@ function renderCard(){
     const posLabel=currentLang==="en"&&w.pos_en?w.pos_en:(currentLang==="zh"&&w.pos_zh?w.pos_zh:w.pos);
     document.getElementById("ko").textContent=w.ko;
     document.getElementById("reading").textContent=w.r;
+    {const st=curState();document.getElementById("new-badge").style.display=(!st.mastered[K(w)]&&!st.weak[K(w)])?"block":"none";}
     document.getElementById("jp").textContent=meaning;
     document.getElementById("hanja").textContent=w.hanja||"";
     document.getElementById("pos").textContent=posLabel;
@@ -1008,10 +1013,9 @@ function t(key){
 function applyLangToUI(){
   document.getElementById("app-title").textContent=t("appTitle");
   document.getElementById("new-meta").dataset.base=t("menuNewMeta");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[0].querySelector("div > div").textContent=t("menuNewTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[0].querySelector("div > div").textContent=t("menuAllTitle");
   document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[1].querySelector("div > div").textContent=t("menuReviewTitle");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[2].querySelector("div > div").textContent=t("menuAllTitle");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[3].querySelector("div > div").textContent=t("menuPerfectTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[2].querySelector("div > div").textContent=t("menuPerfectTitle");
   document.getElementById("similar-menu-title").textContent=t("menuSimilarTitle");
   document.getElementById("similar-menu-meta").textContent=t("menuSimilarMeta");
   document.getElementById("similar-screen-title").textContent=t("similarScreenTitle");
