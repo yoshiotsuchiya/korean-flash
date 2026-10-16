@@ -1188,7 +1188,7 @@ function createAudioCtx(){
 function rebuildAudioCtx(){
   // 音声エンジンが死んだ（時計が止まった）時に作り直す
   const wasBGM=!!BGM.src||BGM.want;
-  if(BGM.timer){clearInterval(BGM.timer);BGM.timer=null;}BGM.bus=null;BGM.src=null;BGM.srcA=BGM.srcB=null;BGM.buf=null;BGM.rendering=false;
+  if(BGM.timer){clearInterval(BGM.timer);BGM.timer=null;}BGM.bus=null;BGM.src=null;BGM.srcA=BGM.srcB=null;
   try{const old=SND.ctx;SND.ctx=null;if(old)old.close();}catch(e){}
   try{createAudioCtx();}catch(e){}
   return wasBGM;
@@ -1270,8 +1270,8 @@ const BGM_MEL=[ // 2小節(32ステップ)ずつのメロディ [ステップ, �
 // BGMは8小節ぶんを先に音声データとして作り（OfflineAudioContext）、ループ再生する。
 // 25msタイマーで逐次鳴らす方式はiPhoneの割り込み・タイマー抑制で止まることがあったため。
 const BGM_BARS=8,BGM_LEN=BGM_BARS*16*BGM_STEP;
-function renderBGM(hype){
-  const sr=SND.ctx.sampleRate;
+setTimeout(()=>{try{ensureBGMBuf();}catch(e){}},1500);   // 起動して少ししたら先に作っておく
+function renderBGM(hype,sr){
   const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
   const oc=new OAC(1,Math.ceil((BGM_LEN+0.6)*sr),sr);
   const bus=oc.createGain();bus.gain.value=1;bus.connect(oc.destination);
@@ -1280,17 +1280,16 @@ function renderBGM(hype){
   return oc.startRendering();
 }
 function ensureBGMBuf(){
-  if(!SND.ctx)return;
-  const sr=SND.ctx.sampleRate;
-  if((BGM.buf&&BGM.buf.sr===sr)||BGM.rendering)return;
+  if(BGM.buf||BGM.rendering)return;
+  const sr=SND.ctx?SND.ctx.sampleRate:48000;   // 再生時は自動で変換されるので、実際のレートと違っても問題ない
   BGM.rendering=true;
-  Promise.all([renderBGM(false),renderBGM(true)]).then(([a,b])=>{BGM.buf={sr,a,b};BGM.rendering=false;if(BGM.want&&!BGM.src)startBGM();}).catch(e=>{console.error(e);BGM.rendering=false;});
+  Promise.all([renderBGM(false,sr),renderBGM(true,sr)]).then(([a,b])=>{BGM.buf={sr,a,b};BGM.rendering=false;if(BGM.want&&!BGM.src)startBGM();}).catch(e=>{console.error(e);BGM.rendering=false;});
 }
 function startBGM(){
   if(!canPlay()||BGM.src)return;
   BGM.want=true;
   const c=SND.ctx;
-  if(!BGM.buf||BGM.buf.sr!==c.sampleRate){ensureBGMBuf();return;}   // 準備できたら自動で開始
+  if(!BGM.buf){ensureBGMBuf();return;}   // 準備できたら自動で開始
   try{
     const t=c.currentTime+0.05;
     BGM.bus=c.createGain();BGM.bus.gain.setValueAtTime(0.0001,t);BGM.bus.gain.exponentialRampToValueAtTime(0.32,t+0.6);
