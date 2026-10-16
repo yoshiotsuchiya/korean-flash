@@ -1428,7 +1428,7 @@ function shoot(side){
   G.q.reactT=G.q.t;   // 早撃ち判定はタップした瞬間の時間で
   G.bullet={side,x:G.shipTarget,y:0.83,fireAt:0.08,trail:[]};
   audioUnlock();sfx("shot");
-  if(side===G.q.correctSide) speakKo(G.q.w.ko);   // iPhoneはタップの瞬間でないと発音できない
+  speakKo(G.q.w.ko);   // 正解でも不正解でも発音（iPhoneはタップの瞬間でないと発音できない）
 }
 
 const SIDE_COL=[{main:"#ff6ec7",glow:"255,110,199"},{main:"#5ef2ff",glow:"94,242,255"}];
@@ -1576,7 +1576,7 @@ function stepGame(dt){
         b.trail.push({x:b.x,y:b.y});if(b.trail.length>9)b.trail.shift();
         if(b.y<=enemyY(q.y)+0.045){G.bullet=null;resolve(b.side,false);return;}}
     }
-    if(q.y>=1){G.bullet=null;resolve(-1,true);}
+    if(q.y>=1){G.bullet=null;resolve(-1,true);speakKo(q.w.ko);}   // 時間切れも発音を試みる
   }else if(G.phase==="after"){
     G.afterT+=dt;
     G.q.fade=G.q.fade.map((f,i)=>i===G.q.hit?f:Math.max(0,f-dt*(G.q.showCorrect&&i===G.q.correctSide?0:2.5)));
