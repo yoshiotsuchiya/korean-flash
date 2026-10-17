@@ -2472,7 +2472,7 @@ function mtSfx(k,combo){
 // ---- データ ----
 const MT_KEY="kf_match_v1";       // 記録
 const MT_SESS="kf_match_sess_v1"; // スパルタの途中経過
-const MT_ROWS=5,MT_TIME=60,MT_SP=100;
+const MT_ROWS=5,MT_TIME=60,MT_SP=50;
 const MT={active:false,mode:null,run:0};
 const $m=id=>document.getElementById(id);
 function mtRec(){try{return JSON.parse(localStorage.getItem(MT_KEY))||{};}catch(e){return {};}}
