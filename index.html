@@ -74,6 +74,7 @@ body{background:#1a1340;min-height:100%}
 .icon-review{background:rgba(251,113,133,0.3)}
 .icon-all{background:rgba(96,165,250,0.3)}
 .icon-perfect{background:rgba(255,200,61,0.3)}
+.icon-mastered{background:rgba(74,222,128,0.3)}
 .icon-similar{background:rgba(255,138,210,0.3)}
 .similar-group{background:rgba(255,255,255,0.13);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.22);border-radius:16px;padding:14px 16px;margin-bottom:10px}
 .similar-group .similar-ko{font-size:22px;font-weight:700;color:#fff;margin-bottom:8px}
@@ -351,6 +352,10 @@ body{background:#1a1340;min-height:100%}
   <button class="menu-btn" onclick="startReview()">
     <div class="icon icon-review">↺</div>
     <div><div>苦手を復習</div><div class="meta" id="review-meta">要復習リストから</div></div>
+  </button>
+  <button class="menu-btn mastered-btn" onclick="startMastered()">
+    <div class="icon icon-mastered">✓</div>
+    <div><div id="mastered-menu-title">一回覚えた</div><div class="meta" id="mastered-meta">忘れていたら苦手に戻る</div></div>
   </button>
   <button class="menu-btn" onclick="startPerfect()">
     <div class="icon icon-perfect">★</div>
@@ -658,6 +663,10 @@ function updateHome(){
   const newMap={ja:"・NEW {n}語",en:" · NEW {n}",zh:"・NEW {n}个"};
   document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja)+(newWords.length?(newMap[currentLang]||newMap.ja).replace("{n}",newWords.length):"");
   document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit;
+  {const mMap={ja:"語（★なし）・忘れていたら苦手に戻る",en:" words (not ★) · wrong → review list",zh:"个（无★）・忘了就回到待复习"};
+   const mt={ja:"一回覚えた",en:"Learned once",zh:"记过一次"};
+   document.getElementById("mastered-menu-title").textContent=mt[currentLang]||mt.ja;
+   document.getElementById("mastered-meta").textContent=filtered.filter(w=>st.mastered[K(w)]&&!st.perfect[K(w)]).length+(mMap[currentLang]||mMap.ja);}
   if(typeof updateGameMenu==="function") updateGameMenu();
   if(typeof updateVTMenu==="function") updateVTMenu();
   if(typeof applyBkLang==="function") applyBkLang();
@@ -670,6 +679,13 @@ function startNew(){
   let words=filtered.filter(w=>!st.mastered[K(w)]&&!st.weak[K(w)]);
   if(words.length===0) words=filtered.filter(w=>!st.mastered[K(w)]);
   if(words.length===0){alert("このレベルは全て習得済みです！復習モードをどうぞ");return;}
+  startDeck(words);
+}
+function startMastered(){
+  isPerfectMode=false;
+  const st=curState();
+  const words=getFiltered().filter(w=>st.mastered[K(w)]&&!st.perfect[K(w)]);
+  if(words.length===0){alert("一回覚えた単語がまだありません");return;}
   startDeck(words);
 }
 function startReview(){
@@ -1035,9 +1051,9 @@ function t(key){
 function applyLangToUI(){
   document.getElementById("app-title").textContent=t("appTitle");
   document.getElementById("new-meta").dataset.base=t("menuNewMeta");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[0].querySelector("div > div").textContent=t("menuAllTitle");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[1].querySelector("div > div").textContent=t("menuReviewTitle");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn)")[2].querySelector("div > div").textContent=t("menuPerfectTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn)")[0].querySelector("div > div").textContent=t("menuAllTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn)")[1].querySelector("div > div").textContent=t("menuReviewTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn)")[2].querySelector("div > div").textContent=t("menuPerfectTitle");
   document.getElementById("similar-menu-title").textContent=t("menuSimilarTitle");
   document.getElementById("similar-menu-meta").textContent=t("menuSimilarMeta");
   document.getElementById("similar-screen-title").textContent=t("similarScreenTitle");
