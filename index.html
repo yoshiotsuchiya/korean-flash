@@ -780,17 +780,40 @@ function updateHome(){
   document.getElementById("review-meta").textContent=filtered.filter(w=>st.weak[K(w)]).length+unit+(toReviewMap[currentLang]||toReviewMap.ja);
   const newMap={ja:"・NEW {n}語",en:" · NEW {n}",zh:"・NEW {n}个"};
   document.getElementById("all-meta").textContent=shuffleWords.length+unit+(exclPerfectMap[currentLang]||exclPerfectMap.ja)+(newWords.length?(newMap[currentLang]||newMap.ja).replace("{n}",newWords.length):"");
-  document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit;
+  document.getElementById("perfect-meta").textContent=Object.keys(st.perfect).length+unit+sessLabel("perfect");
+  document.getElementById("all-meta").textContent+=sessLabel("all");
+  document.getElementById("review-meta").textContent+=sessLabel("review");
   {const mMap={ja:"語（★なし）・忘れていたら苦手に戻る",en:" words (not ★) · wrong → review list",zh:"个（无★）・忘了就回到待复习"};
    const mt={ja:"一回覚えた",en:"Learned once",zh:"记过一次"};
    document.getElementById("mastered-menu-title").textContent=mt[currentLang]||mt.ja;
-   document.getElementById("mastered-meta").textContent=filtered.filter(w=>st.mastered[K(w)]&&!st.perfect[K(w)]).length+(mMap[currentLang]||mMap.ja);}
+   document.getElementById("mastered-meta").textContent=filtered.filter(w=>st.mastered[K(w)]&&!st.perfect[K(w)]).length+(mMap[currentLang]||mMap.ja)+sessLabel("mastered");}
   if(typeof updateGameMenu==="function") updateGameMenu();
   if(typeof updateRPGMenu==="function") updateRPGMenu();
   if(typeof updateVTMenu==="function") updateVTMenu();
   if(typeof applyBkLang==="function") applyBkLang();
 }
 
+// ---- 学習の途中経過を保存（同じメニュー・級・レベルを開くと続きから）----
+const SESS_KEY="kf_sess_v1";
+let deckMode="all";
+function sessAll(){try{return JSON.parse(localStorage.getItem(SESS_KEY))||{};}catch(e){return {};}}
+function sessId(mode){return mode+"|"+currentTopik+"|"+currentLevel;}
+function getSess(mode){const ss=sessAll()[sessId(mode)];return ss&&ss.idx>0&&ss.idx<ss.keys.length?ss:null;}
+function saveSess(){
+  try{const all=sessAll(),id=sessId(deckMode);
+    if(idx<=0||idx>=deck.length)delete all[id];
+    else all[id]={keys:deck.map(K),idx,ok:okCount,ng:ngList.map(K),t:Date.now()};
+    localStorage.setItem(SESS_KEY,JSON.stringify(all));}catch(e){}
+}
+function resumeSess(mode){
+  const ss=getSess(mode);if(!ss)return false;
+  const map=new Map(WORDS.map(w=>[K(w),w]));
+  const d=ss.keys.map(k=>map.get(k)).filter(Boolean);if(d.length<2)return false;
+  const before=ss.keys.slice(0,ss.idx).filter(k=>map.has(k)).length;
+  deck=d;idx=Math.min(before,d.length-1);okCount=ss.ok||0;ngList=(ss.ng||[]).map(k=>map.get(k)).filter(Boolean);undoStack=[];
+  showScreen("study");renderCard();return true;
+}
+function sessLabel(mode){const ss=getSess(mode);return ss?"　▶ 続き "+(ss.idx+1)+"/"+ss.keys.length:"";}
 function startNew(){
   isPerfectMode=false;
   const st=curState();
@@ -801,21 +824,21 @@ function startNew(){
   startDeck(words);
 }
 function startMastered(){
-  isPerfectMode=false;
+  isPerfectMode=false;deckMode="mastered";if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>st.mastered[K(w)]&&!st.perfect[K(w)]);
   if(words.length===0){alert("一回覚えた単語がまだありません");return;}
   startDeck(words);
 }
 function startReview(){
-  isPerfectMode=false;
+  isPerfectMode=false;deckMode="review";if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>st.weak[K(w)]);
   if(words.length===0){alert("要復習の単語がありません");return;}
   startDeck(words);
 }
 function startAll(){
-  isPerfectMode=false;
+  isPerfectMode=false;deckMode="all";if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>!st.perfect[K(w)]);
   if(words.length===0){alert("すべて完璧な単語です！");return;}
@@ -826,6 +849,7 @@ function startAll(){
   showScreen("study");renderCard();
 }
 function startPerfect(){
+  deckMode="perfect";isPerfectMode=true;if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>st.perfect[K(w)]);
   if(words.length===0){alert("完璧な単語がまだありません");return;}
@@ -880,6 +904,7 @@ function retryDeck(){startDeck([...deck]);}
 function reviewWrong(){if(ngList.length>0)startDeck([...ngList]);}
 
 function renderCard(){
+  saveSess();
   if(idx>=deck.length){showDone();return;}
   const cardEl=document.getElementById("card");
   const wasFlipped=cardEl.classList.contains("flipped");
