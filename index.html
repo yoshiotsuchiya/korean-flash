@@ -667,6 +667,9 @@ async function init(){
   }
   loadState();
   buildKeys();
+  {const sel=loadSel();if(["1","2","3","4"].includes(sel.topik))currentTopik=sel.topik;
+   document.querySelectorAll(".topik-btn").forEach(b=>b.classList.toggle("active",b.dataset.topik===currentTopik));
+   currentLevel=(sel.lv&&sel.lv[currentTopik])||"all";}
   setTopikData();
   buildLevelBar();
   updateHome();
@@ -696,9 +699,10 @@ function setTopik(btn){
   document.querySelectorAll(".topik-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
   document.getElementById("subtitle").textContent=t("subtitle").replace("{n}",currentTopik);
-  currentLevel="all";
+  currentLevel=(loadSel().lv||{})[currentTopik]||"all";
   setTopikData();
   buildLevelBar();
+  saveSel();
   updateHome();
 }
 
@@ -718,11 +722,15 @@ function setTopikData(){
   WORDS=ALL_WORDS.filter(w=>w.topik===currentTopik);
 }
 
+// 級ごとに最後に選んだレベルを覚えておく
+const SEL_KEY="kf_sel_v1";
+function loadSel(){try{return JSON.parse(localStorage.getItem(SEL_KEY))||{lv:{}};}catch(e){return {lv:{}};}}
+function saveSel(){try{const s=loadSel();s.topik=currentTopik;s.lv=s.lv||{};s.lv[currentTopik]=currentLevel;localStorage.setItem(SEL_KEY,JSON.stringify(s));}catch(e){}}
 function buildLevelBar(){
   const bar=document.getElementById("level-bar");
   bar.innerHTML="";
   const allBtn=document.createElement("button");
-  allBtn.className="lv-btn active";
+  allBtn.className="lv-btn";
   allBtn.dataset.lv="all";
   allBtn.textContent=t("levelAll");
   allBtn.onclick=function(){setLevel(this)};
@@ -736,10 +744,13 @@ function buildLevelBar(){
     btn.onclick=function(){setLevel(this)};
     bar.appendChild(btn);
   });
+  if(currentLevel!=="all"&&!levels.includes(currentLevel))currentLevel="all";
+  const act=bar.querySelector('.lv-btn[data-lv="'+currentLevel+'"]');
+  if(act){act.classList.add("active");requestAnimationFrame(()=>{try{bar.scrollLeft=Math.max(0,act.offsetLeft-bar.clientWidth/2+act.offsetWidth/2);}catch(e){}});}
 }
 
 function setLevel(btn){
-  currentLevel=btn.dataset.lv;
+  currentLevel=btn.dataset.lv;saveSel();
   document.querySelectorAll(".lv-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");
   updateHome();
