@@ -526,7 +526,7 @@ body{background:#1a1340;min-height:100%}
     <button class="back-btn" id="r-sound" onclick="toggleSound()">🔊</button>
   </div>
   <div class="r-win" id="r-status">
-    <div class="r-st-row"><span>ゆうしゃ</span><span id="r-lv">Lv 1</span><span id="r-gold">0G</span><button class="r-herb" id="r-herb" onclick="rpgUseHerb()">🌿0</button></div>
+    <div class="r-st-row"><span>あなた</span><span id="r-lv">Lv 1</span><span id="r-gold">0G</span><button class="r-herb" id="r-herb" onclick="rpgUseHerb()">🧪0</button></div>
     <div class="r-st-row"><span>HP</span><div class="r-hpbar"><div id="r-hpfill"></div></div><span id="r-hp"></span><span class="r-exp" id="r-exp"></span></div>
   </div>
   <div id="r-field">
@@ -2492,17 +2492,17 @@ const RPG_AREAS={
           {n:"コウモン",s:"bat",p:{a:"#9a7ad8",b:"#5e4aa0",c:"#d8c8ff",r:"#e6465a"}},
           {n:"キノコロ",s:"shroom",p:{c:"#ffe8c8",r:"#e6465a",b:"#a87850"}}],
     boss:{n:"キングプルン",s:"blob",p:{a:"#f2c84b",b:"#c08a28",c:"#fff0b0",r:"#e6465a",g:"#50b43c"}}},
-  "2":{name:"きりの森",rec:5,hp:[50,64],atk:[7,9],exp:16,gold:9,sky:"linear-gradient(#24443a,#5f8a74 55%,#3a6a44 55%,#203c26)",
+  "2":{name:"霧の森",rec:5,hp:[50,64],atk:[7,9],exp:16,gold:9,sky:"linear-gradient(#24443a,#5f8a74 55%,#3a6a44 55%,#203c26)",
     mons:[{n:"ミストプルン",s:"blob",p:{a:"#8fd0ff",b:"#4a90c8",c:"#e0f4ff",r:"#e6465a",g:"#50b43c"}},
           {n:"ゴースン",s:"ghost",p:{a:"#e8ecff",b:"#a0a8d0",c:"#ffffff"}},
           {n:"ドクキノコロ",s:"shroom",p:{c:"#d8f0c8",r:"#9a4ad8",b:"#6a5a40"}}],
     boss:{n:"もりのぬし",s:"golem",p:{a:"#6aa060",b:"#3c6a3c",c:"#a8d890",r:"#ffcc33"}}},
-  "3":{name:"いにしえの遺跡",rec:9,hp:[95,120],atk:[12,15],exp:38,gold:20,sky:"linear-gradient(#4a2e6a,#d8946a 55%,#a88a5c 55%,#6a5636)",
+  "3":{name:"古代遺跡",rec:9,hp:[95,120],atk:[12,15],exp:38,gold:20,sky:"linear-gradient(#4a2e6a,#d8946a 55%,#a88a5c 55%,#6a5636)",
     mons:[{n:"いしゴーレム",s:"golem",p:{a:"#b8a888",b:"#7a6a50",c:"#e0d8c0",r:"#ff5050"}},
           {n:"ナイトバット",s:"bat",p:{a:"#5a5a80",b:"#30304a",c:"#9a9ac0",r:"#ff4060"}},
           {n:"ファントム",s:"ghost",p:{a:"#b890e8",b:"#7050b0",c:"#e8d8ff"}}],
     boss:{n:"いせきのばんにん",s:"golem",p:{a:"#d8b040",b:"#8a6a20",c:"#fff0a0",r:"#40e0ff"}}},
-  "4":{name:"りゅうの山",rec:14,hp:[170,210],atk:[19,24],exp:80,gold:40,sky:"linear-gradient(#2a0610,#b03a1a 55%,#5a2a26 55%,#2a1214)",
+  "4":{name:"竜の火山",rec:14,hp:[170,210],atk:[19,24],exp:80,gold:40,sky:"linear-gradient(#2a0610,#b03a1a 55%,#5a2a26 55%,#2a1214)",
     mons:[{n:"ベビードラ",s:"dragon",p:{a:"#e8604a",b:"#a03a2a",c:"#ffb090",g:"#ffcc33",r:"#ffe060"}},
           {n:"マグマプルン",s:"blob",p:{a:"#ff8a3a",b:"#c04a1a",c:"#ffd090",r:"#7a1010",g:"#ffcc33"}},
           {n:"ほのおゴーレム",s:"golem",p:{a:"#d84a3a",b:"#8a2a20",c:"#ff9a70",r:"#ffe040"}}],
@@ -2572,8 +2572,8 @@ function rpgStatus(){
   const hpf=$r("r-hpfill");hpf.style.width=Math.max(0,p.hp/mx*100)+"%";
   hpf.className=p.hp<=mx*0.25?"low":p.hp<=mx*0.5?"mid":"";
   $r("r-gold").textContent=p.gold+"G";
-  $r("r-exp").textContent="つぎ "+(rpgNeed(p.lv)-p.exp);
-  const hb=$r("r-herb");hb.textContent="🌿"+p.herb;hb.disabled=!(p.herb>0&&p.hp<mx);
+  $r("r-exp").textContent="次Lvまで "+(rpgNeed(p.lv)-p.exp);
+  const hb=$r("r-herb");hb.textContent="🧪"+p.herb;hb.disabled=!(p.herb>0&&p.hp<mx);
 }
 function rpgSay(text,hold){
   const run=RPG.run;
@@ -2600,28 +2600,28 @@ function rpgTown(){
   $r("r-mon-wrap").style.display="none";
   $r("r-town").style.display="flex";
   $r("r-town").innerHTML=`<div class="r-town-name">${esc(a.name)}</div>
-    <div class="r-town-sub">TOPIK ${currentTopik}級の単語・おすすめ Lv${a.rec}〜</div>
-    <div class="r-town-sub">${left===0?"⚠️ つぎは ボス！（苦手な単語が出ます）":"ボスまで あと "+left+" 戦"}</div>
-    <div class="r-town-sub">たおした数 ${p.wins}</div>`;
+    <div class="r-town-sub">TOPIK ${currentTopik}級の単語・推奨 Lv${a.rec}〜</div>
+    <div class="r-town-sub">${left===0?"⚠️ 次はボス戦！（苦手な単語が出ます）":"ボス戦まで あと"+left+"戦"}</div>
+    <div class="r-town-sub">撃破数 ${p.wins}</div>`;
   $r("r-timer").style.visibility="hidden";
   rpgStatus();
   const mx=rpgMaxHp(p.lv);
   rpgCmd(`<div class="r-menu">
-    <button class="r-opt" onclick="rpgFight()">⚔️ たたかう</button>
-    <button class="r-opt" onclick="rpgInn()" ${p.hp>=mx||p.gold<rpgInnPrice()?"disabled":""}>🏨 やどや（${rpgInnPrice()}G）</button>
-    <button class="r-opt" onclick="rpgBuyHerb()" ${p.gold<rpgHerbPrice()?"disabled":""}>🌿 やくそう（${rpgHerbPrice()}G）</button>
-    <button class="r-opt" onclick="quitRPG()">🏠 もどる</button></div>`);
-  rpgSay(p.hp<mx*0.4?"HPが へっている。やどやで やすもう。":"どこへ いこうか？",0);
+    <button class="r-opt" onclick="rpgFight()">⚔️ バトル</button>
+    <button class="r-opt" onclick="rpgInn()" ${p.hp>=mx||p.gold<rpgInnPrice()?"disabled":""}>🏨 休憩所（${rpgInnPrice()}G）</button>
+    <button class="r-opt" onclick="rpgBuyHerb()" ${p.gold<rpgHerbPrice()?"disabled":""}>🧪 ポーション（${rpgHerbPrice()}G）</button>
+    <button class="r-opt" onclick="quitRPG()">🏠 ホームへ</button></div>`);
+  rpgSay(p.hp<mx*0.4?"HPが減っています。休憩所で回復しましょう。":"準備ができたらバトルへ！",0);
 }
 async function rpgInn(){
   const p=RPG.p,pr=rpgInnPrice();if(p.gold<pr)return;
   p.gold-=pr;p.hp=rpgMaxHp(p.lv);rpgSave();rpgSfx("heal");rpgStatus();
-  rpgCmd("");const run=RPG.run;await rpgSay("ぐっすり ねむった。\nHPが ぜんかいふくした！",900);if(run!==RPG.run)return;rpgTown();
+  rpgCmd("");const run=RPG.run;await rpgSay("しっかり休んだ。\nHPが全回復！",900);if(run!==RPG.run)return;rpgTown();
 }
 async function rpgBuyHerb(){
   const p=RPG.p,pr=rpgHerbPrice();if(p.gold<pr)return;
   p.gold-=pr;p.herb++;rpgSave();rpgSfx("coin");rpgStatus();
-  rpgCmd("");const run=RPG.run;await rpgSay("やくそうを かった。（"+p.herb+"こ）",700);if(run!==RPG.run)return;rpgTown();
+  rpgCmd("");const run=RPG.run;await rpgSay("ポーションを買った。（"+p.herb+"こ）",700);if(run!==RPG.run)return;rpgTown();
 }
 function rpgUseHerb(){
   const p=RPG.p,mx=rpgMaxHp(p.lv);if(!(p.herb>0&&p.hp<mx))return;
@@ -2663,7 +2663,7 @@ async function rpgFight(){
   rpgCmd("");rpgStatus();
   RPG.music=true;startBGM("rpg");setTimeout(()=>bgmSetHype(boss),80);
   rpgSfx("appear");
-  await rpgSay((boss?"⚠️ ボス！\n":"")+RPG.mon.n+"が あらわれた！",700);
+  await rpgSay((boss?"⚠️ ボス戦！\n":"")+RPG.mon.n+"が 出現！",700);
   if(run!==RPG.run)return;
   cv.classList.remove("appear");
   rpgNextQ();
@@ -2718,7 +2718,7 @@ async function rpgAnswer(i,ev){
     $r("rpg").classList.add(crit?"flash-crit":"flash");setTimeout(()=>$r("rpg").classList.remove("flash","flash-crit"),250);
     setTimeout(()=>{if(run!==RPG.run)return;rpgSfx("hit");cv.classList.remove("hit");void cv.offsetWidth;cv.classList.add("hit");rpgFloat(String(dmg),crit?"crit":"");},160);
     m.hp=Math.max(0,m.hp-dmg);setTimeout(rpgMonHp,200);
-    await rpgSay((crit?"かいしんの いちげき！\n":"ゆうしゃの こうげき！\n")+m.n+"に "+dmg+"の ダメージ！",650);
+    await rpgSay((crit?"クリティカル！\n":"ヒット！\n")+m.n+"に "+dmg+"ダメージ！",650);
     if(run!==RPG.run)return;
     if(m.hp<=0)return rpgWin();
   }else{
@@ -2728,7 +2728,7 @@ async function rpgAnswer(i,ev){
     cv.classList.remove("lunge");void cv.offsetWidth;cv.classList.add("lunge");
     setTimeout(()=>{if(run!==RPG.run)return;rpgSfx("hurt");const r=$r("rpg");r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake");setTimeout(()=>r.classList.remove("shake"),400);},180);
     p.hp=Math.max(0,p.hp-dmg);rpgSave();setTimeout(rpgStatus,200);
-    await rpgSay((i<0?"じかんぎれ！ ":"")+m.n+"の こうげき！\n"+dmg+"の ダメージを うけた！\n正解：「"+meaningOf(w)+"」",1500);
+    await rpgSay((i<0?"時間切れ！ ":"")+m.n+"の反撃！\n"+dmg+"ダメージを受けた！\n正解：「"+meaningOf(w)+"」",1500);
     if(run!==RPG.run)return;
     if(p.hp<=0)return rpgLose();
   }
@@ -2745,13 +2745,13 @@ async function rpgWin(){
   if(m.boss)p.boss[currentTopik]=(p.boss[currentTopik]||0)+1;
   let drop=Math.random()<(m.boss?1:0.15);if(drop)p.herb++;
   rpgSave();rpgStatus();
-  await rpgSay(m.n+"を たおした！\n"+m.exp+"の けいけんちと "+m.gold+"G を てにいれた！"+(drop?"\nやくそうを ひろった！":""),1300);
+  await rpgSay(m.n+"を倒した！\n"+m.exp+" EXPと "+m.gold+"G を獲得！"+(drop?"\nポーションを拾った！":""),1300);
   if(run!==RPG.run)return;
   while(p.exp>=rpgNeed(p.lv)){
     p.exp-=rpgNeed(p.lv);const oh=rpgMaxHp(p.lv),oa=rpgAtk(p.lv);p.lv++;
     p.hp+=rpgMaxHp(p.lv)-oh;rpgSave();rpgStatus();rpgSfx("lvup");
     $r("r-status").classList.add("lvup");setTimeout(()=>$r("r-status").classList.remove("lvup"),900);
-    await rpgSay("レベルが あがった！ Lv"+p.lv+"\nさいだいHP +"+(rpgMaxHp(p.lv)-oh)+"・こうげき +"+(rpgAtk(p.lv)-oa),1400);
+    await rpgSay("レベルアップ！ Lv"+p.lv+"\n最大HP +"+(rpgMaxHp(p.lv)-oh)+"・攻撃力 +"+(rpgAtk(p.lv)-oa),1400);
     if(run!==RPG.run)return;
   }
   rpgAfter();
@@ -2759,20 +2759,20 @@ async function rpgWin(){
 function rpgAfter(){
   const p=RPG.p,mx=rpgMaxHp(p.lv),pr=p.prog[currentTopik]||0;
   const missed=RPG.missed||[];
-  rpgSay(missed.length?"まちがえた単語は 苦手リストに いれたよ。":"ノーミス！ すばらしい！",0);
+  rpgSay(missed.length?"間違えた単語は苦手リストに入れました。":"ノーミス！",0);
   rpgCmd(`${missed.length?`<div class="r-missed">${missed.map(w=>`<span><b>${esc(w.ko)}</b> ${esc(meaningOf(w))}</span>`).join("")}</div>`:""}
     <div class="r-menu">
-    <button class="r-opt" onclick="rpgFight()">⚔️ つぎへ${pr%5===4?"（ボス！）":""}</button>
-    <button class="r-opt" onclick="rpgUseHerb();rpgAfter()" ${p.herb>0&&p.hp<mx?"":"disabled"}>🌿 やくそう（${p.herb}）</button>
-    <button class="r-opt" onclick="rpgTown()">🏘️ まちへ</button>
-    <button class="r-opt" onclick="quitRPG()">🏠 もどる</button></div>`);
+    <button class="r-opt" onclick="rpgFight()">⚔️ 次のバトル${pr%5===4?"（ボス戦）":""}</button>
+    <button class="r-opt" onclick="rpgUseHerb();rpgAfter()" ${p.herb>0&&p.hp<mx?"":"disabled"}>🧪 ポーション（${p.herb}）</button>
+    <button class="r-opt" onclick="rpgTown()">🏘️ 拠点へ</button>
+    <button class="r-opt" onclick="quitRPG()">🏠 ホームへ</button></div>`);
 }
 async function rpgLose(){
   const run=RPG.run,p=RPG.p;
   RPG.mode="result";RPG.music=false;stopBGM(0.3);rpgSfx("lose");$r("r-timer").style.visibility="hidden";
   $r("rpg").classList.add("dim");
   const lost=Math.floor(p.gold/2);p.gold-=lost;p.hp=rpgMaxHp(p.lv);rpgSave();
-  await rpgSay("ゆうしゃは ちからつきた…\nゴールドを "+lost+"G うしなった。",1800);
+  await rpgSay("HPが0になった…\nゴールドを "+lost+"G 失った。",1800);
   $r("rpg").classList.remove("dim");
   if(run!==RPG.run)return;
   rpgTown();
