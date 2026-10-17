@@ -169,6 +169,8 @@ body{background:#1a1340;min-height:100%}
 @keyframes mShake{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 .m-tile.empty{background:rgba(255,255,255,.06);border:2px dashed rgba(255,255,255,.25);box-shadow:none;color:transparent}
 .m-tile.pop{animation:mPop .3s ease-out}
+.m-tile.shuf{animation:mShuf .28s ease-out}
+@keyframes mShuf{0%{transform:rotateX(90deg);opacity:.3}100%{transform:none;opacity:1}}
 @keyframes mPop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 .m-panel{flex-direction:column;align-items:center;gap:12px;color:#fff;text-align:center;overflow:auto;max-height:100%}
 .m-logo{font-size:40px;font-weight:900;letter-spacing:2px;text-shadow:0 4px 18px rgba(0,0,0,.3)}
@@ -2587,8 +2589,18 @@ function mtRefill(initial){
   ws.forEach((w,k)=>{MT.L[ls[k]]={w};MT.R[rs[k]]={w};});
   // 補充できなかった空き枠は残しておく
   MT.freeL=freeL.filter(i=>!MT.L[i]);MT.freeR=freeR.filter(i=>!MT.R[i]);
-  ls.concat([]).forEach(i=>mtRenderTile("L",i,!initial));rs.forEach(i=>mtRenderTile("R",i,!initial));
-  if(initial)mtRenderAll();
+  ls.forEach(i=>mtRenderTile("L",i,!initial));
+  if(initial){mtRenderAll();return;}
+  // 新しい意味は、右のランダムな札と入れ替える（同じ場所を消し続けても位置で絞れないように。動くのは数枚だけ）
+  const moved=new Set();
+  rs.forEach(r=>{
+    const j=Math.floor(Math.random()*MT_ROWS);
+    if(j!==r){const t=MT.R[j];MT.R[j]=MT.R[r];MT.R[r]=t;moved.add(j);}
+    moved.add(r);
+  });
+  MT.freeR=MT.R.map((x,i)=>x?-1:i).filter(i=>i>=0);
+  if(MT.sel&&MT.sel.side==="R"&&moved.has(MT.sel.i)){$m("m-R"+MT.sel.i).classList.remove("sel");MT.sel=null;}
+  moved.forEach(i=>{mtRenderTile("R",i);const el=$m("m-R"+i);if(MT.R[i]){void el.offsetWidth;el.classList.add("shuf");}});
 }
 function mtTap(side,i,ev){
   if(ev)ev.preventDefault();
