@@ -145,6 +145,79 @@ body{background:#1a1340;min-height:100%}
 #home::before,#home::after{content:"";flex:1 0 0}
 .menu-btn.game-btn{background:linear-gradient(120deg,rgba(255,200,61,0.32),rgba(255,138,210,0.32));border-color:rgba(255,220,140,0.55)}
 .icon-game{background:rgba(255,200,61,0.45)}
+/* ===== 冒険（RPG） ===== */
+.game-row{display:flex;gap:10px}
+.game-row .menu-btn{flex:1;min-width:0}
+.game-row .game-btn{flex:1.2}
+.game-row .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-btn.rpg-btn{background:linear-gradient(120deg,rgba(94,242,255,0.26),rgba(122,90,255,0.34));border-color:rgba(160,220,255,0.55)}
+.icon-rpg{background:rgba(94,242,255,0.35)}
+#rpg{gap:8px;font-family:"DotGothic16",-apple-system,sans-serif}
+.r-win{background:rgba(8,8,24,0.88);border:3px solid #fff;border-radius:10px;box-shadow:0 0 0 2px #0a0a1a,0 6px 18px rgba(0,0,0,0.35);color:#fff;padding:8px 12px}
+.r-area{flex:1;text-align:center;color:#fff;font-size:15px;text-shadow:0 2px 6px rgba(0,0,0,.45)}
+.r-st-row{display:flex;align-items:center;gap:10px;font-size:15px}
+.r-st-row+.r-st-row{margin-top:6px}
+#r-gold{margin-left:auto;color:#ffd23c}
+.r-herb{background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.6);color:#fff;border-radius:8px;padding:3px 8px;font:inherit;font-size:14px;cursor:pointer}
+.r-herb:disabled{opacity:0.35}
+.r-hpbar{flex:1;height:10px;background:#333;border:1.5px solid #fff;border-radius:3px;overflow:hidden}
+#r-hpfill{height:100%;background:#4ade80;transition:width .35s}
+#r-hpfill.mid{background:#facc15}#r-hpfill.low{background:#f43f5e}
+#r-hp{min-width:58px;text-align:right}
+.r-exp{font-size:12px;opacity:.75;min-width:54px;text-align:right}
+#r-status{transition:border-color .2s,box-shadow .3s}
+#r-status.lvup{border-color:#ffd23c;box-shadow:0 0 0 2px #0a0a1a,0 0 22px #ffd23c}
+#r-field{position:relative;flex:1;min-height:170px;border-radius:12px;overflow:hidden;border:3px solid #fff;box-shadow:0 0 0 2px #0a0a1a;display:flex;align-items:center;justify-content:center;transition:filter .15s}
+.r-town{flex-direction:column;align-items:center;gap:6px;color:#fff;text-align:center;padding:14px 18px;background:rgba(8,8,24,0.72);border:2px solid rgba(255,255,255,0.85);border-radius:10px;max-width:88%}
+.r-town-name{font-size:28px;margin-bottom:6px}
+.r-town-sub{font-size:14px}
+.r-mon-wrap{flex-direction:column;align-items:center;position:absolute;inset:0;justify-content:flex-end;padding-bottom:5%}
+.r-mon-name{color:#fff;font-size:15px;text-shadow:0 2px 0 #000;position:absolute;top:10px}
+.r-mon-hp{position:absolute;top:34px;width:46%;height:8px;background:rgba(0,0,0,.5);border:1.5px solid #fff;border-radius:3px;overflow:hidden}
+#r-mon-hpfill{height:100%;background:#f43f5e;transition:width .35s}
+.r-mon{width:min(40vw,160px);image-rendering:pixelated;image-rendering:crisp-edges;animation:rBob 1.6s ease-in-out infinite;position:relative;z-index:1}
+.r-mon.boss{width:min(52vw,210px)}
+.r-shadow{width:min(32vw,130px);height:14px;margin-top:-8px;border-radius:50%;background:rgba(0,0,0,.35)}
+@keyframes rBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.r-mon.appear{animation:rAppear .5s steps(5) both}
+@keyframes rAppear{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.r-mon.hit{animation:rHit .5s steps(1)}
+@keyframes rHit{0%{opacity:.1;transform:translateX(-5px)}20%{opacity:1;transform:translateX(5px)}40%{opacity:.1;transform:translateX(-3px)}60%{opacity:1;transform:translateX(2px)}80%{opacity:.1}100%{opacity:1;transform:none}}
+.r-mon.lunge{animation:rLunge .35s ease}
+@keyframes rLunge{50%{transform:scale(1.2) translateY(12px)}}
+.r-mon.dead{animation:rDead .6s steps(6) forwards}
+@keyframes rDead{to{opacity:0;transform:scale(1.15);filter:brightness(3)}}
+#rpg.shake{animation:rShake .35s}
+@keyframes rShake{20%{transform:translate(-7px,2px)}40%{transform:translate(6px,-2px)}60%{transform:translate(-4px,1px)}80%{transform:translate(3px,0)}}
+#rpg.shake #r-status{border-color:#f43f5e}
+#rpg.flash #r-field{filter:brightness(1.5)}
+#rpg.flash-crit #r-field{filter:brightness(2.2) saturate(1.6)}
+#rpg.dim #r-field{filter:grayscale(1) brightness(.45);transition:filter 1s}
+.r-float{position:absolute;top:38%;left:50%;transform:translateX(-50%);font-size:34px;color:#fff;text-shadow:0 3px 0 #000,0 0 10px rgba(0,0,0,.6);animation:rFloat 1.1s ease-out forwards;z-index:3;pointer-events:none}
+.r-float.crit{color:#ffd23c;font-size:46px}
+.r-float.heal{color:#4ade80;top:20%}
+@keyframes rFloat{0%{opacity:0;transform:translate(-50%,10px) scale(.6)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}30%{transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-50px)}}
+.r-msg{min-height:80px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.r-text{white-space:pre-line;font-size:16px;line-height:1.45;width:100%}
+.r-q{text-align:center;width:100%}
+.r-ko{font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;font-size:34px;font-weight:800;color:#fff;line-height:1.15}
+.r-rom{font-size:12px;opacity:.7;margin-top:2px;font-family:-apple-system,sans-serif}
+.r-timer{height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden}
+#r-timefill{height:100%;background:#5ef2ff;width:100%;transition:width .1s linear}
+#r-timefill.low{background:#f43f5e}
+.r-cmd{min-height:132px}
+.r-grid,.r-menu{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.r-ch,.r-opt{background:rgba(8,8,24,0.88);border:3px solid #fff;border-radius:10px;box-shadow:0 0 0 2px #0a0a1a;color:#fff;font:inherit;font-size:16px;padding:10px 8px;min-height:62px;cursor:pointer;touch-action:manipulation;line-height:1.3}
+.r-opt{min-height:54px;font-size:15px}
+.r-ch:active,.r-opt:active{background:#2a2a6a}
+.r-ch.ok{background:#15803d;border-color:#bbf7d0}
+.r-ch.ng{background:#be123c;border-color:#fecdd3}
+.r-ch:disabled:not(.ok):not(.ng){opacity:.4}
+.r-opt:disabled{opacity:.35}
+.r-missed{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;max-height:70px;overflow:auto}
+.r-missed span{background:rgba(8,8,24,.8);color:#fff;border:1.5px solid rgba(255,255,255,.6);border-radius:8px;padding:3px 8px;font-size:13px}
+.r-missed b{font-family:-apple-system,sans-serif}
+
 
 /* GAME */
 #game{gap:8px;padding-bottom:0}
@@ -304,6 +377,7 @@ body{background:#1a1340;min-height:100%}
 .g-modes.lives{margin-top:8px}
 .new-badge{position:absolute;top:14px;left:16px;background:linear-gradient(90deg,#ff6ec7,#ffb347);color:#fff;font-size:11px;font-weight:900;letter-spacing:1px;padding:4px 10px;border-radius:99px;box-shadow:0 2px 8px rgba(255,110,199,0.4)}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 </head>
 <body>
 <div id="bg">
@@ -337,10 +411,16 @@ body{background:#1a1340;min-height:100%}
   <div id="level-bar">
     <button class="lv-btn active" data-lv="all" onclick="setLevel(this)">全て</button>
   </div>
+  <div class="game-row">
   <button class="menu-btn game-btn" onclick="startGame()">
     <div class="icon icon-game">🎮</div>
-    <div><div id="game-menu-title">ゲーム</div><div class="meta" id="game-menu-meta">単語シューティング</div></div>
+    <div style="min-width:0"><div id="game-menu-title">ゲーム</div><div class="meta" id="game-menu-meta">単語シューティング</div></div>
   </button>
+  <button class="menu-btn rpg-btn" onclick="openRPG()">
+    <div class="icon icon-rpg">⚔️</div>
+    <div style="min-width:0"><div>冒険</div><div class="meta" id="rpg-menu-meta">RPG</div></div>
+  </button>
+  </div>
   <button class="menu-btn vt-btn" onclick="openVTest()">
     <div class="icon icon-vt">📊</div>
     <div><div id="vt-menu-title">単語力テスト</div><div class="meta" id="vt-menu-meta">50問で今の単語力をチェック</div></div>
@@ -437,6 +517,33 @@ body{background:#1a1340;min-height:100%}
     <canvas id="game-canvas"></canvas>
     <div id="game-overlay" class="hidden"></div>
   </div>
+</div>
+
+<div id="rpg" class="screen">
+  <div class="top-bar">
+    <button class="back-btn" onclick="quitRPG()">✕</button>
+    <div class="r-area" id="r-area"></div>
+    <button class="back-btn" id="r-sound" onclick="toggleSound()">🔊</button>
+  </div>
+  <div class="r-win" id="r-status">
+    <div class="r-st-row"><span>ゆうしゃ</span><span id="r-lv">Lv 1</span><span id="r-gold">0G</span><button class="r-herb" id="r-herb" onclick="rpgUseHerb()">🌿0</button></div>
+    <div class="r-st-row"><span>HP</span><div class="r-hpbar"><div id="r-hpfill"></div></div><span id="r-hp"></span><span class="r-exp" id="r-exp"></span></div>
+  </div>
+  <div id="r-field">
+    <div id="r-town" class="r-town"></div>
+    <div id="r-mon-wrap" class="r-mon-wrap" style="display:none">
+      <div class="r-mon-name" id="r-mon-name"></div>
+      <div class="r-mon-hp"><div id="r-mon-hpfill"></div></div>
+      <canvas id="r-mon" class="r-mon" onanimationend="rpgAnimEnd(this,event)"></canvas>
+      <div class="r-shadow"></div>
+    </div>
+  </div>
+  <div class="r-win r-msg" onclick="rpgTapMsg()">
+    <div id="r-q" class="r-q" style="display:none"></div>
+    <div id="r-text" class="r-text"></div>
+  </div>
+  <div class="r-timer" id="r-timer" style="visibility:hidden"><div id="r-timefill"></div></div>
+  <div class="r-cmd" id="r-cmd"></div>
 </div>
 
 <div id="gameover" class="screen">
@@ -668,6 +775,7 @@ function updateHome(){
    document.getElementById("mastered-menu-title").textContent=mt[currentLang]||mt.ja;
    document.getElementById("mastered-meta").textContent=filtered.filter(w=>st.mastered[K(w)]&&!st.perfect[K(w)]).length+(mMap[currentLang]||mMap.ja);}
   if(typeof updateGameMenu==="function") updateGameMenu();
+  if(typeof updateRPGMenu==="function") updateRPGMenu();
   if(typeof updateVTMenu==="function") updateVTMenu();
   if(typeof applyBkLang==="function") applyBkLang();
 }
@@ -1051,9 +1159,9 @@ function t(key){
 function applyLangToUI(){
   document.getElementById("app-title").textContent=t("appTitle");
   document.getElementById("new-meta").dataset.base=t("menuNewMeta");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn)")[0].querySelector("div > div").textContent=t("menuAllTitle");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn)")[1].querySelector("div > div").textContent=t("menuReviewTitle");
-  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn)")[2].querySelector("div > div").textContent=t("menuPerfectTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn):not(.rpg-btn)")[0].querySelector("div > div").textContent=t("menuAllTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn):not(.rpg-btn)")[1].querySelector("div > div").textContent=t("menuReviewTitle");
+  document.querySelectorAll(".menu-btn:not(.game-btn):not(.vt-btn):not(.mastered-btn):not(.rpg-btn)")[2].querySelector("div > div").textContent=t("menuPerfectTitle");
   document.getElementById("similar-menu-title").textContent=t("menuSimilarTitle");
   document.getElementById("similar-menu-meta").textContent=t("menuSimilarMeta");
   document.getElementById("similar-screen-title").textContent=t("similarScreenTitle");
@@ -1141,7 +1249,7 @@ function updateGameMenu(){
   const el=document.getElementById("game-menu-title"); if(!el)return;
   el.textContent=gt("menu");
   const b=loadBest()[currentTopik];
-  document.getElementById("game-menu-meta").textContent=gt("sub")+" · "+(b?gt("best")+" "+b.toLocaleString():gt("none"));
+  document.getElementById("game-menu-meta").textContent=b?gt("best")+" "+b.toLocaleString():(currentLang==="ja"?"シューティング":gt("sub"));
 }
 
 const G={};  // game state
@@ -1198,7 +1306,7 @@ function createAudioCtx(){
   SND.master=SND.ctx.createGain();SND.master.gain.value=0.9;SND.master.connect(comp);comp.connect(SND.ctx.destination);
   // iPhone：電話・Siri・他アプリ・読み上げなどで割り込まれた後、復帰したらBGMを自動で再開
   SND.ctx.onstatechange=()=>{try{
-    if(SND.ctx.state==="running"&&SND.on&&!BGM.src&&typeof G!=="undefined"&&(G.phase==="play"||G.phase==="count"||G.phase==="after")&&!G.paused)startBGM();
+    if(SND.ctx.state==="running"&&SND.on&&!BGM.src&&bgmShouldPlay())startBGM(BGM.song);
   }catch(e){}};
 }
 function rebuildAudioCtx(){
@@ -1217,7 +1325,7 @@ function audioUnlock(){
     if(SND.ctx&&(SND.dead||SND.ctx.state==="closed")){restart=rebuildAudioCtx();}
     if(SND.ctx&&SND.ctx.state!=="running")SND.ctx.resume();
     if(SND.ctx){const b=SND.ctx.createBuffer(1,1,22050),s=SND.ctx.createBufferSource();s.buffer=b;s.connect(SND.ctx.destination);s.start(0);}
-    if(restart&&typeof G!=="undefined"&&(G.phase==="play"||G.phase==="count"||G.phase==="after")&&!G.paused)startBGM();
+    if(restart&&bgmShouldPlay())startBGM(BGM.song);
   }catch(e){}
   if(!SND.speechUnlocked){try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u);SND.speechUnlocked=true;}catch(e){}}
 }
@@ -1268,7 +1376,7 @@ function speakKo(text){
 }
 
 // ---- BGM（その場で作曲・演奏するシンセポップ。Am→F→C→G）----
-const BGM={timer:null,bus:null,src:null,buf:null,rendering:false,want:false,hype:false};
+const BGM={timer:null,bus:null,src:null,bufs:{},rendering:{},want:false,hype:false,song:"shoot"};
 const BGM_BPM=114,BGM_STEP=60/BGM_BPM/4;
 const BGM_CHORDS=[
   {root:110.00,arp:[440.00,523.25,659.25,880.00]},   // Am
@@ -1286,35 +1394,52 @@ const BGM_MEL=[ // 2小節(32ステップ)ずつのメロディ [ステップ, �
 // BGMは8小節ぶんを先に音声データとして作り（OfflineAudioContext）、ループ再生する。
 // 25msタイマーで逐次鳴らす方式はiPhoneの割り込み・タイマー抑制で止まることがあったため。
 const BGM_BARS=8,BGM_LEN=BGM_BARS*16*BGM_STEP;
-setTimeout(()=>{try{ensureBGMBuf();}catch(e){}},1500);   // 起動して少ししたら先に作っておく
-function renderBGM(hype,sr){
+setTimeout(()=>{try{ensureBGMBuf("shoot");}catch(e){}},1500);   // 起動して少ししたら先に作っておく
+setTimeout(()=>{try{ensureBGMBuf("rpg");}catch(e){}},4000);
+// 今BGMを鳴らすべき場面か（割り込みからの復帰用）
+function bgmShouldPlay(){
+  if(typeof RPG!=="undefined"&&RPG.active&&RPG.music)return true;
+  return typeof G!=="undefined"&&(G.phase==="play"||G.phase==="count"||G.phase==="after")&&!G.paused&&document.getElementById("game").classList.contains("active");
+}
+function songDef(name){
+  return name==="rpg"?{bars:RPG_BARS,step:RPG_STEP,len:RPG_LEN,fn:rpgStep,lpf:3200}:{bars:BGM_BARS,step:BGM_STEP,len:BGM_LEN,fn:bgmStep,lpf:2200};
+}
+function renderBGM(hype,sr,name){
+  const d=songDef(name);
   const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
-  const oc=new OAC(1,Math.ceil((BGM_LEN+0.6)*sr),sr);
+  const oc=new OAC(1,Math.ceil((d.len+0.6)*sr),sr);
   const bus=oc.createGain();bus.gain.value=1;bus.connect(oc.destination);
-  const lp=oc.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2200;lp.Q.value=2;lp.connect(bus);
-  for(let st=0;st<BGM_BARS*16;st++)bgmStep(st,st*BGM_STEP+0.02,{bus,lp,hype});
+  const lp=oc.createBiquadFilter();lp.type="lowpass";lp.frequency.value=d.lpf;lp.Q.value=2;lp.connect(bus);
+  for(let st=0;st<d.bars*16;st++)d.fn(st,st*d.step+0.02,{bus,lp,hype});
   return oc.startRendering();
 }
-function ensureBGMBuf(){
-  if(BGM.buf||BGM.rendering)return;
+function ensureBGMBuf(name){
+  name=name||"shoot";
+  if(BGM.bufs[name]||BGM.rendering[name])return;
   const sr=SND.ctx?SND.ctx.sampleRate:48000;   // 再生時は自動で変換されるので、実際のレートと違っても問題ない
-  BGM.rendering=true;
-  Promise.all([renderBGM(false,sr),renderBGM(true,sr)]).then(([a,b])=>{BGM.buf={sr,a,b};BGM.rendering=false;if(BGM.want&&!BGM.src)startBGM();}).catch(e=>{console.error(e);BGM.rendering=false;});
+  BGM.rendering[name]=true;
+  Promise.all([renderBGM(false,sr,name),renderBGM(true,sr,name)]).then(([a,b])=>{BGM.bufs[name]={sr,a,b};BGM.rendering[name]=false;if(BGM.want&&!BGM.src&&BGM.song===name)startBGM(name);}).catch(e=>{console.error(e);BGM.rendering[name]=false;});
 }
-function startBGM(){
+function startBGM(name){
+  name=name||"shoot";
+  if(BGM.src&&BGM.song!==name)stopBGM(0.15);
+  BGM.song=name;
   if(!canPlay()||BGM.src)return;
   BGM.want=true;
   const c=SND.ctx;
-  if(!BGM.buf){ensureBGMBuf();return;}   // 準備できたら自動で開始
+  const buf=BGM.bufs[name];
+  if(!buf){ensureBGMBuf(name);return;}   // 準備できたら自動で開始
   try{
     const t=c.currentTime+0.05;
     BGM.bus=c.createGain();BGM.bus.gain.setValueAtTime(0.0001,t);BGM.bus.gain.exponentialRampToValueAtTime(0.32,t+0.6);
     BGM.bus.connect(SND.master);
     BGM.gA=c.createGain();BGM.gB=c.createGain();BGM.gA.gain.value=1;BGM.gB.gain.value=0.0001;
     BGM.gA.connect(BGM.bus);BGM.gB.connect(BGM.bus);
-    const mk=(buf,g)=>{const sN=c.createBufferSource();sN.buffer=buf;sN.loop=true;sN.loopStart=0;sN.loopEnd=BGM_LEN;sN.connect(g);sN.start(t);return sN;};
-    BGM.srcA=mk(BGM.buf.a,BGM.gA);BGM.srcB=mk(BGM.buf.b,BGM.gB);
+    const len=songDef(name).len;
+    const mk=(bf,g)=>{const sN=c.createBufferSource();sN.buffer=bf;sN.loop=true;sN.loopStart=0;sN.loopEnd=len;sN.connect(g);sN.start(t);return sN;};
+    BGM.srcA=mk(buf.a,BGM.gA);BGM.srcB=mk(buf.b,BGM.gB);
     BGM.src=true;BGM.hype=false;
+    if(name==="rpg"&&typeof RPG!=="undefined"&&RPG.mon&&RPG.mon.boss)bgmSetHype(true);
     SND.lastCT=-1;SND.stuckSince=0;
     if(BGM.timer)clearInterval(BGM.timer);BGM.timer=setInterval(bgmWatch,500);
   }catch(e){console.error(e);BGM.src=null;}
@@ -1373,14 +1498,14 @@ function bgmStep(step,t,env){
 function toggleSound(){
   SND.on=!SND.on;try{localStorage.setItem("kf_sound",SND.on?"on":"off");}catch(e){}
   updateSoundBtn();
-  if(SND.on){audioUnlock();sfx("beep");if(G.phase==="play"||G.phase==="after"||G.phase==="count")startBGM();}
+  if(SND.on){audioUnlock();sfx("beep");if(bgmShouldPlay())startBGM(BGM.song);}
   else{try{speechSynthesis.cancel();}catch(e){}stopBGM(0.1);}
 }
-function updateSoundBtn(){const b=document.getElementById("g-sound");if(b)b.textContent=SND.on?"🔊":"🔇";}
+function updateSoundBtn(){["g-sound","r-sound"].forEach(id=>{const b=document.getElementById(id);if(b)b.textContent=SND.on?"🔊":"🔇";});}
 
 // ===================== ゲーム進行 =====================
 function startGame(){
-  audioUnlock();updateSoundBtn();stopBGM(0.1);try{ensureBGMBuf();}catch(e){}
+  audioUnlock();updateSoundBtn();stopBGM(0.1);try{ensureBGMBuf("shoot");}catch(e){}
   if(gameMode==="weak"&&gamePool("weak").length<1)gameMode="all";
   const pool=gamePool(gameMode);
   if(pool.length<(gameMode==="weak"?1:2)){alert(gt("few"));return;}
@@ -1964,7 +2089,8 @@ function openBackup(){
   closeSettings();
   let game={};try{game=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
   let vtest=[];try{vtest=JSON.parse(localStorage.getItem("kf_vtest_v1"))||[];}catch(e){}
-  const payload={v:1,t:Date.now(),state,game,vtest};
+  let rpg=null;try{rpg=JSON.parse(localStorage.getItem("kf_rpg_v1"));}catch(e){}
+  const payload={v:1,t:Date.now(),state,game,vtest,rpg};
   document.getElementById("bk-code").value="KFB1:"+b64enc(JSON.stringify(payload));
   document.getElementById("bk-title").textContent=bt("bkTitle");
   document.getElementById("bk-desc").innerHTML=bt("bkDesc")+'<div class="bk-sum">'+levelSummary(state)+'</div>';
@@ -2030,6 +2156,11 @@ function doRestore(){
     let h=[];try{h=JSON.parse(localStorage.getItem("kf_vtest_v1"))||[];}catch(e){}
     const seen=new Set(h.map(x=>x.t));data.vtest.forEach(x=>{if(x&&x.t&&!seen.has(x.t))h.push(x);});
     h.sort((a,b)=>a.t-b.t);try{localStorage.setItem("kf_vtest_v1",JSON.stringify(h.slice(-50)));}catch(e){}
+  }
+  if(data.rpg&&typeof data.rpg==="object"){
+    let cur=null;try{cur=JSON.parse(localStorage.getItem("kf_rpg_v1"));}catch(e){}
+    const better=!cur||(Number(data.rpg.lv)||0)>(Number(cur.lv)||0)||((Number(data.rpg.lv)||0)===(Number(cur.lv)||0)&&(Number(data.rpg.exp)||0)>(Number(cur.exp)||0));
+    if(better){try{localStorage.setItem("kf_rpg_v1",JSON.stringify(data.rpg));}catch(e){}}
   }
   if(data.game&&typeof data.game==="object"){
     let g={};try{g=JSON.parse(localStorage.getItem("kf_game_v1"))||{};}catch(e){}
@@ -2297,6 +2428,357 @@ function vtFinish(){
   showScreen("vresult");res.scrollTop=0;
 }
 function quitVTest(){VT.active=false;clearInterval(VT.timer);try{speechSynthesis.cancel();}catch(e){}goHome();}
+
+// ===================== 冒険（RPG）=====================
+// 単語の意味を4択で答える＝攻撃。正解でダメージ、まちがえると反撃される。
+const RPG_BPM=136,RPG_STEP=60/RPG_BPM/4,RPG_BARS=8,RPG_LEN=RPG_BARS*16*RPG_STEP;
+const RPG_CHORDS=[
+  {root:73.42,arp:[293.66,349.23,440.00]},   // Dm
+  {root:58.27,arp:[233.08,293.66,349.23]},   // Bb
+  {root:65.41,arp:[261.63,329.63,392.00]},   // C
+  {root:55.00,arp:[220.00,277.18,329.63]}    // A
+];
+const RPG_MEL=[ // [ステップ, 周波数, 長さ]
+  [[0,587.33,3],[3,659.25,3],[6,698.46,2],[8,659.25,4],[12,587.33,4],[16,698.46,3],[19,587.33,3],[22,466.16,2],[24,523.25,4],[28,587.33,4]],
+  [[0,659.25,3],[3,698.46,3],[6,783.99,2],[8,880.00,4],[12,783.99,4],[16,659.25,4],[20,554.37,4],[24,659.25,4],[28,880.00,4]],
+  [[0,880.00,2],[2,783.99,2],[4,698.46,2],[6,659.25,2],[8,587.33,4],[12,698.46,4],[16,932.33,4],[20,880.00,4],[24,698.46,4],[28,587.33,4]],
+  [[0,783.99,4],[4,698.46,4],[8,659.25,4],[12,523.25,4],[16,554.37,4],[20,659.25,4],[24,880.00,2],[26,830.61,2],[28,880.00,4]]
+];
+function rpgStep(step,t,env){
+  try{
+    const s=step%16,bar=Math.floor(step/16),ch=RPG_CHORDS[bar%4],bus=env.bus,hype=env.hype;
+    if(s===0||s===8||s===10||(hype&&(s===3||s===11||s===14)))oscAt(t,"sine",125,40,0.2,0.5,bus,0.003);
+    if(s===4||s===12)noiseAt(t,0.14,0.17,"bandpass",2200,1000,bus);
+    if(bar%2===1&&(s===14||s===15))noiseAt(t,0.09,0.12,"bandpass",1400,600,bus);
+    if(s%2===0||hype)noiseAt(t,0.03,s%4===2?0.08:0.04,"highpass",8000,0,bus);
+    if(s%2===0){const f=(s%4===2)?ch.root*2:ch.root;oscAt(t,"sawtooth",f,0,RPG_STEP*1.7,0.07,env.lp,0.004);oscAt(t,"triangle",f,0,RPG_STEP*1.7,0.24,bus,0.004);}
+    if(s===2||s===6||s===10||s===14){ch.arp.forEach(f=>oscAt(t,"square",f*(hype?2:1),0,RPG_STEP*0.7,0.016,env.lp,0.003));}
+    const ph=RPG_MEL[Math.floor(bar/2)%4],s32=(bar%2)*16+s;
+    ph.forEach(([st,f,len])=>{if(st===s32){const d=RPG_STEP*len*0.92;oscAt(t,"square",f,0,d,0.045,env.lp,0.004);oscAt(t,"triangle",f*2,0,d*0.7,0.018,bus,0.004);}});
+  }catch(e){}
+}
+function rpgSfx(k){
+  if(!canPlay())return;
+  try{
+    const t=SND.ctx.currentTime;
+    if(k==="atk"){noiseAt(t,0.16,0.22,"highpass",1500,6000);tone(500,180,0.12,"square",0.06);}
+    else if(k==="crit"){noiseAt(t,0.22,0.26,"highpass",1200,7000);tone(700,150,0.18,"square",0.08);bell(1568,0.08,0.12,0.5);bell(2093,0.16,0.12,0.7);}
+    else if(k==="hit"){noiseAt(t+0.02,0.18,0.25,"lowpass",900,120);tone(160,60,0.18,"sine",0.3);}
+    else if(k==="hurt"){noiseAt(t,0.3,0.3,"lowpass",600,80);tone(110,45,0.35,"sawtooth",0.12);}
+    else if(k==="appear"){tone(880,220,0.35,"triangle",0.1);tone(660,165,0.35,"square",0.03,0.05);}
+    else if(k==="win"){[[523.25,0],[659.25,0.1],[783.99,0.2],[1046.5,0.32,0.5],[783.99,0.58],[1046.5,0.7,1.1]].forEach(([f,d,l])=>bell(f,d,0.13,l||0.4));}
+    else if(k==="lvup"){[[783.99,0],[987.77,0.08],[1174.66,0.16],[1567.98,0.24,0.9],[1318.5,0.24,0.9]].forEach(([f,d,l])=>bell(f,d,0.12,l||0.3));}
+    else if(k==="heal"){[[659.25,0],[880,0.08],[1174.66,0.16],[1760,0.24]].forEach(([f,d])=>bell(f,d,0.09,0.5));}
+    else if(k==="coin"){bell(1975.5,0,0.1,0.25);bell(2637,0.07,0.1,0.4);}
+    else if(k==="lose"){sfx("over");}
+    else if(k==="sel"){bell(1318.5,0,0.06,0.12);}
+  }catch(e){}
+}
+
+// ---- モンスター（オリジナルのドット絵 16x16）----
+const RPG_SPR={
+blob:["................","........gg......",".......gggg.....","........kg......","......kkkkkk....","....kkaaaaaakk..","...kaccaaaaaaak.","..kaccaaaaaaaaak","..kacaewaaaewaak",".kaaaaeeaaaeeaak",".kaabaaaarraaabk",".kbaaaaaaaaaaabk",".kbbaaaaaaaaabbk","..kbbbaaaaabbbk.","...kkkbbbbbkkk..","......kkkkk....."],
+bat:["................","................","..k..........k..",".kak...kk...kak.",".kaak.kaak.kaak.","kaaaakaaaakaaaak","kaabkaewewakbaak","kabbkaeeeeakbbak","kab.kaaraaak.bak","kb..kawrwaak..bk","k....kaaaak....k",".....kbaabk.....","......kbbk......",".......kk.......","................","................"],
+shroom:["................",".....kkkkkk.....","...kkrrwwrrkk...","..krrwwrrrrwrk..",".krrrrrrwwrrrrk.",".krwwrrrrwwrrrk.","krrwwrrrrrrrwwrk","kkkkkkkkkkkkkkkk","...kccccccccck..","...kcewcccewck..","...kceeccceeck..","...kcccrrcccck..","....kcccccccck..","...kkbcccccbkk..","..kbbk.kkk.kbbk.","..kkk.......kkk."],
+ghost:["................",".....kkkkkk.....","....kaaaaaak....","...kaccaaaaak...","..kacaaaaaaaak..","..kaaewaaewaak..","..kaaeeaaeeaak..",".kaaaaaaaaaaaak.",".kaaaaakkaaaaak.","kaakaaakkaaakaak","kak.kaaaaaaak.kk",".k..kaaaaaaak...","....kabaaabak...","....kbkbabkbk...",".....k.kbk.k....","........k......."],
+golem:["................","....kkkkkkkk....","...kbaaaaaaabk..","..kbaccaaaaaabk.","..kacaaaaaabaak.","..kaakkaaakkaak.","..kaakrkaakrkak.","..kaaaaaaaaaaak.","..kbaakkkkkaabk.",".kkbaaaaaaaaabkk","kaakbbaaaaabbkak","kabkkbbbbbbbkbak","kbbk.kbbbbbk.kbk",".kk..kbk.kbk..k.",".....kbk.kbk....","....kkkk.kkkk..."],
+dragon:["................","..k.......kk....",".kgk.....kaak...",".kggk...kaaaak..",".kgggk.kaccaaak.","..kggkkacaewaak.","...kgkaaaaeeaaak","....kkaaaaaaarrk","...kaaaaaaakkkk.","..kaacwcwaak....",".kaaacwcwaak..k.",".kaaaccccaakkak.","..kaaaccaaakaak.","..kbbaaabbbkak..","..kbk.kbkkkk....","..kk...kk......."]
+};
+const RPG_CROWN=["...y..yy..y.....","..yyy.yy.yyy....","..yyyyyyyyyy....","..yryyybyyyry...","..yyyyyyyyyy...."];
+const RPG_BASEPAL={k:"#1e1428",e:"#141420",w:"#ffffff",y:"#ffd23c",o:"#1e1428"};
+const RPG_AREAS={
+  "1":{name:"はじまりの草原",rec:1,hp:[22,30],atk:[3,5],exp:6,gold:4,sky:"linear-gradient(#7cc8ff,#cdeeff 55%,#8fd06a 55%,#4f9a3c)",
+    mons:[{n:"プルン",s:"blob",p:{a:"#6cc878",b:"#3c8c50",c:"#bef0be",r:"#e6465a",g:"#50b43c"}},
+          {n:"コウモン",s:"bat",p:{a:"#9a7ad8",b:"#5e4aa0",c:"#d8c8ff",r:"#e6465a"}},
+          {n:"キノコロ",s:"shroom",p:{c:"#ffe8c8",r:"#e6465a",b:"#a87850"}}],
+    boss:{n:"キングプルン",s:"blob",p:{a:"#f2c84b",b:"#c08a28",c:"#fff0b0",r:"#e6465a",g:"#50b43c"}}},
+  "2":{name:"きりの森",rec:5,hp:[50,64],atk:[7,9],exp:16,gold:9,sky:"linear-gradient(#24443a,#5f8a74 55%,#3a6a44 55%,#203c26)",
+    mons:[{n:"ミストプルン",s:"blob",p:{a:"#8fd0ff",b:"#4a90c8",c:"#e0f4ff",r:"#e6465a",g:"#50b43c"}},
+          {n:"ゴースン",s:"ghost",p:{a:"#e8ecff",b:"#a0a8d0",c:"#ffffff"}},
+          {n:"ドクキノコロ",s:"shroom",p:{c:"#d8f0c8",r:"#9a4ad8",b:"#6a5a40"}}],
+    boss:{n:"もりのぬし",s:"golem",p:{a:"#6aa060",b:"#3c6a3c",c:"#a8d890",r:"#ffcc33"}}},
+  "3":{name:"いにしえの遺跡",rec:9,hp:[95,120],atk:[12,15],exp:38,gold:20,sky:"linear-gradient(#4a2e6a,#d8946a 55%,#a88a5c 55%,#6a5636)",
+    mons:[{n:"いしゴーレム",s:"golem",p:{a:"#b8a888",b:"#7a6a50",c:"#e0d8c0",r:"#ff5050"}},
+          {n:"ナイトバット",s:"bat",p:{a:"#5a5a80",b:"#30304a",c:"#9a9ac0",r:"#ff4060"}},
+          {n:"ファントム",s:"ghost",p:{a:"#b890e8",b:"#7050b0",c:"#e8d8ff"}}],
+    boss:{n:"いせきのばんにん",s:"golem",p:{a:"#d8b040",b:"#8a6a20",c:"#fff0a0",r:"#40e0ff"}}},
+  "4":{name:"りゅうの山",rec:14,hp:[170,210],atk:[19,24],exp:80,gold:40,sky:"linear-gradient(#2a0610,#b03a1a 55%,#5a2a26 55%,#2a1214)",
+    mons:[{n:"ベビードラ",s:"dragon",p:{a:"#e8604a",b:"#a03a2a",c:"#ffb090",g:"#ffcc33",r:"#ffe060"}},
+          {n:"マグマプルン",s:"blob",p:{a:"#ff8a3a",b:"#c04a1a",c:"#ffd090",r:"#7a1010",g:"#ffcc33"}},
+          {n:"ほのおゴーレム",s:"golem",p:{a:"#d84a3a",b:"#8a2a20",c:"#ff9a70",r:"#ffe040"}}],
+    boss:{n:"ほのおのりゅう",s:"dragon",p:{a:"#8a2a6a",b:"#4a1040",c:"#d870b0",g:"#ff6030",r:"#ffe040"}}}
+};
+function rpgDrawSprite(cv,m,boss){
+  const rows=RPG_SPR[m.s],pal=Object.assign({},RPG_BASEPAL,m.p);
+  const ta=rows.findIndex(r=>r.includes("a")),top=Math.max(0,ta-1);
+  const crownH=boss?RPG_CROWN.length:0,off=boss?Math.max(0,crownH-top):0;
+  cv.width=16;cv.height=16+off;
+  const x=cv.getContext("2d");x.clearRect(0,0,cv.width,cv.height);
+  const grid=[];for(let y=0;y<cv.height;y++)grid.push(new Array(16).fill(null));
+  rows.forEach((r,y)=>{if(boss&&y<top)return;for(let i=0;i<16;i++){const ch=r[i];if(ch!=="."&&pal[ch])grid[y+off][i]=pal[ch];}});
+  if(boss){
+    const cy=top+off-crownH+1;
+    const cr=[];RPG_CROWN.forEach((r,y)=>{for(let i=0;i<16;i++){const ch=r[i];if(ch!=="."){const c=ch==="y"?"#ffd23c":ch==="r"?"#ff3b5c":"#3bc8ff";cr.push([cy+y,i+1,c]);}}});
+    const isC=(yy,xx)=>cr.some(([a,b])=>a===yy&&b===xx);
+    cr.forEach(([yy,xx])=>[[0,1],[0,-1],[1,0],[-1,0]].forEach(([dy,dx])=>{const Y=yy+dy,X=xx+dx;if(Y>=0&&Y<cv.height&&X>=0&&X<16&&!isC(Y,X)&&!grid[Y][X])grid[Y][X]="#1e1428";}));
+    cr.forEach(([yy,xx,c])=>{if(yy>=0&&yy<cv.height&&xx<16)grid[yy][xx]=c;});
+  }
+  grid.forEach((r,y)=>r.forEach((c,i)=>{if(c){x.fillStyle=c;x.fillRect(i,y,1,1);}}));
+}
+function rpgAnimEnd(el,e){if(e.animationName!=="rDead")el.classList.remove("hit","lunge","appear");}
+// ---- データ ----
+const RPG_KEY="kf_rpg_v1";
+const RPG={active:false,music:false,p:null,run:0,mode:"town",mon:null,accept:false,deck:[],di:0,timer:null,skip:null};
+const RPG_TIME=10;
+function rpgLoad(){
+  let p={};try{p=JSON.parse(localStorage.getItem(RPG_KEY))||{};}catch(e){}
+  p=Object.assign({lv:1,exp:0,hp:null,gold:0,herb:2,wins:0,prog:{},boss:{}},p);
+  if(p.hp==null||p.hp>rpgMaxHp(p.lv))p.hp=rpgMaxHp(p.lv);
+  return p;
+}
+function rpgSave(){try{localStorage.setItem(RPG_KEY,JSON.stringify(RPG.p));}catch(e){}}
+function rpgMaxHp(lv){return 14+lv*8;}
+function rpgAtk(lv){return 6+lv*3;}
+function rpgNeed(lv){return Math.round(8*Math.pow(lv,1.7));}
+function rpgArea(){return RPG_AREAS[currentTopik]||RPG_AREAS["1"];}
+function rpgInnPrice(){return 4+RPG.p.lv*2;}
+function rpgHerbPrice(){return 6+Number(currentTopik)*4;}
+const $r=id=>document.getElementById(id);
+function rpgWait(ms){return new Promise(r=>setTimeout(r,ms));}
+
+function updateRPGMenu(){
+  const el=$r("rpg-menu-meta");if(!el)return;
+  const p=rpgLoad();
+  el.textContent="RPG・Lv"+p.lv;
+}
+
+// ---- 画面 ----
+function openRPG(){
+  audioUnlock();
+  RPG.p=rpgLoad();RPG.active=true;RPG.run++;
+  showScreen("rpg");updateSoundBtn();
+  rpgTown();
+}
+function quitRPG(){
+  RPG.run++;RPG.active=false;RPG.music=false;RPG.accept=false;rpgStopTimer();
+  stopBGM(0.3);try{speechSynthesis.cancel();}catch(e){}
+  if(RPG.p)rpgSave();
+  goHome();
+}
+function rpgStatus(){
+  const p=RPG.p,mx=rpgMaxHp(p.lv);
+  $r("r-lv").textContent="Lv "+p.lv;
+  $r("r-hp").textContent=p.hp+"/"+mx;
+  const hpf=$r("r-hpfill");hpf.style.width=Math.max(0,p.hp/mx*100)+"%";
+  hpf.className=p.hp<=mx*0.25?"low":p.hp<=mx*0.5?"mid":"";
+  $r("r-gold").textContent=p.gold+"G";
+  $r("r-exp").textContent="つぎ "+(rpgNeed(p.lv)-p.exp);
+  const hb=$r("r-herb");hb.textContent="🌿"+p.herb;hb.disabled=!(p.herb>0&&p.hp<mx);
+}
+function rpgSay(text,hold){
+  const run=RPG.run;
+  return new Promise(res=>{
+    const el=$r("r-text");clearTimeout(RPG.sayT);
+    $r("r-q").style.display="none";el.style.display="block";
+    let i=0,typing=true;
+    const done=()=>{clearTimeout(RPG.sayT);RPG.skip=null;res();};
+    const fin=wait=>{typing=false;el.textContent=text;clearTimeout(RPG.sayT);RPG.sayT=setTimeout(done,wait);};
+    RPG.skip=()=>{if(typing)fin(Math.min(hold||0,350));else done();};
+    const tick=()=>{if(RPG.run!==run){res();return;}i+=2;el.textContent=text.slice(0,i);if(i<text.length)RPG.sayT=setTimeout(tick,22);else fin(hold||0);};
+    tick();
+  });
+}
+function rpgTapMsg(){if(RPG.skip)RPG.skip();}
+function rpgCmd(html){$r("r-cmd").innerHTML=html;}
+
+function rpgTown(){
+  RPG.mode="town";RPG.mon=null;RPG.accept=false;rpgStopTimer();
+  if(RPG.music){RPG.music=false;stopBGM(0.4);}
+  const a=rpgArea(),p=RPG.p,pr=p.prog[currentTopik]||0,left=4-(pr%5);
+  $r("r-area").textContent=a.name;
+  $r("r-field").style.background=a.sky;
+  $r("r-mon-wrap").style.display="none";
+  $r("r-town").style.display="flex";
+  $r("r-town").innerHTML=`<div class="r-town-name">${esc(a.name)}</div>
+    <div class="r-town-sub">TOPIK ${currentTopik}級の単語・おすすめ Lv${a.rec}〜</div>
+    <div class="r-town-sub">${left===0?"⚠️ つぎは ボス！（苦手な単語が出ます）":"ボスまで あと "+left+" 戦"}</div>
+    <div class="r-town-sub">たおした数 ${p.wins}</div>`;
+  $r("r-timer").style.visibility="hidden";
+  rpgStatus();
+  const mx=rpgMaxHp(p.lv);
+  rpgCmd(`<div class="r-menu">
+    <button class="r-opt" onclick="rpgFight()">⚔️ たたかう</button>
+    <button class="r-opt" onclick="rpgInn()" ${p.hp>=mx||p.gold<rpgInnPrice()?"disabled":""}>🏨 やどや（${rpgInnPrice()}G）</button>
+    <button class="r-opt" onclick="rpgBuyHerb()" ${p.gold<rpgHerbPrice()?"disabled":""}>🌿 やくそう（${rpgHerbPrice()}G）</button>
+    <button class="r-opt" onclick="quitRPG()">🏠 もどる</button></div>`);
+  rpgSay(p.hp<mx*0.4?"HPが へっている。やどやで やすもう。":"どこへ いこうか？",0);
+}
+async function rpgInn(){
+  const p=RPG.p,pr=rpgInnPrice();if(p.gold<pr)return;
+  p.gold-=pr;p.hp=rpgMaxHp(p.lv);rpgSave();rpgSfx("heal");rpgStatus();
+  rpgCmd("");const run=RPG.run;await rpgSay("ぐっすり ねむった。\nHPが ぜんかいふくした！",900);if(run!==RPG.run)return;rpgTown();
+}
+async function rpgBuyHerb(){
+  const p=RPG.p,pr=rpgHerbPrice();if(p.gold<pr)return;
+  p.gold-=pr;p.herb++;rpgSave();rpgSfx("coin");rpgStatus();
+  rpgCmd("");const run=RPG.run;await rpgSay("やくそうを かった。（"+p.herb+"こ）",700);if(run!==RPG.run)return;rpgTown();
+}
+function rpgUseHerb(){
+  const p=RPG.p,mx=rpgMaxHp(p.lv);if(!(p.herb>0&&p.hp<mx))return;
+  audioUnlock();
+  const h=Math.min(mx-p.hp,Math.max(10,Math.round(mx*0.5)));
+  p.herb--;p.hp+=h;rpgSave();rpgSfx("heal");rpgStatus();
+  rpgFloat("+"+h,"heal");
+  if(RPG.mode==="town")rpgTown();
+}
+function rpgFloat(text,cls){
+  const f=document.createElement("div");f.className="r-float "+(cls||"");f.textContent=text;
+  $r("r-field").appendChild(f);setTimeout(()=>f.remove(),1100);
+}
+
+// ---- 戦闘 ----
+function rpgPool(boss){
+  const base=getFiltered().filter(w=>!GAME_EXCLUDE_POS[w.pos]);
+  if(!boss)return base;
+  const st=curState(),weak=base.filter(w=>st.weak[K(w)]);
+  if(weak.length>=8)return weak;
+  return weak.concat(shuffle(base.filter(w=>!st.weak[K(w)])).slice(0,Math.max(0,20-weak.length)));
+}
+function rpgRand(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+async function rpgFight(){
+  const a=rpgArea(),p=RPG.p,pr=p.prog[currentTopik]||0,boss=pr%5===4;
+  const pool=rpgPool(boss);
+  if(pool.length<4){alert("このレベルは単語が少なすぎます");return;}
+  audioUnlock();
+  const run=++RPG.run;
+  const d=boss?a.boss:a.mons[Math.floor(Math.random()*a.mons.length)];
+  const hp=Math.round(rpgRand(a.hp[0],a.hp[1])*(boss?3.5:1));
+  RPG.mon={...d,boss,hp,maxhp:hp,atk:a.atk,mul:boss?1.3:1,exp:a.exp*(boss?5:1),gold:a.gold*(boss?5:1)};
+  RPG.deck=shuffle(pool);RPG.di=0;RPG.mode="battle";RPG.missed=[];
+  $r("r-town").style.display="none";
+  const wrap=$r("r-mon-wrap");wrap.style.display="flex";
+  const cv=$r("r-mon");rpgDrawSprite(cv,RPG.mon,boss);
+  cv.className="r-mon appear"+(boss?" boss":"");
+  $r("r-mon-name").textContent=RPG.mon.n;rpgMonHp();
+  rpgCmd("");rpgStatus();
+  RPG.music=true;startBGM("rpg");setTimeout(()=>bgmSetHype(boss),80);
+  rpgSfx("appear");
+  await rpgSay((boss?"⚠️ ボス！\n":"")+RPG.mon.n+"が あらわれた！",700);
+  if(run!==RPG.run)return;
+  cv.classList.remove("appear");
+  rpgNextQ();
+}
+function rpgMonHp(){const m=RPG.mon;$r("r-mon-hpfill").style.width=Math.max(0,m.hp/m.maxhp*100)+"%";}
+function rpgChoices(w){
+  const m=meaningOf(w),out=[w],seen=new Set([m]);
+  for(let t=0;t<40&&out.length<4;t++){
+    const d=pickDistractor(w);if(!d)continue;const dm=meaningOf(d);
+    if(seen.has(dm)||out.some(o=>o!==w&&similarMeaning(meaningOf(o),dm)))continue;
+    out.push(d);seen.add(dm);
+  }
+  for(let t=0;t<200&&out.length<4;t++){const d=WORDS[Math.floor(Math.random()*WORDS.length)];if(!seen.has(meaningOf(d))&&d.ko!==w.ko){out.push(d);seen.add(meaningOf(d));}}
+  return shuffle(out);
+}
+function rpgNextQ(){
+  if(RPG.di>=RPG.deck.length){RPG.deck=shuffle(RPG.deck);RPG.di=0;}
+  const w=RPG.deck[RPG.di++];RPG.w=w;RPG.opts=rpgChoices(w);
+  $r("r-text").style.display="none";
+  const q=$r("r-q");q.style.display="block";
+  q.innerHTML=`<div class="r-ko">${esc(w.ko)}</div><div class="r-rom">${esc(w.r||"")}</div>`;
+  rpgCmd(`<div class="r-grid">${RPG.opts.map((o,i)=>`<button class="r-ch" onpointerdown="rpgAnswer(${i},event)">${esc(meaningOf(o))}</button>`).join("")}</div>`);
+  RPG.accept=true;RPG.qStart=performance.now();rpgStartTimer();
+}
+function rpgStartTimer(){
+  rpgStopTimer();const bar=$r("r-timer");bar.style.visibility="visible";const fill=$r("r-timefill");
+  const run=RPG.run;
+  RPG.timer=setInterval(()=>{
+    if(run!==RPG.run||!RPG.accept){rpgStopTimer();return;}
+    const el=(performance.now()-RPG.qStart)/1000,r=Math.max(0,1-el/RPG_TIME);
+    fill.style.width=(r*100)+"%";fill.className=r<0.3?"low":"";
+    if(el>=RPG_TIME)rpgAnswer(-1);
+  },100);
+}
+function rpgStopTimer(){if(RPG.timer){clearInterval(RPG.timer);RPG.timer=null;}}
+async function rpgAnswer(i,ev){
+  if(ev){ev.preventDefault();}
+  if(!RPG.accept||RPG.mode!=="battle")return;
+  RPG.accept=false;rpgStopTimer();
+  const run=RPG.run,w=RPG.w,m=RPG.mon,p=RPG.p;
+  const rt=(performance.now()-RPG.qStart)/1000;
+  if(i>=0)audioUnlock();
+  speakKo(w.ko);
+  const ok=i>=0&&RPG.opts[i]===w;
+  const btns=[...document.querySelectorAll(".r-ch")];
+  btns.forEach((b,j)=>{b.disabled=true;if(RPG.opts[j]===w)b.classList.add("ok");else if(j===i)b.classList.add("ng");});
+  const cv=$r("r-mon");
+  if(ok){
+    const crit=rt<2;
+    const dmg=Math.max(1,Math.round(rpgAtk(p.lv)*(0.85+Math.random()*0.3)*(crit?2:1)));
+    rpgSfx(crit?"crit":"atk");
+    $r("rpg").classList.add(crit?"flash-crit":"flash");setTimeout(()=>$r("rpg").classList.remove("flash","flash-crit"),250);
+    setTimeout(()=>{if(run!==RPG.run)return;rpgSfx("hit");cv.classList.remove("hit");void cv.offsetWidth;cv.classList.add("hit");rpgFloat(String(dmg),crit?"crit":"");},160);
+    m.hp=Math.max(0,m.hp-dmg);setTimeout(rpgMonHp,200);
+    await rpgSay((crit?"かいしんの いちげき！\n":"ゆうしゃの こうげき！\n")+m.n+"に "+dmg+"の ダメージ！",650);
+    if(run!==RPG.run)return;
+    if(m.hp<=0)return rpgWin();
+  }else{
+    const st=curState();st.weak[K(w)]=(st.weak[K(w)]||0)+1;delete st.mastered[K(w)];delete st.perfect[K(w)];saveState();
+    if(!RPG.missed.includes(w))RPG.missed.push(w);
+    const dmg=Math.max(1,Math.round(rpgRand(m.atk[0],m.atk[1])*m.mul*(0.9+Math.random()*0.2)));
+    cv.classList.remove("lunge");void cv.offsetWidth;cv.classList.add("lunge");
+    setTimeout(()=>{if(run!==RPG.run)return;rpgSfx("hurt");const r=$r("rpg");r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake");setTimeout(()=>r.classList.remove("shake"),400);},180);
+    p.hp=Math.max(0,p.hp-dmg);rpgSave();setTimeout(rpgStatus,200);
+    await rpgSay((i<0?"じかんぎれ！ ":"")+m.n+"の こうげき！\n"+dmg+"の ダメージを うけた！\n正解：「"+meaningOf(w)+"」",1500);
+    if(run!==RPG.run)return;
+    if(p.hp<=0)return rpgLose();
+  }
+  rpgNextQ();
+}
+async function rpgWin(){
+  const run=RPG.run,m=RPG.mon,p=RPG.p,cv=$r("r-mon");
+  RPG.mode="result";$r("r-timer").style.visibility="hidden";
+  cv.classList.add("dead");
+  RPG.music=false;stopBGM(0.5);
+  await rpgWait(600);if(run!==RPG.run)return;
+  rpgSfx("win");
+  p.exp+=m.exp;p.gold+=m.gold;p.wins++;p.prog[currentTopik]=(p.prog[currentTopik]||0)+1;
+  if(m.boss)p.boss[currentTopik]=(p.boss[currentTopik]||0)+1;
+  let drop=Math.random()<(m.boss?1:0.15);if(drop)p.herb++;
+  rpgSave();rpgStatus();
+  await rpgSay(m.n+"を たおした！\n"+m.exp+"の けいけんちと "+m.gold+"G を てにいれた！"+(drop?"\nやくそうを ひろった！":""),1300);
+  if(run!==RPG.run)return;
+  while(p.exp>=rpgNeed(p.lv)){
+    p.exp-=rpgNeed(p.lv);const oh=rpgMaxHp(p.lv),oa=rpgAtk(p.lv);p.lv++;
+    p.hp+=rpgMaxHp(p.lv)-oh;rpgSave();rpgStatus();rpgSfx("lvup");
+    $r("r-status").classList.add("lvup");setTimeout(()=>$r("r-status").classList.remove("lvup"),900);
+    await rpgSay("レベルが あがった！ Lv"+p.lv+"\nさいだいHP +"+(rpgMaxHp(p.lv)-oh)+"・こうげき +"+(rpgAtk(p.lv)-oa),1400);
+    if(run!==RPG.run)return;
+  }
+  rpgAfter();
+}
+function rpgAfter(){
+  const p=RPG.p,mx=rpgMaxHp(p.lv),pr=p.prog[currentTopik]||0;
+  const missed=RPG.missed||[];
+  rpgSay(missed.length?"まちがえた単語は 苦手リストに いれたよ。":"ノーミス！ すばらしい！",0);
+  rpgCmd(`${missed.length?`<div class="r-missed">${missed.map(w=>`<span><b>${esc(w.ko)}</b> ${esc(meaningOf(w))}</span>`).join("")}</div>`:""}
+    <div class="r-menu">
+    <button class="r-opt" onclick="rpgFight()">⚔️ つぎへ${pr%5===4?"（ボス！）":""}</button>
+    <button class="r-opt" onclick="rpgUseHerb();rpgAfter()" ${p.herb>0&&p.hp<mx?"":"disabled"}>🌿 やくそう（${p.herb}）</button>
+    <button class="r-opt" onclick="rpgTown()">🏘️ まちへ</button>
+    <button class="r-opt" onclick="quitRPG()">🏠 もどる</button></div>`);
+}
+async function rpgLose(){
+  const run=RPG.run,p=RPG.p;
+  RPG.mode="result";RPG.music=false;stopBGM(0.3);rpgSfx("lose");$r("r-timer").style.visibility="hidden";
+  $r("rpg").classList.add("dim");
+  const lost=Math.floor(p.gold/2);p.gold-=lost;p.hp=rpgMaxHp(p.lv);rpgSave();
+  await rpgSay("ゆうしゃは ちからつきた…\nゴールドを "+lost+"G うしなった。",1800);
+  $r("rpg").classList.remove("dim");
+  if(run!==RPG.run)return;
+  rpgTown();
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&RPG.active&&RPG.accept)RPG.qStart=performance.now();});
+
 </script>
 </body>
 </html>
