@@ -1439,9 +1439,9 @@ function synth(t,type,f1,f2,dur,vol,o){
   if(o.pan!=null&&c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=o.pan;g.connect(p);out=p;}
   out.connect(SND.master);os.start(t);os.stop(t+dur+0.05);
 }
-function laser(){
+function laser(flat){
   if(!canPlay())return;
-  try{const t=SND.ctx.currentTime,pan=typeof G!=="undefined"&&G.shipTarget!=null?(G.shipTarget-0.5)*0.9:0;
+  try{const t=SND.ctx.currentTime,pan=!flat&&typeof G!=="undefined"&&G.shipTarget!=null?(G.shipTarget-0.5)*0.9:0;
     synth(t,"sawtooth",2300,300,0.14,0.075,{lp:[7000,900],pan,det:-8});
     synth(t,"sawtooth",2300,300,0.14,0.075,{lp:[7000,900],pan,det:8});
     synth(t,"sine",1250,160,0.16,0.13,{pan});
@@ -1452,11 +1452,41 @@ function boom(t,big){
   synth(t,"sine",170,34,big?0.42:0.34,big?0.2:0.16);
   noiseAt(t+0.03,big?0.9:0.7,0.05,"bandpass",1300,220);
 }
+// 効果音は起動時に一度だけ録音しておき、鳴らす時は再生するだけ（タップから音が出るまでの遅れを減らす）
+const SFX_DUR={shot:0.3,hit:1.4,fast:1.7,miss:1.0,beep:0.5,go:0.9,stage:2.0,over:2.4};
+const SFXBUF={};
 function sfx(kind){
+  if(!canPlay())return;
+  const b=SFXBUF[kind];
+  if(b){try{const c=SND.ctx,src=c.createBufferSource();src.buffer=b;let out=src;
+    if(kind==="shot"&&c.createStereoPanner&&typeof G!=="undefined"&&G.shipTarget!=null){const pn=c.createStereoPanner();pn.pan.value=(G.shipTarget-0.5)*0.9;src.connect(pn);out=pn;}
+    out.connect(SND.master);src.start();}catch(e){}return;}
+  sfxLive(kind);
+}
+function bgIdle(){
+  // ゲーム中は重い準備をしない
+  return new Promise(r=>{const chk=()=>{const busy=(document.getElementById("game").classList.contains("active")&&typeof G!=="undefined"&&G.phase!=="over"&&G.phase!=="quit")||(typeof MT!=="undefined"&&MT.active);busy?setTimeout(chk,1500):r();};chk();});
+}
+function renderSfxAll(){
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!OAC)return;
+  const sr=SND.ctx?SND.ctx.sampleRate:48000;
+  Object.keys(SFX_DUR).forEach(kind=>{
+    BGM.queue=(BGM.queue||Promise.resolve()).then(()=>{
+      if(SFXBUF[kind])return;
+      const oc=new OAC(2,Math.ceil(sr*SFX_DUR[kind]),sr);
+      const keep={ctx:SND.ctx,master:SND.master,on:SND.on};
+      try{SND.ctx=oc;SND.master=oc.createGain();SND.master.gain.value=0.9;SND.master.connect(oc.destination);SND.on=true;sfxLive(kind,true);}
+      finally{SND.ctx=keep.ctx;SND.master=keep.master;SND.on=keep.on;}
+      return oc.startRendering().then(buf=>{SFXBUF[kind]=buf;});
+    }).catch(e=>console.error(e));
+  });
+}
+setTimeout(()=>{try{renderSfxAll();}catch(e){}},300);
+function sfxLive(kind,flat){
   if(!canPlay())return;
   try{
   const t=SND.ctx.currentTime;
-  if(kind==="shot"){laser();}
+  if(kind==="shot"){laser(flat);}
   else if(kind==="hit"){boom(t,false);bell(1318.5,0.05,0.13);bell(1975.5,0.12,0.11);}
   else if(kind==="fast"){boom(t,true);noiseAt(t+0.05,0.5,0.05,"highpass",7000,0);bell(1046.5,0.04,0.12,0.5);bell(1318.5,0.10,0.12,0.5);bell(1568,0.16,0.12,0.5);bell(2093,0.22,0.12,0.9);}
   else if(kind==="miss"){synth(t,"sawtooth",230,110,0.38,0.08,{lp:[2000,300]});synth(t+0.05,"square",172,86,0.42,0.045,{lp:[1400,220]});noiseAt(t,0.32,0.14,"lowpass",900,60);synth(t,"sine",95,38,0.35,0.18);}
@@ -1468,7 +1498,7 @@ function sfx(kind){
 }
 function speakKo(text){
   if(!SND.on)return;
-  try{const u=koUtter(text,1);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+  try{const u=koUtter(text,1);if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
 }
 
 // ---- BGM（その場で作曲・演奏するシンセポップ。Am→F→C→G）----
@@ -1545,7 +1575,7 @@ function ensureBGMBuf(name){
   // 重い処理なので1つずつ順番に作る（通常版を先に、盛り上がり版は後で）
   BGM.queue=(BGM.queue||Promise.resolve()).then(()=>renderBGM(false,sr,name)).then(a=>{
     BGM.bufs[name]={sr,a,b:null};BGM.rendering[name]=false;if(BGM.want&&!BGM.src&&BGM.song===name)startBGM(name);
-    return new Promise(r=>setTimeout(r,1500)).then(()=>renderBGM(true,sr,name)).then(b=>{BGM.bufs[name].b=b;});
+    return new Promise(r=>setTimeout(r,1500)).then(bgIdle).then(()=>renderBGM(true,sr,name)).then(b=>{BGM.bufs[name].b=b;});
   }).catch(e=>{console.error(e);BGM.rendering[name]=false;});
 }
 function startBGM(name){
@@ -1785,7 +1815,7 @@ function quitGame(){G.phase="quit";stopBGM(0.2);goHome();}
 // ===================== 描画 =====================
 function gameSize(){const c=document.getElementById("game-canvas");return {w:c.clientWidth,h:c.clientHeight};}
 function resizeGameCanvas(){
-  const c=document.getElementById("game-canvas");const dpr=Math.min(window.devicePixelRatio||1,2.5);
+  const c=document.getElementById("game-canvas");const dpr=Math.min(window.devicePixelRatio||1,2);
   c.width=Math.round(c.clientWidth*dpr);c.height=Math.round(c.clientHeight*dpr);
   c.getContext("2d").setTransform(dpr,0,0,dpr,0,0);
 }
