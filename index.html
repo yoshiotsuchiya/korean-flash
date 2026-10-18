@@ -241,6 +241,7 @@ body{background:#1a1340;min-height:100%}
 .m-missed h4{font-size:12px;margin-bottom:6px;color:#fecdd3;letter-spacing:.5px}
 .m-missed .row{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .m-missed .row b{font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;color:#9eeaff}
+.m-pausebox{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;border-radius:22px;background:rgba(8,5,25,.92);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .m-pop{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-size:38px;font-weight:900;color:#ffe27a;text-shadow:0 0 18px rgba(255,200,60,.9),0 3px 0 rgba(0,0,0,.4);animation:mPopT 1s ease-out forwards;pointer-events:none;z-index:5;white-space:nowrap;letter-spacing:1px}
 @keyframes mPopT{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%)}}
 .game-row{display:flex;gap:10px}
@@ -542,6 +543,7 @@ body{background:#1a1340;min-height:100%}
     <button class="back-btn" onclick="quitGame()">✕</button>
     <div class="hud-score" id="g-score">0</div>
     <div class="hud-lives" id="g-lives">❤️❤️❤️</div>
+    <button class="back-btn" id="g-pause" onclick="togglePauseGame()">⏸</button>
     <button class="back-btn" id="g-sound" onclick="toggleSound()">🔊</button>
   </div>
   <div id="game-stage">
@@ -554,6 +556,7 @@ body{background:#1a1340;min-height:100%}
   <div class="top-bar">
     <button class="back-btn" onclick="quitMatch()">✕</button>
     <div class="m-title">PAIR MATCH</div>
+    <button class="back-btn" id="m-pause" onclick="mtTogglePause()" style="visibility:hidden">⏸</button>
     <button class="back-btn" id="m-sound" onclick="toggleSound()">🔊</button>
   </div>
   <div class="m-backdrop"><div class="m-grid"></div></div>
@@ -566,6 +569,7 @@ body{background:#1a1340;min-height:100%}
     <canvas id="m-fx"></canvas>
     <div id="m-board" class="m-board"></div>
     <div id="m-panel" class="m-panel" style="display:none"></div>
+    <div id="m-pausebox" class="m-pausebox" style="display:none"><div class="m-logo">PAUSE</div><button class="m-big" onclick="mtTogglePause()">▶ 再開</button><button class="m-link" onclick="quitMatch()">やめる</button></div>
   </div>
 </div>
 
@@ -1487,7 +1491,6 @@ const BGM_MEL=[ // 2小節(32ステップ)ずつのメロディ [ステップ, �
 // 25msタイマーで逐次鳴らす方式はiPhoneの割り込み・タイマー抑制で止まることがあったため。
 const BGM_BARS=8,BGM_LEN=BGM_BARS*16*BGM_STEP;
 setTimeout(()=>{try{ensureBGMBuf("shoot");}catch(e){}},1500);   // 起動して少ししたら先に作っておく
-setTimeout(()=>{try{ensureBGMBuf("match");}catch(e){}},4000);
 // 今BGMを鳴らすべき場面か（割り込みからの復帰用）
 function bgmShouldPlay(){
   if(typeof MT!=="undefined"&&MT.active)return true;
@@ -1521,8 +1524,8 @@ function renderBGM(hype,sr,name){
   const mkPan=v=>{if(!oc.createStereoPanner)return bus;const p=oc.createStereoPanner();p.pan.value=v;p.connect(bus);return p;};
   const lp=oc.createBiquadFilter();lp.type="lowpass";lp.frequency.value=d.lpf;lp.Q.value=2;lp.connect(bus);
   // やまびこ（ディレイ）
-  const dl=oc.createDelay(1);dl.delayTime.value=d.step*3;const fb=oc.createGain();fb.gain.value=0.32;const dlf=oc.createBiquadFilter();dlf.type="lowpass";dlf.frequency.value=2400;
-  const dsend=oc.createGain();dsend.connect(dl);dl.connect(dlf);dlf.connect(fb);fb.connect(dl);const dwet=oc.createGain();dwet.gain.value=0.26;dlf.connect(dwet);dwet.connect(mkPan(0.4));
+  const dl=oc.createDelay(1);dl.delayTime.value=d.step*2;const fb=oc.createGain();fb.gain.value=0.24;const dlf=oc.createBiquadFilter();dlf.type="lowpass";dlf.frequency.value=2400;
+  const dsend=oc.createGain();dsend.connect(dl);dl.connect(dlf);dlf.connect(fb);fb.connect(dl);const dwet=oc.createGain();dwet.gain.value=0.17;dlf.connect(dwet);dwet.connect(mkPan(0.4));
   // パッド（キックに合わせて音量が揺れる）
   const pump=oc.createGain();pump.connect(bus);const pad=oc.createBiquadFilter();pad.type="lowpass";pad.frequency.value=hype?2600:1700;pad.Q.value=0.7;pad.connect(pump);
   // 左右に振ったアルペジオ
@@ -1539,7 +1542,11 @@ function ensureBGMBuf(name){
   if(BGM.bufs[name]||BGM.rendering[name])return;
   const sr=SND.ctx?SND.ctx.sampleRate:48000;   // 再生時は自動で変換されるので、実際のレートと違っても問題ない
   BGM.rendering[name]=true;
-  Promise.all([renderBGM(false,sr,name),renderBGM(true,sr,name)]).then(([a,b])=>{BGM.bufs[name]={sr,a,b};BGM.rendering[name]=false;if(BGM.want&&!BGM.src&&BGM.song===name)startBGM(name);}).catch(e=>{console.error(e);BGM.rendering[name]=false;});
+  // 重い処理なので1つずつ順番に作る（通常版を先に、盛り上がり版は後で）
+  BGM.queue=(BGM.queue||Promise.resolve()).then(()=>renderBGM(false,sr,name)).then(a=>{
+    BGM.bufs[name]={sr,a,b:null};BGM.rendering[name]=false;if(BGM.want&&!BGM.src&&BGM.song===name)startBGM(name);
+    return new Promise(r=>setTimeout(r,1500)).then(()=>renderBGM(true,sr,name)).then(b=>{BGM.bufs[name].b=b;});
+  }).catch(e=>{console.error(e);BGM.rendering[name]=false;});
 }
 function startBGM(name){
   name=name||"shoot";
@@ -1558,7 +1565,7 @@ function startBGM(name){
     BGM.gA.connect(BGM.bus);BGM.gB.connect(BGM.bus);
     const len=songDef(name).len;
     const mk=(bf,g)=>{const sN=c.createBufferSource();sN.buffer=bf;sN.loop=true;sN.loopStart=0;sN.loopEnd=len;sN.connect(g);sN.start(t);return sN;};
-    BGM.srcA=mk(buf.a,BGM.gA);BGM.srcB=mk(buf.b,BGM.gB);
+    BGM.srcA=mk(buf.a,BGM.gA);BGM.srcB=buf.b?mk(buf.b,BGM.gB):null;
     BGM.src=true;BGM.hype=false;
     SND.lastCT=-1;SND.stuckSince=0;
     if(BGM.timer)clearInterval(BGM.timer);BGM.timer=setInterval(bgmWatch,500);
@@ -1570,11 +1577,12 @@ function stopBGM(fade){
   if(BGM.src&&SND.ctx){try{const c=SND.ctx,t=c.currentTime,f=fade||0.3;
     BGM.bus.gain.cancelScheduledValues(t);BGM.bus.gain.setValueAtTime(Math.max(BGM.bus.gain.value,0.0001),t);BGM.bus.gain.exponentialRampToValueAtTime(0.0001,t+f);
     const a=BGM.srcA,b=BGM.srcB,bus=BGM.bus;
-    try{a.stop(t+f+0.05);b.stop(t+f+0.05);}catch(e){}
+    try{a&&a.stop(t+f+0.05);b&&b.stop(t+f+0.05);}catch(e){}
     setTimeout(()=>{try{bus.disconnect();}catch(e){}},(f+0.2)*1000);}catch(e){}}
   BGM.src=null;BGM.bus=null;BGM.srcA=BGM.srcB=null;
 }
 function bgmSetHype(h){
+  if(!BGM.srcB)return;
   if(!BGM.src||BGM.hype===h||!SND.ctx)return;
   BGM.hype=h;
   try{const t=SND.ctx.currentTime;
@@ -1619,6 +1627,7 @@ function updateSoundBtn(){["g-sound","m-sound"].forEach(id=>{const b=document.ge
 // ===================== ゲーム進行 =====================
 function startGame(){
   audioUnlock();updateSoundBtn();stopBGM(0.1);try{ensureBGMBuf("shoot");}catch(e){}
+  setTimeout(updatePauseBtn,0);
   if(gameMode==="weak"&&gamePool("weak").length<1)gameMode="all";
   const pool=gamePool(gameMode);
   if(pool.length<(gameMode==="weak"?1:2)){alert(gt("few"));return;}
@@ -1676,7 +1685,7 @@ function updateHud(){
 
 function shoot(side){
   if(G.phase==="ready"){audioUnlock();beginCountdown();return;}
-  if(G.paused){G.paused=false;hideGameOverlay();G.last=0;audioUnlock();startBGM();return;}
+  if(G.paused){G.paused=false;hideGameOverlay();G.last=0;audioUnlock();startBGM();updatePauseBtn();return;}
   if(G.phase!=="play"||!G.q||G.q.resolved||G.bullet)return;
   G.shipTarget=side===0?0.27:0.73;
   G.q.reactT=G.q.t;   // 早撃ち判定はタップした瞬間の時間で
@@ -1764,6 +1773,13 @@ function endGame(){
 }
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
 
+function togglePauseGame(){
+  if(!(G.phase==="play"||G.phase==="count"||G.phase==="after"))return;
+  if(G.paused){G.paused=false;hideGameOverlay();G.last=0;audioUnlock();startBGM();}
+  else{G.paused=true;stopBGM(0.1);showGameOverlay(`<div class="g-start" style="font-size:22px">${gt("paused")}</div>`);}
+  updatePauseBtn();
+}
+function updatePauseBtn(){const b=document.getElementById("g-pause");if(b)b.textContent=G.paused?"▶":"⏸";}
 function quitGame(){G.phase="quit";stopBGM(0.2);goHome();}
 
 // ===================== 描画 =====================
@@ -2515,7 +2531,7 @@ function drawGame(){
   });
   document.addEventListener("visibilitychange",()=>{
     if(document.hidden&&document.getElementById("game").classList.contains("active")&&(G.phase==="play"||G.phase==="count"||G.phase==="after")){
-      G.paused=true;stopBGM(0.1);showGameOverlay(`<div class="g-start" style="font-size:22px">${gt("paused")}</div>`);
+      G.paused=true;stopBGM(0.1);showGameOverlay(`<div class="g-start" style="font-size:22px">${gt("paused")}</div>`);updatePauseBtn();
     }
   });
 })();
@@ -2962,14 +2978,29 @@ function updateMatchMenu(){
 }
 
 // ---- 画面 ----
+function mtTogglePause(){
+  if(!MT.active)return;
+  const now=performance.now();
+  if(!MT.paused){
+    MT.paused=true;MT.pausedAt=now;
+    if(MT.mode==="sp"){MT.elapsed=MT.base+(now-MT.t0)/1000;MT.base=MT.elapsed;mtSaveSp();}
+    stopBGM(0.15);$m("m-pausebox").style.display="flex";
+  }else{
+    MT.paused=false;
+    if(MT.mode==="sp")MT.t0=now;else MT.t0+=now-MT.pausedAt;
+    audioUnlock();startBGM("match");$m("m-pausebox").style.display="none";
+  }
+  $m("m-pause").textContent=MT.paused?"▶":"⏸";
+}
 function openMatch(){
+  try{ensureBGMBuf("match");}catch(e){}
   audioUnlock();updateSoundBtn();
   MT.run++;MT.active=false;mtStopTimer();
   showScreen("match");
   mtMenu();
 }
 function mtMenu(){
-  MT.active=false;mtStopTimer();
+  MT.active=false;mtStopTimer();MT.paused=false;$m("m-pausebox").style.display="none";$m("m-pause").style.visibility="hidden";
   if(BGM.song==="match")stopBGM(0.3);
   const r=mtRec(),b60=r["60|"+currentTopik]||0,n=mtSpCount(),spb=r["sp|"+mtSpId()];
   const ss=mtGetSess();
@@ -2987,7 +3018,8 @@ function mtMenu(){
     <div class="m-note">まちがえた単語は苦手に入り、スパルタでは後でもう一度出ます</div>`;
 }
 function quitMatch(){
-  if(MT.active&&MT.mode==="sp")mtSaveSp();
+  if(MT.active&&MT.mode==="sp"&&!MT.paused)mtSaveSp();
+  MT.paused=false;$m("m-pausebox").style.display="none";
   MT.run++;MT.active=false;mtStopTimer();stopBGM(0.3);
   try{speechSynthesis.cancel();}catch(e){}
   goHome();
@@ -3030,6 +3062,7 @@ function mtStart(mode,fresh){
   }
   $m("m-panel").style.display="none";
   $m("m-hud").style.visibility="visible";
+  MT.paused=false;$m("m-pausebox").style.display="none";$m("m-pause").style.visibility="visible";$m("m-pause").textContent="⏸";
   mtBuildBoard();
   if(!resumed)mtRefill(true);else mtRenderAll();
   mtHud();
@@ -3077,7 +3110,7 @@ function mtRefill(initial){
 }
 function mtTap(side,i,ev){
   if(ev)ev.preventDefault();
-  if(!MT.active||MT.lock)return;
+  if(!MT.active||MT.lock||MT.paused)return;
   const s=MT[side][i];if(!s)return;
   audioUnlock();
   if(side==="L")speakKo(s.w.ko);
@@ -3168,6 +3201,7 @@ function mtStartTimer(run){
   mtStopTimer();
   MT.timer=setInterval(()=>{
     if(run!==MT.run||!MT.active){mtStopTimer();return;}
+    if(MT.paused)return;
     const el=(performance.now()-MT.t0)/1000;
     if(MT.mode==="60"){MT.timeLeft=Math.max(0,MT_TIME-el);mtHud();if(MT.timeLeft<=0)mtFinish();}
     else{MT.elapsed=MT.base+el;mtHud();}
@@ -3202,7 +3236,7 @@ function mtLoadSp(ss){
 }
 function mtFinish(){
   if(!MT.active)return;
-  MT.active=false;mtStopTimer();stopBGM(0.5);
+  MT.active=false;mtStopTimer();stopBGM(0.5);MT.paused=false;$m("m-pausebox").style.display="none";$m("m-pause").style.visibility="hidden";
   document.querySelectorAll(".m-pop").forEach(e=>e.remove());
   const r=mtRec();let best=false,main="",sub="";
   if(MT.mode==="60"){
@@ -3231,7 +3265,7 @@ function mtFinish(){
   if(rank==="S"||rank==="A")setTimeout(()=>{const el=p.querySelector(".m-rank");if(!el)return;const c=mfxPos(el);["255,226,122","94,242,255","255,110,199"].forEach(col=>mfxBurst(c,col,18));mfxRing(c,"255,226,122");},350);
 }
 document.addEventListener("visibilitychange",()=>{
-  if(!MT.active)return;
+  if(!MT.active||MT.paused)return;
   if(document.hidden){
     // 裏に回ったら時計を止める
     if(MT.mode==="sp"){MT.elapsed=MT.base+(performance.now()-MT.t0)/1000;MT.base=MT.elapsed;mtSaveSp();}
