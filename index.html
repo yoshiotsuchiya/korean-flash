@@ -150,44 +150,99 @@ body{background:#1a1340;min-height:100%}
 .menu-btn.match-btn{background:linear-gradient(120deg,rgba(94,242,255,0.26),rgba(122,90,255,0.34));border-color:rgba(160,220,255,0.55)}
 .icon-match{background:rgba(94,242,255,0.35)}
 /* ===== ペア消し ===== */
-#match{gap:10px}
-.m-title{flex:1;text-align:center;color:#fff;font-weight:800;font-size:16px}
-.m-hud-row{display:flex;justify-content:space-between;align-items:center;color:#fff;font-weight:800;font-size:18px;padding:0 4px;font-variant-numeric:tabular-nums}
-#m-combo{color:#ffd23c;font-size:15px}
-.m-barwrap{height:6px;background:rgba(255,255,255,.2);border-radius:3px;overflow:hidden;margin-top:6px}
-#m-bar{height:100%;background:#5ef2ff;transition:width .2s linear}
-#m-bar.low{background:#f43f5e}#m-bar.sp{background:#4ade80}
+#match{gap:10px;position:relative}
+.m-backdrop{position:fixed;inset:0;z-index:-1;background:radial-gradient(120% 80% at 50% 0%,#2a1460 0%,#140a35 45%,#07051a 100%);overflow:hidden;transition:filter .6s}
+.m-backdrop::before,.m-backdrop::after{content:"";position:absolute;width:70vmax;height:70vmax;border-radius:50%;filter:blur(60px);opacity:.4;animation:mFloat 14s ease-in-out infinite}
+.m-backdrop::before{background:#3b2bff;top:-30vmax;left:-28vmax}
+.m-backdrop::after{background:#ff2fa0;bottom:-34vmax;right:-28vmax;animation-delay:-7s}
+.m-grid{position:absolute;left:-50%;right:-50%;bottom:-8%;height:50%;background-image:linear-gradient(rgba(94,242,255,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(94,242,255,.2) 1px,transparent 1px);background-size:44px 44px;transform:perspective(420px) rotateX(62deg);transform-origin:50% 100%;animation:mGrid 2.4s linear infinite;-webkit-mask-image:linear-gradient(transparent,#000 70%);mask-image:linear-gradient(transparent,#000 70%)}
+@keyframes mGrid{to{background-position:0 44px}}
+@keyframes mFloat{50%{transform:translate(8vmax,6vmax) scale(1.1)}}
+#match.fever .m-backdrop{filter:hue-rotate(-55deg) saturate(1.6) brightness(1.2)}
+#match.fever .m-grid{animation-duration:.9s}
+.m-title{flex:1;text-align:center;color:#fff;font-weight:900;font-size:14px;letter-spacing:4px;text-shadow:0 0 12px rgba(94,242,255,.7)}
+.m-hud{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px}
+.m-hud-box{min-width:96px}
+.m-hud-lbl{font-size:10px;font-weight:800;letter-spacing:2px;color:rgba(160,220,255,.75)}
+.m-hud-num{font-size:32px;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 14px rgba(94,242,255,.6);display:inline-block}
+.m-hud-num small{font-size:14px;opacity:.6;margin-left:2px}
+.m-hud-num.bump{animation:mBump .25s}
+@keyframes mBump{40%{transform:scale(1.2)}}
+#m-combo{flex:1;text-align:center;font-weight:900;font-size:18px;color:#ffe27a;text-shadow:0 0 12px rgba(255,200,60,.8);letter-spacing:1px;min-height:24px;white-space:nowrap}
+#m-combo.fever{background:linear-gradient(90deg,#ffe27a,#ff6ec7,#5ef2ff,#ffe27a);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 8px rgba(255,200,80,.8));animation:mShine 1s linear infinite;font-size:21px}
+@keyframes mShine{to{background-position:200% 0}}
+.m-ring{position:relative;width:60px;height:60px;flex-shrink:0}
+.m-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.m-ring circle{fill:none;stroke-width:4}
+.m-ring .bg{stroke:rgba(255,255,255,.12)}
+.m-ring .fg{stroke:#5ef2ff;stroke-linecap:round;stroke-dasharray:119.38;transition:stroke-dashoffset .2s linear,stroke .3s;filter:drop-shadow(0 0 4px #5ef2ff)}
+.m-ring.low .fg{stroke:#ff4d6d;filter:drop-shadow(0 0 5px #ff4d6d)}
+.m-ring.sp .fg{stroke:#4ade80;filter:drop-shadow(0 0 4px #4ade80)}
+.m-ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
+.m-ring.sp span{font-size:12px}
+.m-ring.low span{color:#ff8fa3;animation:mBump .5s infinite}
 .m-stage{position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
-.m-board{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.m-tile{min-height:66px;border-radius:14px;border:2px solid rgba(255,255,255,.6);background:rgba(255,255,255,.93);color:#2a1a4a;font-weight:800;padding:6px 8px;cursor:pointer;touch-action:manipulation;transition:transform .12s,background .15s;box-shadow:0 4px 0 rgba(40,20,80,.35);-webkit-user-select:none;user-select:none}
-.m-tile.ko{font-size:22px;font-family:-apple-system,"Apple SD Gothic Neo",sans-serif}
-.m-tile.jp{font-size:15px;line-height:1.3}
-.m-tile.sel{background:#ffe27a;border-color:#fff;transform:translateY(-3px);box-shadow:0 7px 0 rgba(40,20,80,.35)}
-.m-tile.ok{animation:mOk .26s forwards}
-@keyframes mOk{0%{background:#4ade80;color:#fff;transform:scale(1.05)}100%{background:#4ade80;color:#fff;transform:scale(.85);opacity:0}}
-.m-tile.ng{background:#fb7185;color:#fff;animation:mShake .35s}
+#m-fx{position:absolute;left:-16px;top:-10px;width:calc(100% + 32px);height:calc(100% + 20px);pointer-events:none;z-index:4}
+.m-board{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:11px 16px;padding:14px;border-radius:22px;background:rgba(10,6,30,.55);border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 0 30px rgba(94,242,255,.07),0 12px 40px rgba(0,0,0,.4);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:box-shadow .4s,border-color .4s}
+.m-board:empty{display:none}
+.m-board::before{content:"";position:absolute;top:16px;bottom:16px;left:50%;width:2px;transform:translateX(-50%);background:linear-gradient(transparent,rgba(179,140,255,.6),transparent)}
+#match.fever .m-board{border-color:rgba(255,226,122,.75);box-shadow:inset 0 0 40px rgba(255,200,80,.16),0 0 34px rgba(255,170,60,.4)}
+.m-tile{position:relative;min-height:62px;border-radius:14px;border:1.5px solid;padding:6px 8px;cursor:pointer;touch-action:manipulation;color:#fff;font-weight:800;-webkit-user-select:none;user-select:none;transition:transform .12s,box-shadow .15s;overflow:hidden;font-family:inherit}
+.m-tile::after{content:"";position:absolute;left:0;right:0;top:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.14),transparent);pointer-events:none}
+.m-tile.ko{font-size:22px;font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;background:linear-gradient(180deg,rgba(28,62,118,.92),rgba(12,22,60,.96));border-color:rgba(94,242,255,.7);box-shadow:0 0 14px rgba(94,242,255,.2),inset 0 0 12px rgba(94,242,255,.1)}
+.m-tile.jp{font-size:15px;line-height:1.3;background:linear-gradient(180deg,rgba(96,30,96,.92),rgba(40,12,52,.96));border-color:rgba(255,110,199,.7);box-shadow:0 0 14px rgba(255,110,199,.2),inset 0 0 12px rgba(255,110,199,.1)}
+.m-tile:active{transform:scale(.97)}
+.m-tile.sel{transform:translateY(-2px) scale(1.04);background:linear-gradient(180deg,#fff7cf,#ffd45a);color:#3a1a00;border-color:#fff;box-shadow:0 0 0 2px rgba(255,226,122,.6),0 0 24px rgba(255,210,80,.85);animation:mSel 1s ease-in-out infinite}
+@keyframes mSel{50%{box-shadow:0 0 0 2px rgba(255,226,122,.95),0 0 36px rgba(255,210,80,1)}}
+.m-tile.ok{animation:mOk .28s forwards}
+@keyframes mOk{0%{background:#fff;color:#0a7a3a;transform:scale(1.1);box-shadow:0 0 34px #4ade80}100%{background:#4ade80;transform:scale(.55);opacity:0}}
+.m-tile.ng{background:linear-gradient(180deg,#ff5a7a,#b8123a)!important;border-color:#ffc2cf!important;color:#fff!important;box-shadow:0 0 22px rgba(255,60,100,.8)!important;animation:mShake .35s}
 @keyframes mShake{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
-.m-tile.empty{background:rgba(255,255,255,.06);border:2px dashed rgba(255,255,255,.25);box-shadow:none;color:transparent}
-.m-tile.pop{animation:mPop .3s ease-out}
-.m-tile.shuf{animation:mShuf .28s ease-out}
+.m-tile.empty{background:transparent;border:1.5px dashed rgba(255,255,255,.12);box-shadow:none;color:transparent}
+.m-tile.empty::after{display:none}
+.m-tile.pop{animation:mPop .34s cubic-bezier(.2,1.6,.4,1)}
+@keyframes mPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.m-tile.shuf{animation:mShuf .3s ease-out}
 @keyframes mShuf{0%{transform:rotateX(90deg);opacity:.3}100%{transform:none;opacity:1}}
-@keyframes mPop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
-.m-panel{flex-direction:column;align-items:center;gap:12px;color:#fff;text-align:center;overflow:auto;max-height:100%}
-.m-logo{font-size:40px;font-weight:900;letter-spacing:2px;text-shadow:0 4px 18px rgba(0,0,0,.3)}
-.m-sub{font-size:13px;color:rgba(255,255,255,.85)}
-.m-big{width:100%;max-width:340px;border:none;border-radius:16px;padding:16px;background:linear-gradient(120deg,#ffe27a,#ff9ad5);color:#3a1a5a;display:flex;flex-direction:column;gap:4px;align-items:center;cursor:pointer;box-shadow:0 6px 0 rgba(40,20,80,.35);font-family:inherit}
-.m-big b{font-size:19px}.m-big span{font-size:12px;opacity:.85}
-.m-big.sp{background:linear-gradient(120deg,#ff8a5c,#f43f5e);color:#fff}
-.m-big:disabled{opacity:.4}
+.m-panel{flex-direction:column;align-items:center;gap:13px;color:#fff;text-align:center;overflow:auto;max-height:100%;padding:4px 2px}
+.m-demo{display:flex;align-items:center;margin-bottom:2px}
+.m-demo span{padding:8px 14px;border-radius:10px;font-weight:800;color:#fff;border:1.5px solid}
+.m-demo .ko{background:rgba(20,44,96,.92);border-color:#5ef2ff;box-shadow:0 0 16px rgba(94,242,255,.55);font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;font-size:18px}
+.m-demo .jp{background:rgba(76,20,76,.92);border-color:#ff6ec7;box-shadow:0 0 16px rgba(255,110,199,.55);font-size:16px}
+.m-demo i{width:48px;height:4px;background:linear-gradient(90deg,#5ef2ff,#fff,#ff6ec7);box-shadow:0 0 12px #fff;border-radius:2px;animation:mBeam 1.6s ease-in-out infinite}
+@keyframes mBeam{0%,100%{opacity:.25;transform:scaleX(.35)}50%{opacity:1;transform:scaleX(1)}}
+.m-logo{font-size:46px;font-weight:900;letter-spacing:1px;line-height:1;background:linear-gradient(120deg,#5ef2ff,#b38cff 45%,#ff6ec7);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(179,140,255,.55))}
+.m-logo-sub{font-size:12px;letter-spacing:8px;color:rgba(200,220,255,.85);font-weight:800;margin-top:-6px}
+.m-sub{font-size:13px;color:rgba(255,255,255,.75)}
+.m-card{width:100%;max-width:340px;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;text-align:left;color:#fff;font-family:inherit;border:1.5px solid;background:rgba(14,10,40,.78);transition:transform .12s}
+.m-card:active{transform:scale(.98)}
+.m-card .ic{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.m-card b{display:block;font-size:18px}.m-card small{display:block;font-size:12px;opacity:.75;margin-top:3px}
+.m-card .best{margin-left:auto;text-align:right;font-size:10px;letter-spacing:1px;opacity:.85}.m-card .best strong{display:block;font-size:20px;color:#ffe27a;letter-spacing:0}
+.m-card.c60{border-color:rgba(94,242,255,.65);box-shadow:0 0 22px rgba(94,242,255,.16)}.m-card.c60 .ic{background:linear-gradient(135deg,#5ef2ff,#3b6cf6)}
+.m-card.csp{border-color:rgba(255,110,150,.65);box-shadow:0 0 22px rgba(255,80,120,.16)}.m-card.csp .ic{background:linear-gradient(135deg,#ffa25c,#f43f5e)}
+.m-card:disabled{opacity:.4}
+.m-big{width:100%;max-width:340px;border:none;border-radius:16px;padding:15px;background:linear-gradient(120deg,#5ef2ff,#b38cff 50%,#ff6ec7);color:#1a0b3a;font-family:inherit;font-weight:900;font-size:18px;cursor:pointer;box-shadow:0 0 24px rgba(179,140,255,.45)}
 .m-link{background:none;border:none;color:rgba(255,255,255,.8);text-decoration:underline;font-size:13px;cursor:pointer;padding:6px;font-family:inherit}
-.m-note{font-size:12px;color:rgba(255,255,255,.65);margin-top:4px}
-.m-res-main{font-size:56px;font-weight:900;text-shadow:0 4px 18px rgba(0,0,0,.3)}
-.m-best{background:#ffd23c;color:#5a3a00;font-weight:800;border-radius:99px;padding:4px 12px;font-size:13px}
-.m-missed{width:100%;max-height:34vh;overflow:auto;background:rgba(0,0,0,.25);border-radius:12px;padding:10px 12px;text-align:left}
-.m-missed h4{font-size:13px;margin-bottom:6px;color:#fecdd3}
-.m-missed .row{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.08)}
-.m-pop{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);font-size:34px;font-weight:900;color:#ffd23c;text-shadow:0 3px 0 rgba(0,0,0,.4);animation:mPopT 1s ease-out forwards;pointer-events:none;z-index:5;white-space:nowrap}
-@keyframes mPopT{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-90%)}}
+.m-note{font-size:12px;color:rgba(255,255,255,.6)}
+.m-rank{font-size:100px;font-weight:900;line-height:.9;-webkit-background-clip:text;background-clip:text;color:transparent;animation:mRank .6s cubic-bezier(.2,1.4,.4,1) both;filter:drop-shadow(0 6px 24px rgba(255,255,255,.25))}
+.m-rank.S{background-image:linear-gradient(135deg,#fff6a8,#ffb300 45%,#ff6ec7)}
+.m-rank.A{background-image:linear-gradient(135deg,#bdf6ff,#5ef2ff 45%,#3b6cf6)}
+.m-rank.B{background-image:linear-gradient(135deg,#d6ffe3,#4ade80 50%,#14905a)}
+.m-rank.C{background-image:linear-gradient(135deg,#e9e0ff,#a99ad6 50%,#6a5aa0)}
+@keyframes mRank{0%{transform:scale(2.6);opacity:0}60%{transform:scale(.92);opacity:1}100%{transform:scale(1)}}
+.m-rank-lbl{font-size:11px;letter-spacing:6px;color:rgba(255,255,255,.6);font-weight:800;margin-top:-4px}
+.m-res-main{font-size:34px;font-weight:900;text-shadow:0 0 18px rgba(94,242,255,.45)}
+.m-best{background:linear-gradient(90deg,#ffe27a,#ffb300);color:#4a2a00;font-weight:900;border-radius:99px;padding:5px 14px;font-size:13px;box-shadow:0 0 18px rgba(255,200,60,.6)}
+.m-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:340px}
+.m-stat{background:rgba(14,10,40,.75);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:9px 4px}
+.m-stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}.m-stat span{font-size:9px;letter-spacing:1.5px;opacity:.65}
+.m-missed{width:100%;max-width:340px;max-height:30vh;overflow:auto;background:rgba(14,10,40,.75);border:1px solid rgba(255,110,150,.35);border-radius:14px;padding:10px 12px;text-align:left}
+.m-missed h4{font-size:12px;margin-bottom:6px;color:#fecdd3;letter-spacing:.5px}
+.m-missed .row{display:flex;justify-content:space-between;gap:10px;font-size:14px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.m-missed .row b{font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;color:#9eeaff}
+.m-pop{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-size:38px;font-weight:900;color:#ffe27a;text-shadow:0 0 18px rgba(255,200,60,.9),0 3px 0 rgba(0,0,0,.4);animation:mPopT 1s ease-out forwards;pointer-events:none;z-index:5;white-space:nowrap;letter-spacing:1px}
+@keyframes mPopT{0%{opacity:0;transform:translate(-50%,-30%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-110%)}}
 .game-row{display:flex;gap:10px}
 .game-row .menu-btn{flex:1;min-width:0}
 .game-row .game-btn{flex:1.2}
@@ -498,14 +553,17 @@ body{background:#1a1340;min-height:100%}
 <div id="match" class="screen">
   <div class="top-bar">
     <button class="back-btn" onclick="quitMatch()">✕</button>
-    <div class="m-title">ペア消し</div>
+    <div class="m-title">PAIR MATCH</div>
     <button class="back-btn" id="m-sound" onclick="toggleSound()">🔊</button>
   </div>
+  <div class="m-backdrop"><div class="m-grid"></div></div>
   <div id="m-hud" class="m-hud" style="visibility:hidden">
-    <div class="m-hud-row"><span id="m-hud-l"></span><span id="m-combo"></span><span id="m-hud-r"></span></div>
-    <div class="m-barwrap"><div id="m-bar"></div></div>
+    <div class="m-hud-box"><div class="m-hud-lbl" id="m-hud-ll">PAIRS</div><div class="m-hud-num" id="m-hud-l">0</div></div>
+    <div id="m-combo"></div>
+    <div class="m-ring" id="m-ring"><svg viewBox="0 0 44 44"><circle class="bg" cx="22" cy="22" r="19"/><circle class="fg" id="m-ringfg" cx="22" cy="22" r="19"/></svg><span id="m-hud-r"></span></div>
   </div>
   <div id="m-stage" class="m-stage">
+    <canvas id="m-fx"></canvas>
     <div id="m-board" class="m-board"></div>
     <div id="m-panel" class="m-panel" style="display:none"></div>
   </div>
@@ -2239,63 +2297,107 @@ function drawPod(ctx,W,H,q,i){
   ctx.restore();
 }
 
+// ===== 自機（3Dポリゴン）=====
+// x:右 y:前 z:上。左右対称のパーツは右側だけ書いて反転する。
+const SHIP3D=(function(){
+  const V=[],F=[];
+  const v=(x,y,z)=>{V.push([x,y,z]);return V.length-1;};
+  const f=(ids,col,o)=>F.push(Object.assign({ids,col},o||{}));
+  // 胴体（断面4点×3＋機首）
+  const N=v(0,44,1.5);
+  const ring=(y,w,top,bot)=>[v(0,y,top),v(w,y,0),v(0,y,bot),v(-w,y,0)];
+  const A=ring(12,8,7,-5),B=ring(-12,10,6,-5),C=ring(-30,7,4,-4);
+  const body="#e6ebff",belly="#9aa3c8";
+  f([N,A[0],A[1]],body);f([N,A[1],A[2]],belly);f([N,A[2],A[3]],belly);f([N,A[3],A[0]],body);
+  [[A,B],[B,C]].forEach(([p,q])=>{f([p[0],p[1],q[1],q[0]],body);f([p[1],p[2],q[2],q[1]],belly);f([p[2],p[3],q[3],q[2]],belly);f([p[3],p[0],q[0],q[3]],body);});
+  f([C[0],C[1],C[2],C[3]],"#2b2f55");
+  // 背中のライン（アクセント）
+  f([v(-1.2,10,7.2),v(1.2,10,7.2),v(1.2,-20,5.4),v(-1.2,-20,5.4)],"#ff6ec7",{glow:1});
+  // キャノピー
+  const cf=v(0,27,4.6),cb=v(0,4,7.6),cl=v(-3.6,14,6.6),cr=v(3.6,14,6.6),ct=v(0,15,10.5);
+  f([cf,cr,ct],"#58c8ff",{glass:1});f([cf,ct,cl],"#58c8ff",{glass:1});f([cb,ct,cr],"#2a7fd6",{glass:1});f([cb,cl,ct],"#2a7fd6",{glass:1});
+  // 左右対称パーツ
+  [1,-1].forEach(s=>{
+    // 主翼（上面・下面・前縁）
+    const r1=v(9*s,8,1.6),r2=v(10*s,-20,1.6),t1=v(40*s,-13,0.4),t2=v(41*s,-22,0.4);
+    const r1b=v(9*s,8,-1.6),r2b=v(10*s,-20,-1.6),t1b=v(40*s,-13,-0.6),t2b=v(41*s,-22,-0.6);
+    f([r1,t1,t2,r2],"#6f82d6");f([r1b,r2b,t2b,t1b],"#3c4785");f([r1,r1b,t1b,t1],"#ff6ec7",{glow:1});f([r2,t2,t2b,r2b],"#2e3566");
+    // 翼の模様
+    f([v(18*s,-0.5,1.5),v(34*s,-9.5,0.75),v(34.5*s,-12,0.72),v(18.5*s,-3.5,1.5)],"#5ef2ff",{glow:1});
+    // 翼端の砲身
+    const g1=v(39*s,-6,0.8),g2=v(42*s,-6,0.8),g3=v(42*s,-24,0.8),g4=v(39*s,-24,0.8),g5=v(40.5*s,-6,2.6),g6=v(40.5*s,-24,2.6);
+    f([g1,g5,g6,g4],"#c9d3ff");f([g5,g2,g3,g6],"#8f9bd6");
+    // カナード
+    f([v(7*s,26,1.2),v(17*s,18,0.6),v(7*s,17,1.2)],"#7b8fd6");
+    // 垂直尾翼（外に傾ける）
+    f([v(6*s,-14,4),v(10*s,-31,16),v(7*s,-31,3.5)],"#4b5da3");
+    f([v(9*s,-27,13),v(10*s,-31,16),v(8.5*s,-31,11)],"#ff6ec7",{glow:1});
+  });
+  return {V,F};
+})();
+function hexRgb(h){const n=parseInt(h.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}
+SHIP3D.F.forEach(fc=>fc.rgb=hexRgb(fc.col));
+function projShip(p,cr,sr,ct,st,sc){
+  // ロール（機体の傾き）→ カメラの見下ろし角
+  const x=p[0]*cr+p[2]*sr,y=p[1],z=-p[0]*sr+p[2]*cr;
+  const sy=y*ct+z*st,dz=z*ct-y*st;
+  const per=300/(300-dz);
+  return [x*per*sc,-sy*per*sc,dz,x,sy,dz];
+}
+function drawShip3D(ctx,cx,cy,k,bank,t){
+  const roll=bank*0.75,cr=Math.cos(roll),sr=Math.sin(roll),tilt=0.4,ct=Math.cos(tilt),st=Math.sin(tilt),sc=1.05*k;
+  const P=SHIP3D.V.map(p=>projShip(p,cr,sr,ct,st,sc));
+  const L=[-0.45,0.55,0.7],ln=Math.hypot(...L);L[0]/=ln;L[1]/=ln;L[2]/=ln;
+  const faces=SHIP3D.F.map(fc=>{
+    const ps=fc.ids.map(i=>P[i]);
+    // 法線（カメラ空間）
+    const a=ps[0],b=ps[1],c=ps[2];
+    const u=[b[3]-a[3],b[4]-a[4],b[5]-a[5]],w=[c[3]-a[3],c[4]-a[4],c[5]-a[5]];
+    let n=[u[1]*w[2]-u[2]*w[1],u[2]*w[0]-u[0]*w[2],u[0]*w[1]-u[1]*w[0]];const nl=Math.hypot(...n)||1;n=n.map(q=>q/nl);
+    if(n[2]<0)n=n.map(q=>-q);
+    const d=ps.reduce((s,q)=>s+q[2],0)/ps.length;
+    return {fc,ps,n,d};
+  }).sort((p,q)=>p.d-q.d);
+  ctx.save();ctx.translate(cx,cy);ctx.lineJoin="round";
+  faces.forEach(({fc,ps,n})=>{
+    const dif=Math.max(0,n[0]*L[0]+n[1]*L[1]+n[2]*L[2]);
+    const spec=Math.pow(Math.max(0,n[2]*0.6+dif*0.4),18);
+    let sh=fc.glow?0.85+dif*0.3:0.3+dif*0.78;
+    const col=fc.rgb.map(c=>Math.min(255,Math.round(c*sh+255*spec*(fc.glass?0.9:0.45))));
+    ctx.beginPath();ps.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();
+    ctx.fillStyle=`rgb(${col[0]},${col[1]},${col[2]})`;ctx.fill();
+    ctx.strokeStyle=fc.glow?`rgba(${fc.rgb.join(",")},0.9)`:"rgba(20,16,50,0.35)";ctx.lineWidth=fc.glow?0.8:0.6;ctx.stroke();
+  });
+  // 光るパーツのにじみ
+  ctx.globalCompositeOperation="lighter";
+  faces.forEach(({fc,ps})=>{if(!fc.glow)return;ctx.beginPath();ps.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();ctx.strokeStyle=`rgba(${fc.rgb.join(",")},0.35)`;ctx.lineWidth=3*k;ctx.stroke();});
+  ctx.restore();
+  return P;
+}
+
+function shipPt(p,bank,k){const roll=bank*0.75;return projShip(p,Math.cos(roll),Math.sin(roll),Math.cos(0.4),Math.sin(0.4),1.05*k);}
 function drawShip(ctx,W,H){
   const t=G.time||0;
   const k=Math.max(0.85,Math.min(1.25,Math.min(W,H)/360));
-  const sx=G.shipX*W,sy=H*SHIP_Y;
+  const sx=G.shipX*W,sy=H*SHIP_Y+Math.sin(t*2.4)*1.5;
   const bank=Math.max(-1,Math.min(1,G.shipV*2.2));
   // 床に落ちる影と光
-  ctx.save();ctx.globalCompositeOperation="lighter";{const rgb=STAGES[G.stage||0].floor;const g=ctx.createRadialGradient(sx,sy+46*k,0,sx,sy+46*k,52*k);g.addColorStop(0,`rgba(${rgb},0.35)`);g.addColorStop(1,`rgba(${rgb},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(sx,sy+46*k,52*k,12*k,0,0,Math.PI*2);ctx.fill();}ctx.restore();
-  ctx.save();ctx.translate(sx,sy);ctx.scale(k,k);
-  ctx.rotate(bank*0.18);
-  ctx.scale(1-Math.abs(bank)*0.22,1);
-  // エンジンの炎
-  const boost=1+Math.abs(bank)*0.6+(G.muzzle>0?0.3:0);
-  [-7,7].forEach(x=>{
-    const fl=(18+Math.random()*8)*boost;
-    ctx.save();ctx.globalCompositeOperation="lighter";
-    let g=ctx.createLinearGradient(0,26,0,26+fl);g.addColorStop(0,"rgba(180,240,255,0.95)");g.addColorStop(0.35,"rgba(90,160,255,0.8)");g.addColorStop(1,"rgba(120,60,255,0)");
-    ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x-5,26);ctx.quadraticCurveTo(x,26+fl*1.1,x+5,26);ctx.closePath();ctx.fill();
-    g=ctx.createRadialGradient(x,28,0,x,28,14);g.addColorStop(0,"rgba(160,230,255,0.7)");g.addColorStop(1,"rgba(160,230,255,0)");ctx.fillStyle=g;ctx.fillRect(x-14,14,28,28);
-    ctx.restore();
-  });
-  // 主翼
-  ctx.beginPath();ctx.moveTo(0,-8);ctx.lineTo(36,14);ctx.lineTo(37,21);ctx.lineTo(10,18);ctx.lineTo(0,20);ctx.lineTo(-10,18);ctx.lineTo(-37,21);ctx.lineTo(-36,14);ctx.closePath();
-  let g=ctx.createLinearGradient(-37,0,37,0);g.addColorStop(0,"#3a4a8a");g.addColorStop(0.5,"#7b8fd6");g.addColorStop(1,"#3a4a8a");
-  ctx.fillStyle=g;ctx.fill();ctx.strokeStyle="rgba(255,255,255,0.35)";ctx.lineWidth=1;ctx.stroke();
-  // 翼のアクセントライン
-  ctx.strokeStyle="#ff6ec7";ctx.lineWidth=2;
-  ctx.beginPath();ctx.moveTo(14,9);ctx.lineTo(33,17);ctx.stroke();ctx.beginPath();ctx.moveTo(-14,9);ctx.lineTo(-33,17);ctx.stroke();
-  // 翼端の砲身
-  ctx.fillStyle="#c9d3ff";ctx.fillRect(33,6,3,13);ctx.fillRect(-36,6,3,13);
-  // カナード
-  ctx.fillStyle="#5b6fb5";
-  ctx.beginPath();ctx.moveTo(5,-18);ctx.lineTo(15,-10);ctx.lineTo(6,-9);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(-5,-18);ctx.lineTo(-15,-10);ctx.lineTo(-6,-9);ctx.closePath();ctx.fill();
-  // 垂直尾翼（双発）
-  ctx.fillStyle="#4b5da3";
-  ctx.beginPath();ctx.moveTo(8,12);ctx.lineTo(15,24);ctx.lineTo(9,27);ctx.closePath();ctx.fill();
-  ctx.beginPath();ctx.moveTo(-8,12);ctx.lineTo(-15,24);ctx.lineTo(-9,27);ctx.closePath();ctx.fill();
-  // 胴体
-  ctx.beginPath();ctx.moveTo(0,-40);ctx.bezierCurveTo(6,-32,9,-18,9,-4);ctx.lineTo(10,20);ctx.lineTo(6,29);ctx.lineTo(-6,29);ctx.lineTo(-10,20);ctx.lineTo(-9,-4);ctx.bezierCurveTo(-9,-18,-6,-32,0,-40);ctx.closePath();
-  g=ctx.createLinearGradient(-10,0,10,0);g.addColorStop(0,"#9aa6d8");g.addColorStop(0.45,"#ffffff");g.addColorStop(1,"#8792c8");
-  ctx.fillStyle=g;ctx.fill();
-  // 胴体ストライプ
-  ctx.fillStyle="#ff6ec7";ctx.fillRect(-1.2,2,2.4,22);
-  // エンジンノズル
-  ctx.fillStyle="#2b2f55";ctx.fillRect(-10,24,7,5);ctx.fillRect(3,24,7,5);
-  // キャノピー
-  ctx.beginPath();ctx.ellipse(0,-17,4.6,10,0,0,Math.PI*2);
-  g=ctx.createLinearGradient(0,-27,0,-7);g.addColorStop(0,"#bff6ff");g.addColorStop(0.5,"#3fb4ff");g.addColorStop(1,"#183a8f");
-  ctx.fillStyle=g;ctx.fill();
-  ctx.fillStyle="rgba(255,255,255,0.8)";ctx.beginPath();ctx.ellipse(-1.5,-21,1.3,3.5,-0.2,0,Math.PI*2);ctx.fill();
-  // 翼端灯（点滅）
-  if(Math.sin(t*6)>0){ctx.fillStyle="#ff4d6d";ctx.beginPath();ctx.arc(-37,20,2.2,0,Math.PI*2);ctx.fill();ctx.fillStyle="#4dffb0";ctx.beginPath();ctx.arc(37,20,2.2,0,Math.PI*2);ctx.fill();}
-  // マズルフラッシュ
-  if(G.muzzle>0){ctx.save();ctx.globalCompositeOperation="lighter";const m=ctx.createRadialGradient(0,-44,0,0,-44,22*G.muzzle);m.addColorStop(0,"rgba(255,255,220,1)");m.addColorStop(1,"rgba(255,200,80,0)");ctx.fillStyle=m;ctx.beginPath();ctx.arc(0,-44,22,0,Math.PI*2);ctx.fill();ctx.restore();}
-  // 被弾シールド
-  if(G.shieldHit>0){ctx.strokeStyle=`rgba(255,80,120,${G.shieldHit})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,48+(1-G.shieldHit)*12,0,Math.PI*2);ctx.stroke();}
+  ctx.save();ctx.globalCompositeOperation="lighter";{const rgb=STAGES[G.stage||0].floor;const gx=sx-bank*8*k,gy=H*SHIP_Y+46*k;const g=ctx.createRadialGradient(gx,gy,0,gx,gy,54*k);g.addColorStop(0,`rgba(${rgb},0.38)`);g.addColorStop(1,`rgba(${rgb},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(gx,gy,54*k*(1-Math.abs(bank)*0.25),12*k,0,0,Math.PI*2);ctx.fill();}ctx.restore();
+  // エンジンの炎（機体の後ろに描く）
+  const boost=1+Math.abs(bank)*0.5+(G.muzzle>0?0.3:0);
+  ctx.save();ctx.globalCompositeOperation="lighter";
+  [-3.6,3.6].forEach(x=>{const q=shipPt([x,-31,0],bank,k);const nx=sx+q[0],ny=sy+q[1],fl=(22+Math.random()*9)*boost*k;
+    let g=ctx.createLinearGradient(nx,ny,nx,ny+fl);g.addColorStop(0,"rgba(210,248,255,0.95)");g.addColorStop(0.35,"rgba(90,160,255,0.8)");g.addColorStop(1,"rgba(120,60,255,0)");
+    ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(nx-4.5*k,ny);ctx.quadraticCurveTo(nx,ny+fl*1.15,nx+4.5*k,ny);ctx.closePath();ctx.fill();
+    g=ctx.createRadialGradient(nx,ny,0,nx,ny,14*k);g.addColorStop(0,"rgba(170,235,255,0.85)");g.addColorStop(1,"rgba(170,235,255,0)");ctx.fillStyle=g;ctx.fillRect(nx-14*k,ny-14*k,28*k,28*k);});
   ctx.restore();
+  drawShip3D(ctx,sx,sy,k,bank,t);
+  // 翼端灯（点滅）
+  if(Math.sin(t*6)>0){[[-41,"#ff4d6d"],[41,"#4dffb0"]].forEach(([x,c])=>{const q=shipPt([x,-23,0.5],bank,k);ctx.save();ctx.globalCompositeOperation="lighter";ctx.fillStyle=c;ctx.beginPath();ctx.arc(sx+q[0],sy+q[1],2.4*k,0,Math.PI*2);ctx.fill();ctx.globalAlpha=0.35;ctx.beginPath();ctx.arc(sx+q[0],sy+q[1],6*k,0,Math.PI*2);ctx.fill();ctx.restore();});}
+  // マズルフラッシュ
+  if(G.muzzle>0){const q=shipPt([0,46,1.5],bank,k),mx=sx+q[0],my=sy+q[1]-4;ctx.save();ctx.globalCompositeOperation="lighter";const m=ctx.createRadialGradient(mx,my,0,mx,my,24*G.muzzle*k);m.addColorStop(0,"rgba(255,255,220,1)");m.addColorStop(1,"rgba(255,200,80,0)");ctx.fillStyle=m;ctx.beginPath();ctx.arc(mx,my,24*k,0,Math.PI*2);ctx.fill();ctx.restore();}
+  // 被弾シールド
+  if(G.shieldHit>0){ctx.strokeStyle=`rgba(255,80,120,${G.shieldHit})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(sx,sy,(50+(1-G.shieldHit)*12)*k,0,Math.PI*2);ctx.stroke();}
 }
 
 function drawBullet(ctx,W,H){
@@ -2875,10 +2977,12 @@ function mtMenu(){
   $m("m-hud").style.visibility="hidden";
   $m("m-board").innerHTML="";
   $m("m-panel").style.display="flex";
-  $m("m-panel").innerHTML=`<div class="m-logo">ペア消し</div>
-    <div class="m-sub">${esc(lvTxt)}の単語・韓国語と意味のペアをタップ</div>
-    <button class="m-big" onclick="mtStart('60')"><b>⏱ 60秒チャレンジ</b><span>何ペア消せるか${b60?"・ベスト "+b60+"ペア":""}</span></button>
-    <button class="m-big sp" onclick="mtStart('sp')" ${n<MT_ROWS?"disabled":""}><b>🔥 スパルタ${n}</b><span>${ss?"▶ 続きから "+ss.cleared+"/"+ss.total:"全部消すまで終わらない"}${spb?"・ベスト "+mtFmt(spb):""}</span></button>
+  $m("match").classList.remove("fever");
+  $m("m-panel").innerHTML=`<div class="m-demo"><span class="ko">사랑</span><i></i><span class="jp">愛</span></div>
+    <div class="m-logo">PAIR MATCH</div><div class="m-logo-sub">ペア消し</div>
+    <div class="m-sub">${esc(lvTxt)}・韓国語と意味のペアをタップ</div>
+    <button class="m-card c60" onclick="mtStart('60')"><span class="ic">⏱</span><span><b>60秒チャレンジ</b><small>何ペア消せるか</small></span>${b60?`<span class="best">BEST<strong>${b60}</strong></span>`:""}</button>
+    <button class="m-card csp" onclick="mtStart('sp')" ${n<MT_ROWS?"disabled":""}><span class="ic">🔥</span><span><b>スパルタ${n}</b><small>${ss?"▶ 続きから "+ss.cleared+"/"+ss.total:"全部消すまで終わらない"}</small></span>${spb?`<span class="best">BEST<strong>${mtFmt(spb)}</strong></span>`:""}</button>
     ${ss?`<button class="m-link" onclick="mtStart('sp',true)">スパルタを最初からやり直す</button>`:""}
     <div class="m-note">まちがえた単語は苦手に入り、スパルタでは後でもう一度出ます</div>`;
 }
@@ -2996,13 +3100,15 @@ function mtTap(side,i,ev){
       if(MT.pending.has(w)){MT.pending.delete(w);const at=Math.min(MT.queue.length,5+Math.floor(Math.random()*4));MT.queue.splice(at,0,w);}
       else MT.cleared++;
     }
+    {const pa=mfxPos(elL),pb=mfxPos(elR),fv=MT.combo>=10;mfxBeam(pa,pb);mfxRing(pa,"94,242,255");mfxRing(pb,"255,110,199");
+      mfxBurst(pa,fv?"255,215,90":"94,242,255",fv?22:14);mfxBurst(pb,fv?"255,215,90":"255,110,199",fv?22:14);}
     elL.classList.add("ok");elR.classList.add("ok");
     MT.L[li]=null;MT.R[ri]=null;
     const run=MT.run;
     setTimeout(()=>{if(run!==MT.run)return;mtRenderTile("L",li);mtRenderTile("R",ri);MT.freeL.push(li);MT.freeR.push(ri);mtRefill(false);mtHud();
       if(MT.mode==="sp"){mtSaveSp();if(MT.cleared>=MT.total&&!MT.activeWords().length)mtFinish();}},260);
-    if(MT.combo>0&&MT.combo%10===0)mtPopText(MT.combo+" COMBO!");
-    mtHud();
+    if(MT.combo===10)mtPopText("FEVER!");else if(MT.combo>0&&MT.combo%10===0)mtPopText(MT.combo+" COMBO!");
+    mtHud();{const n=$m("m-hud-l");n.classList.remove("bump");void n.offsetWidth;n.classList.add("bump");}
   }else{
     MT.combo=0;mtSfx("ng");
     [a.w,b.w].forEach(w=>{
@@ -3011,24 +3117,52 @@ function mtTap(side,i,ev){
       const st=curState();st.weak[K(w)]=(st.weak[K(w)]||0)+1;delete st.mastered[K(w)];delete st.perfect[K(w)];
     });
     saveState();
-    [elL,elR].forEach(el=>{el.classList.remove("ng");void el.offsetWidth;el.classList.add("ng");});
+    [elL,elR].forEach(el=>{el.classList.remove("ng");void el.offsetWidth;el.classList.add("ng");mfxBurst(mfxPos(el),"255,80,110",8);});
     MT.lock=true;setTimeout(()=>{MT.lock=false;elL.classList.remove("ng");elR.classList.remove("ng");},380);
     mtHud();
   }
 }
 function mtPopText(t){const f=document.createElement("div");f.className="m-pop";f.textContent=t;$m("m-stage").appendChild(f);setTimeout(()=>f.remove(),1000);}
 function mtHud(){
+  const ring=$m("m-ring"),fg=$m("m-ringfg"),C=119.38;
   if(MT.mode==="60"){
-    $m("m-hud-l").textContent=MT.pairs+" ペア";
-    $m("m-hud-r").textContent="⏱ "+Math.ceil(MT.timeLeft);
-    $m("m-bar").style.width=(MT.timeLeft/MT_TIME*100)+"%";
-    $m("m-bar").className=MT.timeLeft<10?"low":"";
+    $m("m-hud-ll").textContent="PAIRS";$m("m-hud-l").textContent=MT.pairs;
+    $m("m-hud-r").textContent=Math.ceil(MT.timeLeft);
+    fg.style.strokeDashoffset=C*(1-MT.timeLeft/MT_TIME);ring.className="m-ring"+(MT.timeLeft<10?" low":"");
   }else{
-    $m("m-hud-l").textContent=MT.cleared+" / "+MT.total;
-    $m("m-hud-r").textContent="⏱ "+mtFmt(MT.elapsed);
-    $m("m-bar").style.width=(MT.cleared/MT.total*100)+"%";$m("m-bar").className="sp";
+    $m("m-hud-ll").textContent="CLEAR";$m("m-hud-l").innerHTML=MT.cleared+"<small>/"+MT.total+"</small>";
+    $m("m-hud-r").textContent=mtFmt(MT.elapsed);
+    fg.style.strokeDashoffset=C*(1-MT.cleared/Math.max(1,MT.total));ring.className="m-ring sp";
   }
-  $m("m-combo").textContent=MT.combo>=2?MT.combo+" コンボ":"";
+  const cb=$m("m-combo");cb.textContent=MT.combo>=10?"FEVER ×"+MT.combo:MT.combo>=2?MT.combo+" COMBO":"";cb.className=MT.combo>=10?"fever":"";
+  $m("match").classList.toggle("fever",!!MT.active&&MT.combo>=10);
+}
+// ---- エフェクト（ビーム・火花・波紋）----
+const MFX={parts:[],beams:[],rings:[],raf:0};
+function mfxCtx(){const c=$m("m-fx"),r=c.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2);
+  if(c.width!==Math.round(r.width*dpr)||c.height!==Math.round(r.height*dpr)){c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);}
+  const x=c.getContext("2d");x.setTransform(dpr,0,0,dpr,0,0);return {x,w:r.width,h:r.height};}
+function mfxPos(el){const fr=$m("m-fx").getBoundingClientRect(),r=el.getBoundingClientRect();return [r.left+r.width/2-fr.left,r.top+r.height/2-fr.top];}
+function mfxBurst(p,col,n){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=90+Math.random()*260;MFX.parts.push({x:p[0],y:p[1],vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:0,life:.4+Math.random()*.4,col,s:1.4+Math.random()*2.6});}mfxRun();}
+function mfxBeam(a,b){MFX.beams.push({a,b,t:0,life:.38});mfxRun();}
+function mfxRing(p,col){MFX.rings.push({x:p[0],y:p[1],t:0,life:.45,col});mfxRun();}
+function mfxRun(){
+  if(MFX.raf)return;let last=performance.now();
+  const loop=now=>{
+    const dt=Math.min(.05,(now-last)/1000);last=now;
+    const {x,w,h}=mfxCtx();x.clearRect(0,0,w,h);x.globalCompositeOperation="lighter";
+    MFX.beams.forEach(b=>{b.t+=dt;const p=b.t/b.life,al=Math.max(0,1-p);
+      const g=x.createLinearGradient(b.a[0],b.a[1],b.b[0],b.b[1]);g.addColorStop(0,`rgba(94,242,255,${al})`);g.addColorStop(.5,`rgba(255,255,255,${al})`);g.addColorStop(1,`rgba(255,110,199,${al})`);
+      x.lineCap="round";x.strokeStyle=g;x.lineWidth=12*(1-p)+2;x.shadowColor="rgba(255,255,255,.9)";x.shadowBlur=18;x.beginPath();x.moveTo(b.a[0],b.a[1]);x.lineTo(b.b[0],b.b[1]);x.stroke();
+      x.shadowBlur=0;x.lineWidth=3*(1-p)+.6;x.strokeStyle=`rgba(255,255,255,${al})`;x.stroke();});
+    MFX.beams=MFX.beams.filter(b=>b.t<b.life);
+    MFX.rings.forEach(r=>{r.t+=dt;const p=r.t/r.life;x.strokeStyle=`rgba(${r.col},${Math.max(0,1-p)})`;x.lineWidth=4*(1-p)+1;x.beginPath();x.arc(r.x,r.y,10+p*60,0,Math.PI*2);x.stroke();});
+    MFX.rings=MFX.rings.filter(r=>r.t<r.life);
+    MFX.parts.forEach(q=>{q.t+=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=1-dt*3;q.vy=q.vy*(1-dt*3)+140*dt;const a=Math.max(0,1-q.t/q.life);x.fillStyle=`rgba(${q.col},${a})`;x.beginPath();x.arc(q.x,q.y,q.s*(.4+a*.6),0,Math.PI*2);x.fill();});
+    MFX.parts=MFX.parts.filter(q=>q.t<q.life);
+    if(MFX.parts.length||MFX.beams.length||MFX.rings.length)MFX.raf=requestAnimationFrame(loop);else{MFX.raf=0;x.clearRect(0,0,w,h);}
+  };
+  MFX.raf=requestAnimationFrame(loop);
 }
 function mtStartTimer(run){
   mtStopTimer();
@@ -3080,14 +3214,21 @@ function mtFinish(){
     const all=mtSessAll();delete all[mtSpId()];try{localStorage.setItem(MT_SESS,JSON.stringify(all));}catch(e){}
   }
   mtSaveRec(r);
+  const miss=MT.missed.length;let rank;
+  if(MT.mode==="60")rank=MT.pairs>=30?"S":MT.pairs>=22?"A":MT.pairs>=14?"B":"C";
+  else{const spp=MT.elapsed/Math.max(1,MT.total);rank=spp<=3.2&&miss<=2?"S":spp<=4.5&&miss<=6?"A":spp<=6.5?"B":"C";}
+  $m("match").classList.remove("fever");
   $m("m-hud").style.visibility="hidden";$m("m-board").innerHTML="";
   const p=$m("m-panel");p.style.display="flex";
-  p.innerHTML=`<div class="m-res-main">${esc(main)}</div>
+  p.innerHTML=`<div class="m-rank ${rank}">${rank}</div><div class="m-rank-lbl">RANK</div>
+    <div class="m-res-main">${esc(main)}</div>
     ${best?'<div class="m-best">🏆 自己ベスト更新！</div>':""}
-    <div class="m-sub">${esc(sub)}・最大 ${MT.maxCombo} コンボ・ミス ${MT.missed.length}</div>
-    ${MT.missed.length?`<div class="m-missed"><h4>まちがえた単語（苦手に追加済み）</h4>${MT.missed.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("")}</div>`:'<div class="m-sub">ノーミス！</div>'}
-    <button class="m-big" onclick="mtStart('${MT.mode}')"><b>もう一度</b></button>
+    <div class="m-stats"><div class="m-stat"><b>${MT.mode==="60"?MT.pairs:MT.total}</b><span>PAIRS</span></div><div class="m-stat"><b>${MT.maxCombo}</b><span>MAX COMBO</span></div><div class="m-stat"><b>${miss}</b><span>MISS</span></div></div>
+    <div class="m-sub">${esc(sub)}</div>
+    ${miss?`<div class="m-missed"><h4>まちがえた単語（苦手に追加済み）</h4>${MT.missed.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("")}</div>`:'<div class="m-sub">✨ ノーミス！</div>'}
+    <button class="m-big" onclick="mtStart('${MT.mode}')">もう一度</button>
     <button class="m-link" onclick="mtMenu()">メニューへ</button>`;
+  if(rank==="S"||rank==="A")setTimeout(()=>{const el=p.querySelector(".m-rank");if(!el)return;const c=mfxPos(el);["255,226,122","94,242,255","255,110,199"].forEach(col=>mfxBurst(c,col,18));mfxRing(c,"255,226,122");},350);
 }
 document.addEventListener("visibilitychange",()=>{
   if(!MT.active)return;
