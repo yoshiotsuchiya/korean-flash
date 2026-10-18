@@ -1482,6 +1482,7 @@ function renderSfxAll(){
   });
 }
 setTimeout(()=>{try{renderSfxAll();}catch(e){}},300);
+setTimeout(()=>{try{bgIdle().then(()=>{if(typeof initStageArt==="function")initStageArt();});}catch(e){}},2500);   // 背景素材は裏で先に作っておく
 function sfxLive(kind,flat){
   if(!canPlay())return;
   try{
@@ -1588,8 +1589,8 @@ function startBGM(name){
   const buf=BGM.bufs[name];
   if(!buf){ensureBGMBuf(name);return;}   // 準備できたら自動で開始
   try{
-    const t=c.currentTime+0.05;
-    BGM.bus=c.createGain();BGM.bus.gain.setValueAtTime(0.0001,t);BGM.bus.gain.exponentialRampToValueAtTime(0.32,t+0.6);
+    const t=c.currentTime+0.01;
+    BGM.bus=c.createGain();BGM.bus.gain.setValueAtTime(0,t);BGM.bus.gain.linearRampToValueAtTime(0.32,t+0.06);
     BGM.bus.connect(SND.master);
     BGM.gA=c.createGain();BGM.gB=c.createGain();BGM.gA.gain.value=1;BGM.gB.gain.value=0.0001;
     BGM.gA.connect(BGM.bus);BGM.gB.connect(BGM.bus);
@@ -1664,7 +1665,7 @@ function startGame(){
   Object.assign(G,{
     pool:shuffle(pool),pi:0,qn:0,score:0,shownScore:0,lives:gameLives,combo:0,maxCombo:0,correct:0,missed:[],
     speed:0.085,phase:"ready",q:null,shipX:0.5,shipTarget:0.5,shipV:0,bullet:null,particles:[],rings:[],floaters:[],debris:[],
-    flash:null,last:0,paused:false,banner:null,fastest:0,shake:0,muzzle:0,shieldHit:0,time:0,hits:{},graduated:[],stage:0,stagePrev:0,stageT:null
+    flash:null,last:0,paused:false,banner:null,fastest:0,shake:0,muzzle:0,shieldHit:0,time:0,hits:{},graduated:[],stage:0,stagePrev:0,stageT:null,nq:null
   });
   initScenery();
   showScreen("game");
@@ -1693,20 +1694,27 @@ function showGameOverlay(html){const o=document.getElementById("game-overlay");o
 function hideGameOverlay(){document.getElementById("game-overlay").classList.add("hidden");}
 
 function beginCountdown(){
+  prepNext();
   hideGameOverlay();
   G.phase="count";G.countT=0;
   startBGM();
 }
 
-function nextQuestion(){
+function makeQ(){
   if(G.pi>=G.pool.length){G.pool=shuffle(G.pool);G.pi=0;}
-  const w=G.pool[G.pi++];
-  const d=pickDistractor(w);
-  const correctSide=Math.random()<0.5?0:1;
-  const opts=correctSide===0?[w,d]:[d,w];
-  G.qn++;
-  G.q={w,opts,correctSide,y:0,t:0,resolved:false,fade:[1,1],hit:-1,intro:0};
-  G.phase="play";
+  const w=G.pool[G.pi++],d=pickDistractor(w),correctSide=Math.random()<0.5?0:1;
+  return {w,opts:correctSide===0?[w,d]:[d,w],correctSide,y:0,t:0,resolved:false,fade:[1,1],hit:-1,intro:0};
+}
+// 次の問題は、前の問題の結果を出している間に先に作って描いておく（出す瞬間に重い処理をしない）
+function prepNext(){
+  if(G.nq)return;const q=G.nq=makeQ(),qn=G.qn+1;
+  setTimeout(()=>{try{if(G.nq!==q)return;const {w:W,h:H}=gameSize();if(!W)return;
+    const keep=G.qn;G.qn=qn;panelSprite(q,W,Math.max(78,H*0.16),W-28);G.qn=keep;
+    const ew=Math.min(W*0.42,210),eh=Math.max(66,Math.min(H*0.12,92));
+    podSprite(q,0,ew,eh,SIDE_COL[0].main,SIDE_COL[0].glow,false);podSprite(q,1,ew,eh,SIDE_COL[1].main,SIDE_COL[1].glow,false);}catch(e){}},40);
+}
+function nextQuestion(){
+  const q=G.nq||makeQ();G.nq=null;G.qn++;G.q=q;G.phase="play";
 }
 
 function updateHud(){
@@ -1749,7 +1757,7 @@ function resolve(side,timeout){
     G.shake=tier?7:4;
     sfx(tier?"fast":"hit");
     G.speed=Math.min(G.speed*1.045,0.32);
-    G.phase="after";G.afterT=0;G.afterDur=0.6;
+    G.phase="after";G.afterT=0;G.afterDur=0.6;prepNext();
   }else{
     G.combo=0;G.lives--;bgmSetHype(false);
     if(!G.missed.includes(q.w)) G.missed.push(q.w);
@@ -1758,7 +1766,7 @@ function resolve(side,timeout){
     G.banner={ko:q.w.ko,mean:meaningOf(q.w),t:0};
     G.flash={t:0};G.shake=10;G.shieldHit=1;sfx("miss");
     if(navigator.vibrate) try{navigator.vibrate(120);}catch(e){}
-    G.phase="after";G.afterT=0;G.afterDur=1.7;
+    G.phase="after";G.afterT=0;G.afterDur=1.7;prepNext();
   }
   updateHud();
 }
@@ -2226,7 +2234,7 @@ function panelSprite(q,W,ph,pw){
   x.font="800 10px -apple-system,sans-serif";x.textAlign="left";x.textBaseline="top";x.fillStyle="rgba(179,140,255,0.9)";x.fillText("TARGET #"+G.qn,px+22,py+9);
   x.textAlign="center";x.textBaseline="middle";
   const kw=wrapText(x,q.w.ko,pw-40,1,Math.min(44,ph*0.5),18,"800",KO_FONT);
-  x.font=`800 ${kw.size}px ${KO_FONT}`;x.shadowColor="rgba(179,140,255,0.9)";x.shadowBlur=18;x.fillStyle="#ffffff";x.fillText(kw.lines[0],mid,py+ph*0.47);x.shadowBlur=0;
+  x.font=`800 ${kw.size}px ${KO_FONT}`;x.lineJoin="round";x.strokeStyle="rgba(179,140,255,0.22)";x.lineWidth=12;x.strokeText(kw.lines[0],mid,py+ph*0.47);x.strokeStyle="rgba(179,140,255,0.45)";x.lineWidth=5;x.strokeText(kw.lines[0],mid,py+ph*0.47);x.fillStyle="#ffffff";x.fillText(kw.lines[0],mid,py+ph*0.47);
   x.font="600 12px -apple-system,sans-serif";x.fillStyle="rgba(200,220,255,0.65)";x.fillText(q.w.r||"",mid,py+ph*0.47+kw.size*0.58+8);
   q.pc={key,c,cw,ch,pad};return q.pc;
 }
@@ -2251,8 +2259,8 @@ function podSprite(q,i,ew,eh,main,glow,green){
   x.fillStyle=main;x.fillRect(-5,-eh/2-3.5,10,2);
   x.textAlign="center";x.textBaseline="middle";
   let tx=wrapText(x,meaningOf(q.opts[i]),ew-28,1,20,14,"800");if(tx.cut)tx=wrapText(x,meaningOf(q.opts[i]),ew-28,3,18,11,"800");
-  x.font=`800 ${tx.size}px ${JP_FONT}`;x.fillStyle="#ffffff";x.shadowColor=`rgba(${glow},0.8)`;x.shadowBlur=8;
-  const lh=tx.size*1.2,y0=-(tx.lines.length-1)*lh/2;tx.lines.forEach((l,k)=>x.fillText(l,0,y0+k*lh));
+  x.font=`800 ${tx.size}px ${JP_FONT}`;x.lineJoin="round";x.strokeStyle=`rgba(${glow},0.35)`;x.lineWidth=5;x.fillStyle="#ffffff";
+  const lh=tx.size*1.2,y0=-(tx.lines.length-1)*lh/2;tx.lines.forEach((l,k)=>{x.strokeText(l,0,y0+k*lh);x.fillText(l,0,y0+k*lh);});
   return (q.ps[key]={c,cw,ch});
 }
 function drawPod(ctx,W,H,q,i){
