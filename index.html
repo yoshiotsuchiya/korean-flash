@@ -417,7 +417,7 @@ body{background:#1a1340;min-height:100%}
   <div class="orb orb2"></div>
   <div class="orb orb3"></div>
 </div>
-<div id="loading">読み込み中...</div>
+<div id="loading">…</div>
 <div id="app" style="display:none">
 
 <div id="home" class="screen active">
@@ -450,7 +450,7 @@ body{background:#1a1340;min-height:100%}
   </button>
   <button class="menu-btn match-btn" onclick="openMatch()">
     <div class="icon icon-match">🧩</div>
-    <div style="min-width:0"><div>ペア消し</div><div class="meta" id="match-menu-meta">60秒・スパルタ</div></div>
+    <div style="min-width:0"><div id="match-menu-title">ペア消し</div><div class="meta" id="match-menu-meta">60秒・スパルタ</div></div>
   </button>
   </div>
   <button class="menu-btn vt-btn" onclick="openVTest()">
@@ -569,7 +569,7 @@ body{background:#1a1340;min-height:100%}
     <canvas id="m-fx"></canvas>
     <div id="m-board" class="m-board"></div>
     <div id="m-panel" class="m-panel" style="display:none"></div>
-    <div id="m-pausebox" class="m-pausebox" style="display:none"><div class="m-logo">PAUSE</div><button class="m-big" onclick="mtTogglePause()">▶ 再開</button><button class="m-link" onclick="quitMatch()">やめる</button></div>
+    <div id="m-pausebox" class="m-pausebox" style="display:none"><div class="m-logo">PAUSE</div><button class="m-big" id="m-resume" onclick="mtTogglePause()">▶ 再開</button><button class="m-link" id="m-quit" onclick="quitMatch()">やめる</button></div>
   </div>
 </div>
 
@@ -689,7 +689,7 @@ async function init(){
     const res=await fetch("words.json?v="+Date.now());
     ALL_WORDS=await res.json();
   }catch(e){
-    document.getElementById("loading").textContent="単語データの読み込みに失敗しました";
+    document.getElementById("loading").textContent=xt("loadFail");
     return;
   }
   loadState();
@@ -840,35 +840,35 @@ function resumeSess(mode){
   deck=d;idx=Math.min(before,d.length-1);okCount=ss.ok||0;ngList=(ss.ng||[]).map(k=>map.get(k)).filter(Boolean);undoStack=[];
   showScreen("study");renderCard();return true;
 }
-function sessLabel(mode){const ss=getSess(mode);return ss?"　▶ 続き "+(ss.idx+1)+"/"+ss.keys.length:"";}
+function sessLabel(mode){const ss=getSess(mode);return ss?"　"+xt("cont")+" "+(ss.idx+1)+"/"+ss.keys.length:"";}
 function startNew(){
   isPerfectMode=false;
   const st=curState();
   const filtered=getFiltered();
   let words=filtered.filter(w=>!st.mastered[K(w)]&&!st.weak[K(w)]);
   if(words.length===0) words=filtered.filter(w=>!st.mastered[K(w)]);
-  if(words.length===0){alert("このレベルは全て習得済みです！復習モードをどうぞ");return;}
+  if(words.length===0){alert(xt("noNew"));return;}
   startDeck(words);
 }
 function startMastered(){
   isPerfectMode=false;deckMode="mastered";if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>st.mastered[K(w)]&&!st.perfect[K(w)]);
-  if(words.length===0){alert("一回覚えた単語がまだありません");return;}
+  if(words.length===0){alert(xt("noMastered"));return;}
   startDeck(words);
 }
 function startReview(){
   isPerfectMode=false;deckMode="review";if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>st.weak[K(w)]);
-  if(words.length===0){alert("要復習の単語がありません");return;}
+  if(words.length===0){alert(xt("noWeak"));return;}
   startDeck(words);
 }
 function startAll(){
   isPerfectMode=false;deckMode="all";if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>!st.perfect[K(w)]);
-  if(words.length===0){alert("すべて完璧な単語です！");return;}
+  if(words.length===0){alert(xt("allPerfect"));return;}
   // 未学習（NEW）の単語を先に出し、そのあと学習済みをランダムに
   const isNew=w=>!st.mastered[K(w)]&&!st.weak[K(w)];
   const deckOrder=[...shuffle(words.filter(isNew)),...shuffle(words.filter(w=>!isNew(w)))];
@@ -879,7 +879,7 @@ function startPerfect(){
   deckMode="perfect";isPerfectMode=true;if(resumeSess(deckMode))return;
   const st=curState();
   const words=getFiltered().filter(w=>st.perfect[K(w)]);
-  if(words.length===0){alert("完璧な単語がまだありません");return;}
+  if(words.length===0){alert(xt("noPerfect"));return;}
   isPerfectMode=true;
   startDeck(words);
 }
@@ -1092,10 +1092,9 @@ function showDone(){
   document.getElementById("d-ng").textContent=ngList.length;
   document.getElementById("done-review-btn").disabled=ngList.length===0;
   const allMastered=getFiltered().every(w=>st.mastered[K(w)]);
-  document.getElementById("done-title").textContent=allMastered?"🏆 全部制覇！":"セット完了！";
+  document.getElementById("done-title").textContent=allMastered?t("doneTitlePerfect"):t("doneTitle");
   document.getElementById("done-sub").textContent=
-    allMastered?"全単語習得済み！復習で定着させよう":
-    "覚えた: "+okCount+"語 / 要復習: "+ngList.length+"語";
+    allMastered?t("doneSubPerfect"):xt("doneSub",{ok:okCount,ng:ngList.length});
   showScreen("done");
 }
 
@@ -1215,6 +1214,16 @@ const UI_TEXT={
   }
 };
 
+// ---- 追加の文言（英語・中国語対応）----
+const XT={
+ ja:{noNew:"このレベルは全て習得済みです！復習モードをどうぞ",noMastered:"一回覚えた単語がまだありません",noWeak:"要復習の単語がありません",allPerfect:"すべて完璧な単語です！",noPerfect:"完璧な単語がまだありません",few:"このレベルは単語が少なすぎます",cont:"▶ 続き",loadFail:"単語データの読み込みに失敗しました",doneSub:"覚えた: {ok}語 / 要復習: {ng}語",shareTitle:"韓国語カード バックアップ",
+  m_name:"ペア消し",m_meta:"60秒・スパルタ",m_best60:"60秒 {n}ペア",m_lv:"TOPIK {t}級",m_lvl:"TOPIK {t}級 Lv{l}",m_sub:"{lv}・韓国語と意味のペアをタップ",m_c60:"60秒チャレンジ",m_c60s:"何ペア消せるか",m_sp:"スパルタ{n}",m_spCont:"▶ 続きから {a}/{b}",m_spNew:"全部消すまで終わらない",m_restart:"スパルタを最初からやり直す",m_note:"まちがえた単語は苦手に入り、スパルタでは後でもう一度出ます",m_pairs:"{n} ペア",m_sub60:"60秒チャレンジ・ベスト {n}ペア",m_subSp:"スパルタ{n} クリア！・ベスト {t}",m_newBest:"🏆 自己ベスト更新！",m_missed:"まちがえた単語（苦手に追加済み）",m_nomiss:"✨ ノーミス！",m_again:"もう一度",m_menu:"メニューへ",m_resume:"▶ 再開",m_quit:"やめる",m_logoSub:"ペア消し",m_demo:"愛"},
+ en:{noNew:"You've learned every word in this level! Try review mode.",noMastered:"No words learned once yet",noWeak:"No words to review",allPerfect:"All words are perfect!",noPerfect:"No perfect words yet",few:"Not enough words in this level",cont:"▶ Continue",loadFail:"Failed to load word data",doneSub:"Learned: {ok} / To review: {ng}",shareTitle:"Korean Cards backup",
+  m_name:"Pair Match",m_meta:"60 sec · Spartan",m_best60:"60 sec: {n} pairs",m_lv:"TOPIK {t}",m_lvl:"TOPIK {t} Lv{l}",m_sub:"{lv} · Tap Korean and its meaning",m_c60:"60-Second Challenge",m_c60s:"How many pairs can you clear?",m_sp:"Spartan {n}",m_spCont:"▶ Continue {a}/{b}",m_spNew:"Doesn't end until every pair is cleared",m_restart:"Restart Spartan from the beginning",m_note:"Missed words go to your review list, and in Spartan they come back later",m_pairs:"{n} pairs",m_sub60:"60-Second Challenge · Best {n} pairs",m_subSp:"Spartan {n} cleared! · Best {t}",m_newBest:"🏆 New personal best!",m_missed:"Missed words (added to review list)",m_nomiss:"✨ No misses!",m_again:"Play again",m_menu:"Menu",m_resume:"▶ Resume",m_quit:"Quit",m_logoSub:"PAIR MATCH",m_demo:"love"},
+ zh:{noNew:"本级别的单词已全部掌握！去复习吧",noMastered:"还没有记过一次的单词",noWeak:"没有待复习的单词",allPerfect:"所有单词都已完美！",noPerfect:"还没有完美的单词",few:"该级别单词太少",cont:"▶ 继续",loadFail:"单词数据加载失败",doneSub:"记住了：{ok}个 / 待复习：{ng}个",shareTitle:"韩语卡片 备份",
+  m_name:"配对消除",m_meta:"60秒・斯巴达",m_best60:"60秒 {n}对",m_lv:"TOPIK {t}级",m_lvl:"TOPIK {t}级 Lv{l}",m_sub:"{lv}・点击韩语和对应的意思",m_c60:"60秒挑战",m_c60s:"能消除多少对",m_sp:"斯巴达{n}",m_spCont:"▶ 继续 {a}/{b}",m_spNew:"全部消除才结束",m_restart:"斯巴达从头开始",m_note:"答错的单词会加入待复习，斯巴达模式中稍后会再次出现",m_pairs:"{n} 对",m_sub60:"60秒挑战・最佳 {n}对",m_subSp:"斯巴达{n} 完成！・最佳 {t}",m_newBest:"🏆 刷新个人最佳！",m_missed:"答错的单词（已加入待复习）",m_nomiss:"✨ 零失误！",m_again:"再来一次",m_menu:"返回菜单",m_resume:"▶ 继续",m_quit:"退出",m_logoSub:"配对消除",m_demo:"爱"}
+};
+function xt(k,v){let s=(XT[currentLang]||XT.ja)[k];if(s==null)s=XT.ja[k];if(v)Object.keys(v).forEach(n=>{s=s.split("{"+n+"}").join(v[n]);});return s;}
 function t(key){
   return (UI_TEXT[currentLang]&&UI_TEXT[currentLang][key])||UI_TEXT.ja[key];
 }
@@ -1300,8 +1309,8 @@ init();
 const GAME_KEY="kf_game_v1";
 const G_TEXT={
   ja:{menu:"シューティング",sub:"単語シューティング",best:"ハイスコア",none:"まだ記録なし",howto:"韓国語の正しい意味を撃ち抜け！<br>⚡ 早く撃つほど高得点",ctrl:"画面の左右をタップ（キーボードは ← →）",start:"TAP TO START",over:"ゲームオーバー",record:"🏆 ハイスコア更新！",bestIs:"ハイスコア ",correct:"正解",combo:"最大コンボ",miss:"ミス",missed:"間違えた単語",added:"↑ 苦手リストに追加しました",perfect:"ノーミス！",retry:"もう一度",home:"ホームに戻る",few:"このレベルは単語が少なすぎます",paused:"一時停止中<br>タップで再開",answer:"正解",godspeed:"神速！",quick:"早撃ち！",sec:"秒",fastest:"最速",modeAll:"全部",modeWeak:"苦手だけ（{n}語）",weakModeDesc:"苦手 {n}語だけが出ます",weakModeTitle:"苦手モード（ハイスコア対象外）",graduated:"2回目！",graduatedList:"✌️ 2回以上当てた単語 {n}語（カードで確認して「覚えた」へ）",allClear:"🎓 苦手ぜんぶ卒業！",lives3:"✈ 3機",lives5:"✈ 5機（イージー）",easyNote:"イージー（ハイスコア対象外）"},
-  en:{menu:"Game",sub:"Word Shooter",best:"High score",none:"No record yet",howto:"Shoot the correct meaning!<br>⚡ Faster shots score more",ctrl:"Tap left/right (keyboard: ← →)",start:"TAP TO START",over:"Game Over",record:"🏆 New high score!",bestIs:"High score ",correct:"Correct",combo:"Max combo",miss:"Misses",missed:"Words you missed",added:"↑ Added to your review list",perfect:"No misses!",retry:"Play again",home:"Back to home",few:"Not enough words in this level",paused:"Paused<br>Tap to resume",answer:"Answer",godspeed:"Lightning!",quick:"Quick!",sec:"s",fastest:"Fastest",modeAll:"All words",modeWeak:"Weak only ({n})",weakModeDesc:"Only your {n} weak words",weakModeTitle:"Weak mode (no high score)",graduated:"Twice!",graduatedList:"✌️ Hit twice or more: {n} (confirm with cards)",allClear:"🎓 All weak words cleared!",lives3:"✈ 3 lives",lives5:"✈ 5 lives (easy)",easyNote:"Easy mode (no high score)"},
-  zh:{menu:"游戏",sub:"单词射击",best:"最高分",none:"暂无记录",howto:"击中正确的意思！<br>⚡ 越快得分越高",ctrl:"点击屏幕左右（键盘 ← →）",start:"TAP TO START",over:"游戏结束",record:"🏆 刷新最高分！",bestIs:"最高分 ",correct:"正确",combo:"最大连击",miss:"失误",missed:"答错的单词",added:"↑ 已加入待复习列表",perfect:"零失误！",retry:"再玩一次",home:"返回首页",few:"该级别单词太少",paused:"已暂停<br>点击继续",answer:"正确答案",godspeed:"神速！",quick:"快枪手！",sec:"秒",fastest:"最快",modeAll:"全部",modeWeak:"只练弱项（{n}）",weakModeDesc:"只出 {n} 个弱项单词",weakModeTitle:"弱项模式（不计最高分）",graduated:"第2次！",graduatedList:"✌️ 击中2次以上 {n}个（请用卡片确认）",allClear:"🎓 弱项全部毕业！",lives3:"✈ 3条命",lives5:"✈ 5条命（简单）",easyNote:"简单模式（不计最高分）"}
+  en:{menu:"Shooter",sub:"Word Shooter",best:"High score",none:"No record yet",howto:"Shoot the correct meaning!<br>⚡ Faster shots score more",ctrl:"Tap left/right (keyboard: ← →)",start:"TAP TO START",over:"Game Over",record:"🏆 New high score!",bestIs:"High score ",correct:"Correct",combo:"Max combo",miss:"Misses",missed:"Words you missed",added:"↑ Added to your review list",perfect:"No misses!",retry:"Play again",home:"Back to home",few:"Not enough words in this level",paused:"Paused<br>Tap to resume",answer:"Answer",godspeed:"Lightning!",quick:"Quick!",sec:"s",fastest:"Fastest",modeAll:"All words",modeWeak:"Weak only ({n})",weakModeDesc:"Only your {n} weak words",weakModeTitle:"Weak mode (no high score)",graduated:"Twice!",graduatedList:"✌️ Hit twice or more: {n} (confirm with cards)",allClear:"🎓 All weak words cleared!",lives3:"✈ 3 lives",lives5:"✈ 5 lives (easy)",easyNote:"Easy mode (no high score)"},
+  zh:{menu:"射击",sub:"单词射击",best:"最高分",none:"暂无记录",howto:"击中正确的意思！<br>⚡ 越快得分越高",ctrl:"点击屏幕左右（键盘 ← →）",start:"TAP TO START",over:"游戏结束",record:"🏆 刷新最高分！",bestIs:"最高分 ",correct:"正确",combo:"最大连击",miss:"失误",missed:"答错的单词",added:"↑ 已加入待复习列表",perfect:"零失误！",retry:"再玩一次",home:"返回首页",few:"该级别单词太少",paused:"已暂停<br>点击继续",answer:"正确答案",godspeed:"神速！",quick:"快枪手！",sec:"秒",fastest:"最快",modeAll:"全部",modeWeak:"只练弱项（{n}）",weakModeDesc:"只出 {n} 个弱项单词",weakModeTitle:"弱项模式（不计最高分）",graduated:"第2次！",graduatedList:"✌️ 击中2次以上 {n}个（请用卡片确认）",allClear:"🎓 弱项全部毕业！",lives3:"✈ 3条命",lives5:"✈ 5条命（简单）",easyNote:"简单模式（不计最高分）"}
 };
 function gt(k){return (G_TEXT[currentLang]||G_TEXT.ja)[k]||G_TEXT.ja[k];}
 function meaningOf(w){return currentLang==="en"&&w.en?w.en:(currentLang==="zh"&&w.zh?w.zh:w.jp);}
@@ -2588,7 +2597,7 @@ async function copyBackup(){
 }
 async function shareBackup(){
   const msg=document.getElementById("bk-msg");
-  try{await navigator.share({title:"韓国語カード バックアップ",text:document.getElementById("bk-code").value});msg.classList.remove("err");msg.textContent="";}
+  try{await navigator.share({title:xt("shareTitle"),text:document.getElementById("bk-code").value});msg.classList.remove("err");msg.textContent="";}
   catch(e){if(e&&e.name==="AbortError")return;msg.classList.add("err");msg.textContent=bt("copyFail");}
 }
 function openRestore(){
@@ -2959,7 +2968,8 @@ function updateMatchMenu(){
   const el=$m("match-menu-meta");if(!el)return;
   const r=mtRec(),b=r["60|"+currentTopik];
   const ss=mtGetSess();
-  el.textContent=ss?"▶ 続き "+ss.cleared+"/"+ss.total:(b?"60秒 "+b+"ペア":"60秒・スパルタ");
+  $m("match-menu-title").textContent=xt("m_name");
+  el.textContent=ss?xt("cont")+" "+ss.cleared+"/"+ss.total:(b?xt("m_best60",{n:b}):xt("m_meta"));
 }
 
 // ---- 画面 ----
@@ -2969,7 +2979,7 @@ function mtTogglePause(){
   if(!MT.paused){
     MT.paused=true;MT.pausedAt=now;
     if(MT.mode==="sp"){MT.elapsed=MT.base+(now-MT.t0)/1000;MT.base=MT.elapsed;mtSaveSp();}
-    stopBGM(0.15);$m("m-pausebox").style.display="flex";
+    stopBGM(0.15);$m("m-resume").textContent=xt("m_resume");$m("m-quit").textContent=xt("m_quit");$m("m-pausebox").style.display="flex";
   }else{
     MT.paused=false;
     if(MT.mode==="sp")MT.t0=now;else MT.t0+=now-MT.pausedAt;
@@ -2989,18 +2999,18 @@ function mtMenu(){
   if(BGM.song==="match")stopBGM(0.3);
   const r=mtRec(),b60=r["60|"+currentTopik]||0,n=mtSpCount(),spb=r["sp|"+mtSpId()];
   const ss=mtGetSess();
-  const lvTxt=currentLevel==="all"?"TOPIK "+currentTopik+"級":"TOPIK "+currentTopik+"級 Lv"+currentLevel;
+  const lvTxt=currentLevel==="all"?xt("m_lv",{t:currentTopik}):xt("m_lvl",{t:currentTopik,l:currentLevel});
   $m("m-hud").style.visibility="hidden";
   $m("m-board").innerHTML="";
   $m("m-panel").style.display="flex";
   $m("match").classList.remove("fever");
-  $m("m-panel").innerHTML=`<div class="m-demo"><span class="ko">사랑</span><i></i><span class="jp">愛</span></div>
-    <div class="m-logo">PAIR MATCH</div><div class="m-logo-sub">ペア消し</div>
-    <div class="m-sub">${esc(lvTxt)}・韓国語と意味のペアをタップ</div>
-    <button class="m-card c60" onclick="mtStart('60')"><span class="ic">⏱</span><span><b>60秒チャレンジ</b><small>何ペア消せるか</small></span>${b60?`<span class="best">BEST<strong>${b60}</strong></span>`:""}</button>
-    <button class="m-card csp" onclick="mtStart('sp')" ${n<MT_ROWS?"disabled":""}><span class="ic">🔥</span><span><b>スパルタ${n}</b><small>${ss?"▶ 続きから "+ss.cleared+"/"+ss.total:"全部消すまで終わらない"}</small></span>${spb?`<span class="best">BEST<strong>${mtFmt(spb)}</strong></span>`:""}</button>
-    ${ss?`<button class="m-link" onclick="mtStart('sp',true)">スパルタを最初からやり直す</button>`:""}
-    <div class="m-note">まちがえた単語は苦手に入り、スパルタでは後でもう一度出ます</div>`;
+  $m("m-panel").innerHTML=`<div class="m-demo"><span class="ko">사랑</span><i></i><span class="jp">${xt("m_demo")}</span></div>
+    <div class="m-logo">PAIR MATCH</div><div class="m-logo-sub">${xt("m_logoSub")}</div>
+    <div class="m-sub">${esc(xt("m_sub",{lv:lvTxt}))}</div>
+    <button class="m-card c60" onclick="mtStart('60')"><span class="ic">⏱</span><span><b>${xt("m_c60")}</b><small>${xt("m_c60s")}</small></span>${b60?`<span class="best">BEST<strong>${b60}</strong></span>`:""}</button>
+    <button class="m-card csp" onclick="mtStart('sp')" ${n<MT_ROWS?"disabled":""}><span class="ic">🔥</span><span><b>${xt("m_sp",{n})}</b><small>${ss?xt("m_spCont",{a:ss.cleared,b:ss.total}):xt("m_spNew")}</small></span>${spb?`<span class="best">BEST<strong>${mtFmt(spb)}</strong></span>`:""}</button>
+    ${ss?`<button class="m-link" onclick="mtStart('sp',true)">${xt("m_restart")}</button>`:""}
+    <div class="m-note">${xt("m_note")}</div>`;
 }
 function quitMatch(){
   if(MT.active&&MT.mode==="sp"&&!MT.paused)mtSaveSp();
@@ -3024,7 +3034,7 @@ function mtTake(){
 }
 function mtStart(mode,fresh){
   const pool=mtPool();
-  if(pool.length<MT_ROWS){alert("このレベルは単語が少なすぎます");return;}
+  if(pool.length<MT_ROWS){alert(xt("few"));return;}
   audioUnlock();
   const run=++MT.run;
   Object.assign(MT,{mode,active:true,pool,queue:[],L:new Array(MT_ROWS).fill(null),R:new Array(MT_ROWS).fill(null),sel:null,
@@ -3226,10 +3236,10 @@ function mtFinish(){
   const r=mtRec();let best=false,main="",sub="";
   if(MT.mode==="60"){
     const k="60|"+currentTopik;best=MT.pairs>(r[k]||0);if(best)r[k]=MT.pairs;
-    main=MT.pairs+" ペア";sub="60秒チャレンジ・ベスト "+(r[k]||0)+"ペア";mtSfx(best?"win":"end");
+    main=xt("m_pairs",{n:MT.pairs});sub=xt("m_sub60",{n:r[k]||0});mtSfx(best?"win":"end");
   }else{
     const k="sp|"+mtSpId();best=!r[k]||MT.elapsed<r[k];if(best)r[k]=Math.round(MT.elapsed);
-    main=mtFmt(MT.elapsed);sub="スパルタ"+MT.total+" クリア！・ベスト "+mtFmt(r[k]);mtSfx("win");
+    main=mtFmt(MT.elapsed);sub=xt("m_subSp",{n:MT.total,t:mtFmt(r[k])});mtSfx("win");
     const all=mtSessAll();delete all[mtSpId()];try{localStorage.setItem(MT_SESS,JSON.stringify(all));}catch(e){}
   }
   mtSaveRec(r);
@@ -3241,12 +3251,12 @@ function mtFinish(){
   const p=$m("m-panel");p.style.display="flex";
   p.innerHTML=`<div class="m-rank ${rank}">${rank}</div><div class="m-rank-lbl">RANK</div>
     <div class="m-res-main">${esc(main)}</div>
-    ${best?'<div class="m-best">🏆 自己ベスト更新！</div>':""}
+    ${best?`<div class="m-best">${xt("m_newBest")}</div>`:""}
     <div class="m-stats"><div class="m-stat"><b>${MT.mode==="60"?MT.pairs:MT.total}</b><span>PAIRS</span></div><div class="m-stat"><b>${MT.maxCombo}</b><span>MAX COMBO</span></div><div class="m-stat"><b>${miss}</b><span>MISS</span></div></div>
     <div class="m-sub">${esc(sub)}</div>
-    ${miss?`<div class="m-missed"><h4>まちがえた単語（苦手に追加済み）</h4>${MT.missed.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("")}</div>`:'<div class="m-sub">✨ ノーミス！</div>'}
-    <button class="m-big" onclick="mtStart('${MT.mode}')">もう一度</button>
-    <button class="m-link" onclick="mtMenu()">メニューへ</button>`;
+    ${miss?`<div class="m-missed"><h4>${xt("m_missed")}</h4>${MT.missed.map(w=>`<div class="row"><b>${esc(w.ko)}</b><span>${esc(meaningOf(w))}</span></div>`).join("")}</div>`:`<div class="m-sub">${xt("m_nomiss")}</div>`}
+    <button class="m-big" onclick="mtStart('${MT.mode}')">${xt("m_again")}</button>
+    <button class="m-link" onclick="mtMenu()">${xt("m_menu")}</button>`;
   if(rank==="S"||rank==="A")setTimeout(()=>{const el=p.querySelector(".m-rank");if(!el)return;const c=mfxPos(el);["255,226,122","94,242,255","255,110,199"].forEach(col=>mfxBurst(c,col,18));mfxRing(c,"255,226,122");},350);
 }
 document.addEventListener("visibilitychange",()=>{
