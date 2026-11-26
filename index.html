@@ -1669,6 +1669,7 @@ function startGame(){
   audioUnlock();updateSoundBtn();stopBGM(0.1);try{ensureBGMBuf("shoot");}catch(e){}
   setTimeout(updatePauseBtn,0);
   if(gameMode==="weak"&&gamePool("weak").length<1)gameMode="all";
+  freeQ(G.q);freeQ(G.nq);
   const pool=gamePool(gameMode);
   if(pool.length<(gameMode==="weak"?1:2)){alert(gt("few"));return;}
   Object.assign(G,{
@@ -1723,7 +1724,7 @@ function prepNext(){
     podSprite(q,0,ew,eh,SIDE_COL[0].main,SIDE_COL[0].glow,false);podSprite(q,1,ew,eh,SIDE_COL[1].main,SIDE_COL[1].glow,false);}catch(e){}},40);
 }
 function nextQuestion(){
-  const q=G.nq||makeQ();G.nq=null;G.qn++;G.q=q;G.phase="play";
+  const q=G.nq||makeQ();G.nq=null;G.qn++;if(G.q&&G.q!==q)freeQ(G.q);G.q=q;G.phase="play";
 }
 
 function updateHud(){
@@ -1790,7 +1791,7 @@ function explode(p,color,power){
 }
 
 function endGame(){
-  G.phase="over";stopBGM(0.6);sfx("over");
+  G.phase="over";stopBGM(0.6);sfx("over");freeQ(G.q);freeQ(G.nq);G.q=null;G.nq=null;freeGameCaches();
   // 間違えた単語を苦手リストへ
   const st=curState();
   G.missed.forEach(w=>{st.weak[K(w)]=(st.weak[K(w)]||0)+1;delete st.mastered[K(w)];delete st.perfect[K(w)];});
@@ -1827,7 +1828,7 @@ function togglePauseGame(){
   updatePauseBtn();
 }
 function updatePauseBtn(){const b=document.getElementById("g-pause");if(b)b.textContent=G.paused?"▶":"⏸";}
-function quitGame(){G.phase="quit";stopBGM(0.2);goHome();}
+function quitGame(){G.phase="quit";stopBGM(0.2);freeQ(G.q);freeQ(G.nq);G.q=null;G.nq=null;freeGameCaches();goHome();}
 
 // ===================== 描画 =====================
 function gameSize(){const c=document.getElementById("game-canvas");return {w:c.clientWidth,h:c.clientHeight};}
@@ -1950,6 +1951,10 @@ const STAGES=[
 const HYPER=8;
 function stageFor(score){let s=0;for(let i=0;i<STAGES.length;i++)if(score>=STAGES[i].at)s=i;return s;}
 function mkCanvas(w,h){const c=document.createElement("canvas");c.width=w;c.height=h;return c;}
+// iPhoneは使い終わったキャンバスのメモリをすぐ返さず、溜まると落ちる。使い終わったら0サイズにして即解放する。
+function freeCanvas(c){if(c&&c.width){c.width=0;c.height=0;}}
+function freeQ(q){if(!q)return;if(q.pc){freeCanvas(q.pc.c);q.pc=null;}if(q.ps){for(const k in q.ps)freeCanvas(q.ps[k].c);q.ps=null;}}
+function freeGameCaches(){for(const k in GC.sky)freeCanvas(GC.sky[k]);GC.sky={};GC.ship.forEach(s=>s&&freeCanvas(s.c));GC.ship=[];GC.shipKey="";}
 // 雲のスプライト（毎フレーム描くと重いので最初に1回だけ作る）
 function makeCloud(tint,seed){
   const c=mkCanvas(320,140),x=c.getContext("2d");let r=seed;
@@ -2071,7 +2076,7 @@ const STAGE_SKY=[skyDawn,skySunset,skyCity,skyAurora,skyStorm,skySpace,skyGalaxy
 function floorBase(x,W,H,rgb){const hz=H*DANGER_Y;x.fillStyle="rgba(10,4,30,0.55)";x.fillRect(0,hz,W,H-hz);const fg=x.createLinearGradient(0,hz,0,H);fg.addColorStop(0,`rgba(${rgb},0.22)`);fg.addColorStop(1,"rgba(20,8,50,0.55)");x.fillStyle=fg;x.fillRect(0,hz,W,H-hz);}
 function skyCache(st,W,H){
   const key=st+"|"+Math.round(W)+"|"+Math.round(H);let c=GC.sky[key];if(c)return c;
-  if(Object.keys(GC.sky).length>12)GC.sky={};
+  if(Object.keys(GC.sky).length>3){for(const k in GC.sky)freeCanvas(GC.sky[k]);GC.sky={};}
   c=mkCanvas(Math.max(1,Math.round(W)),Math.max(1,Math.round(H)));const x=c.getContext("2d");
   STAGE_SKY[st](x,W,H);floorBase(x,W,H,st===HYPER?"230,230,255":STAGES[st].floor);
   GC.sky[key]=c;return c;
@@ -2381,7 +2386,7 @@ function drawShip3D(ctx,cx,cy,k,bank,t){
 // 自機は傾き13段階ぶんを最初に描いて保存しておき、毎回は貼るだけ
 function shipSprite(bank,k){
   const dpr=gDpr(),N=13,idx=Math.max(0,Math.min(N-1,Math.round((bank+1)/2*(N-1)))),key=k.toFixed(3)+"|"+dpr;
-  if(GC.shipKey!==key){GC.ship=[];GC.shipKey=key;}
+  if(GC.shipKey!==key){GC.ship.forEach(s=>s&&freeCanvas(s.c));GC.ship=[];GC.shipKey=key;}
   if(!GC.ship[idx]){const S=Math.ceil(64*k),c=mkCanvas(Math.ceil(S*2*dpr),Math.ceil(S*2*dpr)),x=c.getContext("2d");x.scale(dpr,dpr);drawShip3D(x,S,S,k,idx/(N-1)*2-1,0);GC.ship[idx]={c,S};}
   return GC.ship[idx];
 }
